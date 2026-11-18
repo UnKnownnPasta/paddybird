@@ -111,7 +111,7 @@ add(BODY('This is a measurement and extension of the usual map-only practice, no
 
 // ---------------- 2 Literature (kept short, template heading) ----------------
 add(H1('2. Literature Review'));
-add(P('Flood extent from SAR is commonly obtained by choosing a backscatter threshold that separates water from land, either with Otsu\'s method [1] or with minimum-error thresholding [2]. Learned models trained on labelled chips, such as Sen1Floods11 [3] and Kuro Siwo [4], are usually compared with such thresholds. These studies report pixel-level scores. They do not turn a map into a per-unit number with an uncertainty, and they do not say where to collect more ground evidence. Survey sampling offers the missing tools: stratification, inclusion probabilities and weighted estimators [8], and more recently estimators that combine model predictions with a small labelled sample [9]. Field planning with travel time is an orienteering problem [10] on a road graph [11]. Floods change road travel times, so a plan made on the dry road map can overrun the day. We test this on a real road graph in Section 4.'));
+add(P('Flood extent from SAR is commonly obtained by choosing a backscatter threshold that separates water from land, either with Otsu\'s method [1] or with minimum-error thresholding [2]. Learned models are trained on labelled chip datasets such as Sen1Floods11 [3] and the larger Kuro Siwo [4], and Sen1Floods11 reports Otsu thresholding as a baseline [3]. These studies report pixel-level scores. They do not turn a map into a per-unit number with an uncertainty, and they do not say where to collect more ground evidence. Survey sampling offers the missing tools: stratification, inclusion probabilities and weighted estimators [8], and more recently estimators that combine model predictions with a small labelled sample [9]. Field planning with travel time is an orienteering problem [10] on a road graph [11]. Floods change road travel times, so a plan made on the dry road map can overrun the day. We test this on a real road graph in Section 4.'));
 
 // ---------------- 3 Case and Methodology ----------------
 add(H1('3. Case and Methodology'));
@@ -225,7 +225,7 @@ add(BODY('Checks help once there are enough of them. Between about 12 and 32 che
 add(LEAD('What planning adds'));
 add(BODY('Choosing checks by expected drop in wrong calls helped most at moderate budgets, and flood-aware routing helped most when the flooded roads actually changed the best route. The two plain baselines were close at the extremes. We read this as an effect of how planning is evaluated: gains show up where budgets are tight and roads are cut.'));
 add(LEAD('Link to related work'));
-add(BODY('Like the pixel-level studies [3, 4], we find thresholding is a hard baseline to beat on some measures. Our contribution is the step after the map, which those studies do not cover. The comparison is indirect, because they report pixel scores and we report unit calls.'));
+add(BODY('Like the Sen1Floods11 authors [3], we find that simple thresholding is a hard baseline to beat on some measures. Our contribution is the step after the map, which the dataset papers [3, 4] do not cover. The comparison is indirect, because they report pixel scores and we report unit calls.'));
 
 // ---------------- 6 Limitations ----------------
 add(H1('6. Limitations'));
@@ -255,11 +255,11 @@ add(H1('References'));
 const refs = [
   'Otsu N. A threshold selection method from gray-level histograms. IEEE Transactions on Systems, Man, and Cybernetics. 1979; 9(1): 62-66.',
   'Kittler J, Illingworth J. Minimum error thresholding. Pattern Recognition. 1986; 19(1): 41-47.',
-  'Bonafilia D, Tellman B, Anderson T, Issenberg E. Sen1Floods11: a georeferenced dataset to train and test deep learning flood algorithms for Sentinel-1. Proceedings of the IEEE/CVF CVPR Workshops. 2020.',
-  'Bountos N I, et al. Kuro Siwo: a large-scale SAR flood mapping dataset. arXiv preprint. 2023.',
-  'Zanaga D, et al. ESA WorldCover 10 m 2021 v200. Zenodo. 2022.',
+  'Bonafilia D, Tellman B, Anderson T, Issenberg E. Sen1Floods11: a georeferenced dataset to train and test deep learning flood algorithms for Sentinel-1. Proceedings of the IEEE/CVF CVPR Workshops. 2020: 835-845. https://doi.org/10.1109/CVPRW50498.2020.00113',
+  'Bountos N I, Sdraka M, Zavras A, et al. Kuro Siwo: 33 billion m2 under the water. A global multi-temporal satellite dataset for rapid flood mapping. Advances in Neural Information Processing Systems (NeurIPS 2024). arXiv:2311.12056.',
+  'Zanaga D, et al. ESA WorldCover 10 m 2021 v200. Zenodo. 2022. https://doi.org/10.5281/zenodo.7254221',
   'Pekel J F, Cottam A, Gorelick N, Belward A S. High-resolution mapping of global surface water and its long-term changes. Nature. 2016; 540: 418-422.',
-  'Guo C, Pleiss G, Sun Y, Weinberger K Q. On calibration of modern neural networks. Proceedings of the 34th ICML. 2017.',
+  'Guo C, Pleiss G, Sun Y, Weinberger K Q. On calibration of modern neural networks. Proceedings of the 34th International Conference on Machine Learning (ICML), PMLR 70. 2017: 1321-1330.',
   'Horvitz D G, Thompson D J. A generalization of sampling without replacement from a finite universe. Journal of the American Statistical Association. 1952; 47(260): 663-685.',
   'Angelopoulos A N, Bates S, Fannjiang C, Jordan M I, Zrnic T. Prediction-powered inference. Science. 2023; 382: 669-674.',
   'Golden B L, Levy L, Vohra R. The orienteering problem. Naval Research Logistics. 1987; 34(3): 307-318.',
