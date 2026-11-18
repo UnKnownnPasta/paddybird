@@ -1,5 +1,7 @@
 # Paddybird research archive
 
+> **Read this first.** These notes were written during the earlier prototype (EvidEO, later Paddybird v1) and are kept as a reading record. File paths in them (for example `training/` or `backend/`), references to numbered "runs", and advice to abstain below a confidence threshold are historical: those files are no longer in this repository, and Paddybird now gives every unit a call with a confidence instead of abstaining. The summaries are in our own words, with links to the source papers; no paper text or PDFs are included.
+
 A verified, annotated archive of research that shapes Paddybird. One file per paper in [`papers/`](papers/), each saying what the paper is and what it means for this project (what to adopt, avoid or beat). The machine-readable index is [`index.csv`](index.csv).
 
 ## Rules
@@ -9,8 +11,7 @@ A verified, annotated archive of research that shapes Paddybird. One file per pa
 - Front matter: `id, title, authors, year, venue, link, code, category, era, tags, verified, takeaway`.
 - Sections: Problem, Approach, Data and benchmarks, Key results, Limitations, What it means for Paddybird.
 - Own words only, no long quotes, no PDFs committed (links only).
-- Numbers come from the paper's tables and body text, not its abstract. Any figure used in `paper/paddybird.tex`, `SOLUTION.md` or `NOVELTY.md` must name where it was found (table or section) in the entry. An entry whose `verified` field says abstract or metadata only is a lead, not a source: do not quote its numbers in the paper. Check whether a gain is in points or relative, and whether a venue is peer reviewed or an arXiv preprint. Pass log: `docs/verification/paper_pass_50.md`.
-- `era`: historical (before 2020), recent (2020 to 2026, published), upcoming (2026 preprints, challenges, announced datasets).
+- Numbers come from the paper's tables and body text, not its abstract. Any figure used in a paper or report must name where it was found (table or section) in the entry. An entry whose `verified` field says abstract or metadata only is a lead, not a source: do not quote its numbers in the paper. Check whether a gain is in points or relative, and whether a venue is peer reviewed or an arXiv preprint.- `era`: historical (before 2020), recent (2020 to 2026, published), upcoming (2026 preprints, challenges, announced datasets).
 - After adding papers, run `python tools/build_index.py` to regenerate `index.csv` and the catalog below. It fails on duplicate IDs or titles.
 
 ## Categories
