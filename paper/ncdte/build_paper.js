@@ -88,7 +88,7 @@ const body = [];
 const add = (...x) => body.push(...x);
 
 // ---------------- title block ----------------
-add(C(`How many wrong calls does a flood map leave, and how many can a few routed field checks remove? Flooded-cropland estimation per unit on flood events not used for fitting`, { size: 28, bold: true, after: 200 }));
+add(C(`Paddybird: Estimating Flooded Cropland per Unit from Radar Maps and Field Checks`, { size: 28, bold: true, after: 200 }));
 add(C(`**Authors:** Sai Bhuwan S*, Nikhil S Rao, Yashita Murlidhar Mandavilli, Shashwat Mittal`, { size: 22, italics: true, after: 40 }));
 add(C(`**Affiliation:** Undergraduate Students (B.E., Computer Science and Engineering), RV Institute of Technology and Management, Bengaluru, Karnataka, India`, { size: 22, italics: true, after: 40 }));
 add(C(`**Under the guidance of:** Mr. S Murugan, Assistant Professor, Department of Computer Science and Engineering, RV Institute of Technology and Management, Bengaluru, Karnataka, India`, { size: 22, italics: true, after: 40 }));
