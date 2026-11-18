@@ -1,0 +1,1330 @@
+{
+ "B01": {
+  "unit_id": "B01",
+  "name": "Barpeta pseudo-unit 01",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.33461347222328186,
+  "s": 0.06209099414269121,
+  "range95": [
+   0.2129151237036071,
+   0.4563118207429566
+  ],
+  "P_u": 0.9135167279660625,
+  "p_call_right": 0.9135167279660625,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 01: flooded paddy share 33.5% (95% range 21.3% to 45.6%). Call: above the 25% loss line. Probability the call is right: 0.91.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B01",
+    "theta": 0.334613,
+    "s": 0.062091,
+    "P_u": 0.913517,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3346,
+    "P_u": 0.9135,
+    "p_call_right": 0.9135,
+    "range95": [
+     0.2129,
+     0.4563
+    ]
+   },
+   "output_hash": "55c24493a9b6e82e7a93f719fb41b345ee85e387ea02be288078426242393f41",
+   "receipt_id": "800a49c679b0c2bb"
+  },
+  "receipt_id": "800a49c679b0c2bb"
+ },
+ "B02": {
+  "unit_id": "B02",
+  "name": "Barpeta pseudo-unit 02",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.26042672991752625,
+  "s": 0.06263982869655356,
+  "range95": [
+   0.13765266567228127,
+   0.3832007941627712
+  ],
+  "P_u": 0.5661006613060551,
+  "p_call_right": 0.5661006613060551,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 02: flooded paddy share 26.0% (95% range 13.8% to 38.3%). Call: above the 25% loss line. Probability the call is right: 0.57.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B02",
+    "theta": 0.260427,
+    "s": 0.06264,
+    "P_u": 0.566101,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.2604,
+    "P_u": 0.5661,
+    "p_call_right": 0.5661,
+    "range95": [
+     0.1377,
+     0.3832
+    ]
+   },
+   "output_hash": "5aec715ebd6a496aaf3b1f30e067a12bf2296961f1251dd4d779d3e86c10b8e2",
+   "receipt_id": "fb14d77239f822ad"
+  },
+  "receipt_id": "fb14d77239f822ad"
+ },
+ "B03": {
+  "unit_id": "B03",
+  "name": "Barpeta pseudo-unit 03",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.42707568407058716,
+  "s": 0.06089488536591691,
+  "range95": [
+   0.30772170875339,
+   0.5464296593877843
+  ],
+  "P_u": 0.9981806238045958,
+  "p_call_right": 0.9981806238045958,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 03: flooded paddy share 42.7% (95% range 30.8% to 54.6%). Call: above the 25% loss line. Probability the call is right: 1.00.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B03",
+    "theta": 0.427076,
+    "s": 0.060895,
+    "P_u": 0.998181,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.4271,
+    "P_u": 0.9982,
+    "p_call_right": 0.9982,
+    "range95": [
+     0.3077,
+     0.5464
+    ]
+   },
+   "output_hash": "43c560953f09d2f99e7c31a91a9bc3fe2121a9d234e9e4fb2109607c74223ec0",
+   "receipt_id": "6d6ce0fd22d2f44f"
+  },
+  "receipt_id": "6d6ce0fd22d2f44f"
+ },
+ "B04": {
+  "unit_id": "B04",
+  "name": "Barpeta pseudo-unit 04",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.41449975967407227,
+  "s": 0.06033444146298287,
+  "range95": [
+   0.29624425440662583,
+   0.5327552649415187
+  ],
+  "P_u": 0.9967991656140489,
+  "p_call_right": 0.9967991656140489,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 04: flooded paddy share 41.4% (95% range 29.6% to 53.3%). Call: above the 25% loss line. Probability the call is right: 1.00.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B04",
+    "theta": 0.4145,
+    "s": 0.060334,
+    "P_u": 0.996799,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.4145,
+    "P_u": 0.9968,
+    "p_call_right": 0.9968,
+    "range95": [
+     0.2962,
+     0.5328
+    ]
+   },
+   "output_hash": "3458ef66df3f68287442d492c827713ce66a49f85c34cbe21a27ce377dcefc86",
+   "receipt_id": "7d4a10bcfd22e779"
+  },
+  "receipt_id": "7d4a10bcfd22e779"
+ },
+ "B05": {
+  "unit_id": "B05",
+  "name": "Barpeta pseudo-unit 05",
+  "call": "below",
+  "tau": 0.25,
+  "theta": 0.19774268567562103,
+  "s": 0.05995814134032186,
+  "range95": [
+   0.08022472864859019,
+   0.31526064270265186
+  ],
+  "P_u": 0.19172333509282963,
+  "p_call_right": 0.8082766649071704,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 05: flooded paddy share 19.8% (95% range 8.0% to 31.5%). Call: below the 25% loss line. Probability the call is right: 0.81.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B05",
+    "theta": 0.197743,
+    "s": 0.059958,
+    "P_u": 0.191723,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "below",
+    "theta": 0.1977,
+    "P_u": 0.1917,
+    "p_call_right": 0.8083,
+    "range95": [
+     0.0802,
+     0.3153
+    ]
+   },
+   "output_hash": "2808a2878d6d8c4b4df2dd25cb6e3e4fa19dfaad5931228d2b5743df733ec866",
+   "receipt_id": "c070a6278b4ffe80"
+  },
+  "receipt_id": "c070a6278b4ffe80"
+ },
+ "B06": {
+  "unit_id": "B06",
+  "name": "Barpeta pseudo-unit 06",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.3202134072780609,
+  "s": 0.06045379619175673,
+  "range95": [
+   0.2017239667422177,
+   0.4387028478139041
+  ],
+  "P_u": 0.8772683276319193,
+  "p_call_right": 0.8772683276319193,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 06: flooded paddy share 32.0% (95% range 20.2% to 43.9%). Call: above the 25% loss line. Probability the call is right: 0.88.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B06",
+    "theta": 0.320213,
+    "s": 0.060454,
+    "P_u": 0.877268,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3202,
+    "P_u": 0.8773,
+    "p_call_right": 0.8773,
+    "range95": [
+     0.2017,
+     0.4387
+    ]
+   },
+   "output_hash": "345ef541a79e70c4cea5128643c9cb713c15a8f945d66063420fa38ede8042e2",
+   "receipt_id": "56ec7338f4db54b2"
+  },
+  "receipt_id": "56ec7338f4db54b2"
+ },
+ "B07": {
+  "unit_id": "B07",
+  "name": "Barpeta pseudo-unit 07",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.47229117155075073,
+  "s": 0.060570515761386,
+  "range95": [
+   0.3535729606584342,
+   0.5910093824430673
+  ],
+  "P_u": 0.9998787042321445,
+  "p_call_right": 0.9998787042321445,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 07: flooded paddy share 47.2% (95% range 35.4% to 59.1%). Call: above the 25% loss line. Probability the call is right: 1.00.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B07",
+    "theta": 0.472291,
+    "s": 0.060571,
+    "P_u": 0.999879,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.4723,
+    "P_u": 0.9999,
+    "p_call_right": 0.9999,
+    "range95": [
+     0.3536,
+     0.591
+    ]
+   },
+   "output_hash": "4358ef5adeaaa671152d47488ffb81871062e22b0b3f4c8ade1a9a68a462bc64",
+   "receipt_id": "4bb85c15cd6bbae9"
+  },
+  "receipt_id": "4bb85c15cd6bbae9"
+ },
+ "B08": {
+  "unit_id": "B08",
+  "name": "Barpeta pseudo-unit 08",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.45878779888153076,
+  "s": 0.061231145194863675,
+  "range95": [
+   0.33877475429959797,
+   0.5788008434634636
+  ],
+  "P_u": 0.9996749831388471,
+  "p_call_right": 0.9996749831388471,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 08: flooded paddy share 45.9% (95% range 33.9% to 57.9%). Call: above the 25% loss line. Probability the call is right: 1.00.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B08",
+    "theta": 0.458788,
+    "s": 0.061231,
+    "P_u": 0.999675,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.4588,
+    "P_u": 0.9997,
+    "p_call_right": 0.9997,
+    "range95": [
+     0.3388,
+     0.5788
+    ]
+   },
+   "output_hash": "4200f0c7c04f3bed7559c1ee9cb3c5b98070e878f74b1143fe4e12c04d905d0a",
+   "receipt_id": "92029dbce971e1f1"
+  },
+  "receipt_id": "92029dbce971e1f1"
+ },
+ "B09": {
+  "unit_id": "B09",
+  "name": "Barpeta pseudo-unit 09",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.287164568901062,
+  "s": 0.062305656758351,
+  "range95": [
+   0.16504548165469407,
+   0.40928365614742995
+  ],
+  "P_u": 0.7245753247750382,
+  "p_call_right": 0.7245753247750382,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 09: flooded paddy share 28.7% (95% range 16.5% to 40.9%). Call: above the 25% loss line. Probability the call is right: 0.72.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B09",
+    "theta": 0.287165,
+    "s": 0.062306,
+    "P_u": 0.724575,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.2872,
+    "P_u": 0.7246,
+    "p_call_right": 0.7246,
+    "range95": [
+     0.165,
+     0.4093
+    ]
+   },
+   "output_hash": "835d84c9f7999586eb881f2ed54a12afe7b6a08d3ac45d0181fd0104cb524c12",
+   "receipt_id": "f9fe950fe3dab7f4"
+  },
+  "receipt_id": "f9fe950fe3dab7f4"
+ },
+ "B10": {
+  "unit_id": "B10",
+  "name": "Barpeta pseudo-unit 10",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.3926795423030853,
+  "s": 0.06189359025201381,
+  "range95": [
+   0.27136810540913825,
+   0.5139909791970324
+  ],
+  "P_u": 0.9894234150615434,
+  "p_call_right": 0.9894234150615434,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 10: flooded paddy share 39.3% (95% range 27.1% to 51.4%). Call: above the 25% loss line. Probability the call is right: 0.99.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B10",
+    "theta": 0.39268,
+    "s": 0.061894,
+    "P_u": 0.989423,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3927,
+    "P_u": 0.9894,
+    "p_call_right": 0.9894,
+    "range95": [
+     0.2714,
+     0.514
+    ]
+   },
+   "output_hash": "46b512dea8112fd975406bcce0c1fd324a72c9fed62efcd1029f67216c815039",
+   "receipt_id": "3992c9c48c07fcbb"
+  },
+  "receipt_id": "3992c9c48c07fcbb"
+ },
+ "B11": {
+  "unit_id": "B11",
+  "name": "Barpeta pseudo-unit 11",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.34270015358924866,
+  "s": 0.0613151163513006,
+  "range95": [
+   0.22252252554069948,
+   0.4628777816377978
+  ],
+  "P_u": 0.9347158438061389,
+  "p_call_right": 0.9347158438061389,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 11: flooded paddy share 34.3% (95% range 22.3% to 46.3%). Call: above the 25% loss line. Probability the call is right: 0.93.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B11",
+    "theta": 0.3427,
+    "s": 0.061315,
+    "P_u": 0.934716,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3427,
+    "P_u": 0.9347,
+    "p_call_right": 0.9347,
+    "range95": [
+     0.2225,
+     0.4629
+    ]
+   },
+   "output_hash": "4f96638ea5ea3682c66a30c4646d8a2e3ea2e8ed9ea71f7558d414a586630838",
+   "receipt_id": "d30d6d4cbc8d1749"
+  },
+  "receipt_id": "d30d6d4cbc8d1749"
+ },
+ "B12": {
+  "unit_id": "B12",
+  "name": "Barpeta pseudo-unit 12",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.4529786705970764,
+  "s": 0.06156758627809216,
+  "range95": [
+   0.3323062014920158,
+   0.5736511397021371
+  ],
+  "P_u": 0.9995111094246217,
+  "p_call_right": 0.9995111094246217,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 12: flooded paddy share 45.3% (95% range 33.2% to 57.4%). Call: above the 25% loss line. Probability the call is right: 1.00.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B12",
+    "theta": 0.452979,
+    "s": 0.061568,
+    "P_u": 0.999511,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.453,
+    "P_u": 0.9995,
+    "p_call_right": 0.9995,
+    "range95": [
+     0.3323,
+     0.5737
+    ]
+   },
+   "output_hash": "80650d579f9295ce9c97a79a0b5a62561c79a53c51dba8e069b1c63687e61873",
+   "receipt_id": "92231ae744da9405"
+  },
+  "receipt_id": "92231ae744da9405"
+ },
+ "B13": {
+  "unit_id": "B13",
+  "name": "Barpeta pseudo-unit 13",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.3422222435474396,
+  "s": 0.06469881016151018,
+  "range95": [
+   0.21541257563087962,
+   0.46903191146399953
+  ],
+  "P_u": 0.9229804452232862,
+  "p_call_right": 0.9229804452232862,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 13: flooded paddy share 34.2% (95% range 21.5% to 46.9%). Call: above the 25% loss line. Probability the call is right: 0.92.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B13",
+    "theta": 0.342222,
+    "s": 0.064699,
+    "P_u": 0.92298,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3422,
+    "P_u": 0.923,
+    "p_call_right": 0.923,
+    "range95": [
+     0.2154,
+     0.469
+    ]
+   },
+   "output_hash": "6268754de6036a27b2f71b67203b949f6139739db1a4ee8040a89384a931a4c7",
+   "receipt_id": "356d104efa295e59"
+  },
+  "receipt_id": "356d104efa295e59"
+ },
+ "B14": {
+  "unit_id": "B14",
+  "name": "Barpeta pseudo-unit 14",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.39808738231658936,
+  "s": 0.06181589956207446,
+  "range95": [
+   0.27692821917492344,
+   0.5192465454582553
+  ],
+  "P_u": 0.9917038505692726,
+  "p_call_right": 0.9917038505692726,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 14: flooded paddy share 39.8% (95% range 27.7% to 51.9%). Call: above the 25% loss line. Probability the call is right: 0.99.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B14",
+    "theta": 0.398087,
+    "s": 0.061816,
+    "P_u": 0.991704,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3981,
+    "P_u": 0.9917,
+    "p_call_right": 0.9917,
+    "range95": [
+     0.2769,
+     0.5192
+    ]
+   },
+   "output_hash": "acb5b9823ee824a8103338558e454736bf28b85e39a9b5fc047c66d0de8ad9b2",
+   "receipt_id": "8ba1415801989940"
+  },
+  "receipt_id": "8ba1415801989940"
+ },
+ "B15": {
+  "unit_id": "B15",
+  "name": "Barpeta pseudo-unit 15",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.40968775749206543,
+  "s": 0.06245682933748687,
+  "range95": [
+   0.2872723719905912,
+   0.5321031429935397
+  ],
+  "P_u": 0.9947175501158475,
+  "p_call_right": 0.9947175501158475,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 15: flooded paddy share 41.0% (95% range 28.7% to 53.2%). Call: above the 25% loss line. Probability the call is right: 0.99.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B15",
+    "theta": 0.409688,
+    "s": 0.062457,
+    "P_u": 0.994718,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.4097,
+    "P_u": 0.9947,
+    "p_call_right": 0.9947,
+    "range95": [
+     0.2873,
+     0.5321
+    ]
+   },
+   "output_hash": "a355e13daad3d404e1f4e3222b16834c45b2e8db9af3606a0d48e0c751cad1df",
+   "receipt_id": "d2adf38695e3aa27"
+  },
+  "receipt_id": "d2adf38695e3aa27"
+ },
+ "B16": {
+  "unit_id": "B16",
+  "name": "Barpeta pseudo-unit 16",
+  "call": "above",
+  "tau": 0.25,
+  "theta": 0.37059521675109863,
+  "s": 0.06106723696729272,
+  "range95": [
+   0.2509034322952049,
+   0.49028700120699237
+  ],
+  "P_u": 0.9758542382256432,
+  "p_call_right": 0.9758542382256432,
+  "n_checks": 0,
+  "scenes": [
+   {
+    "id": "ESA_WorldCover_10m_2021_v200_N24E090",
+    "date": "2021",
+    "sensor": "ESA WorldCover 10 m (mask)"
+   },
+   {
+    "id": "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+    "date": "2026-03-10",
+    "sensor": "Sentinel-1 RTC VV (dry pass)"
+   },
+   {
+    "id": "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc",
+    "date": "2026-07-15",
+    "sensor": "Sentinel-1 RTC VV (wet pass)"
+   }
+  ],
+  "answer_text": "Barpeta pseudo-unit 16: flooded paddy share 37.1% (95% range 25.1% to 49.0%). Call: above the 25% loss line. Probability the call is right: 0.98.",
+  "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+  "caveats": [
+   "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+   "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+  ],
+  "receipt": {
+   "schema": "paddybird.receipt/1",
+   "inputs": {
+    "unit_id": "B16",
+    "theta": 0.370595,
+    "s": 0.061067,
+    "P_u": 0.975854,
+    "n_checks": 0,
+    "check_hashes": [],
+    "scene_ids": [
+     "ESA_WorldCover_10m_2021_v200_N24E090",
+     "S1A_IW_GRDH_1SDV_20260310T235514_20260310T235539_063572_07FD4A_rtc",
+     "S1D_IW_GRDH_1SDV_20260715T235432_20260715T235457_003691_00699F_rtc"
+    ],
+    "tau": 0.25,
+    "params": {
+     "otsu_db": -10.0,
+     "logistic_scale_db": 1.0,
+     "map_error_floor": 0.05,
+     "n_eff_divisor": 25,
+     "grid_deg": 0.0005,
+     "mask": "ESA WorldCover class 40 (ESA_WorldCover_10m_2021_v200_N24E090)",
+     "calibrated": false,
+     "ground_truth": false
+    },
+    "method": "paddybird-tool/0.1",
+    "sources": {
+     "stac": "https://planetarycomputer.microsoft.com/api/stac/v1",
+     "region": "Barpeta district, Assam (box inside the district)"
+    }
+   },
+   "output": {
+    "call": "above",
+    "theta": 0.3706,
+    "P_u": 0.9759,
+    "p_call_right": 0.9759,
+    "range95": [
+     0.2509,
+     0.4903
+    ]
+   },
+   "output_hash": "c4b892d87ffa3964a9c737d6a37ef877f3364b16b1efbc50edca2bcce6248028",
+   "receipt_id": "a3efa8228eac83c1"
+  },
+  "receipt_id": "a3efa8228eac83c1"
+ }
+}

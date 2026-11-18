@@ -1,0 +1,4 @@
+unit_id,stratum,flooded,pi,officer,ts,entry_hash,lat,lon,photo,plot_id
+India_747992_u01,1,True,0.4,officer 1,2026-07-24T01:30:00+00:00,8b2e2b10318e0557,,,,India_747992_u01-P1
+India_747992_u01,1,True,0.4,officer 1,2026-07-24T02:30:00+00:00,ce21966796364786,,,,India_747992_u01-P2
+India_747992_u01,0,False,0.25,officer 1,2026-07-24T03:30:00+00:00,6b9a994b5b6a82c0,,,,India_747992_u01-P3

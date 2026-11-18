@@ -1,0 +1,294 @@
+{
+  "schema": "paddybird.manifest/1",
+  "layer": 1,
+  "seed": 20261118,
+  "created_utc": "2026-11-18T06:09:34+00:00",
+  "sources": {
+    "chips": "sen1floods11",
+    "roads": "osm-overpass",
+    "revisit": "stac:earth-search",
+    "stac": "live-or-cached",
+    "units": "grid and chip constructions (no admin polygons)"
+  },
+  "source_hashes": {
+    "chip_cache": "63ba3feca8f0bf3fcd7788896b554711d12c418bed59b9b807c035a435928ebc",
+    "osm_cache": "d48a5da34f8af011819d82d29d659ab9b06631a296564ea82c00f69579861da3",
+    "stac/stac_S1_d6a0afd843f4935e.json": "357444dd80633bd4016a2e7bb1c4479c0a1cfeec0d6720da742a546b7013e254",
+    "stac/stac_S2_ed7cd71337f2b009.json": "86d5e8ae98c28bab6a0b388a52d149df3502d5685cc70c9837e4e06957b07b1e"
+  },
+  "files": {
+    "chips.npz": {
+      "description": "Chip arrays: vv, vh (float16 gamma0 dB, 20 m), label (int8: 1 water, 0 dry, -1 unlabelled), perm_water (int8 JRC, -1 unknown), chip, event, split, bounds (lon/lat w,s,e,n)",
+      "bytes": 6607751,
+      "sha256": "21e2343c11cdb146561b2bae16f370060c2f0d2a8093095a43eebadfda984631",
+      "format": "npz",
+      "arrays": {
+        "chip": {
+          "shape": [
+            132
+          ],
+          "dtype": "<U64"
+        },
+        "event": {
+          "shape": [
+            132
+          ],
+          "dtype": "<U32"
+        },
+        "split": {
+          "shape": [
+            132
+          ],
+          "dtype": "<U8"
+        },
+        "vv": {
+          "shape": [
+            132,
+            128,
+            128
+          ],
+          "dtype": "float16"
+        },
+        "vh": {
+          "shape": [
+            132,
+            128,
+            128
+          ],
+          "dtype": "float16"
+        },
+        "label": {
+          "shape": [
+            132,
+            128,
+            128
+          ],
+          "dtype": "int8"
+        },
+        "perm_water": {
+          "shape": [
+            132,
+            128,
+            128
+          ],
+          "dtype": "int8"
+        },
+        "bounds": {
+          "shape": [
+            132,
+            4
+          ],
+          "dtype": "float64"
+        },
+        "source": {
+          "shape": [],
+          "dtype": "<U12"
+        }
+      }
+    },
+    "chips.parquet": {
+      "description": "One row per chip: chip, event, official_split (not used), split (event-level), valid_share, water_share, bounds, source",
+      "bytes": 13287,
+      "sha256": "20acdd806d74bd6b82d42854c5e611379658f38f69a1b698eb6cb09478accb13",
+      "format": "parquet",
+      "rows": 132,
+      "columns": {
+        "chip": "large_string",
+        "event": "large_string",
+        "official_split": "large_string",
+        "valid_share": "double",
+        "water_share": "double",
+        "west": "double",
+        "south": "double",
+        "east": "double",
+        "north": "double",
+        "split": "large_string",
+        "source": "large_string"
+      }
+    },
+    "receipts/layer1_build.json": {
+      "description": "Receipt of this layer: input and output hashes, params, scenes, windows",
+      "bytes": 5534,
+      "sha256": "e35399bbbfe2b5174a24fbb6f758054c575b83a5ba5263c6c3e55746acf0f23b",
+      "format": "json"
+    },
+    "receipts/survey_demo.json": {
+      "description": "Receipt with a survey block of inclusion probabilities (train split demo)",
+      "bytes": 225663,
+      "sha256": "7c9523c5c212068b921f3d0b9f40193f2bb9be3b6e126800a74ab4cf75fa4e67",
+      "format": "json"
+    },
+    "region.json": {
+      "description": "Study block bbox, depot node, season, sources",
+      "bytes": 409,
+      "sha256": "8e7168f0fb22186eff649dcd4dfc23363b7bd6410078cde272a457ba61c887fb",
+      "format": "json"
+    },
+    "revisit_gaps.json": {
+      "description": "Gap days between passes, P(gap >= d) for d=0..40, an illustrative censoring example",
+      "bytes": 4034,
+      "sha256": "f9c8be38136b33e585f2f3f02a4e562bfd64f8cfd3569f6a6724bfbbb040e186",
+      "format": "json"
+    },
+    "revisit_passes.parquet": {
+      "description": "Sentinel-1 passes covering each grid unit: unit_id, date, platform, orbit_state, relative_orbit, scene_id, source",
+      "bytes": 5494,
+      "sha256": "fe1c9d12ff1da189d1a847338b2e699aaba8611cbd394de9abb8391ab4553664",
+      "format": "parquet",
+      "rows": 504,
+      "columns": {
+        "unit_id": "large_string",
+        "date": "large_string",
+        "platform": "large_string",
+        "orbit_state": "large_string",
+        "relative_orbit": "int64",
+        "scene_id": "large_string",
+        "source": "large_string"
+      }
+    },
+    "roads_edges.parquet": {
+      "description": "Undirected road edges u<v: length_km, highway, speed_kmh, base_min (dry minutes), source",
+      "bytes": 74081,
+      "sha256": "af68e787edebbdba499d7801e00b338b89b742c1429c8a83d6b695feab95a9a7",
+      "format": "parquet",
+      "rows": 2567,
+      "columns": {
+        "u": "int64",
+        "v": "int64",
+        "length_km": "double",
+        "highway": "large_string",
+        "speed_kmh": "double",
+        "base_min": "double",
+        "source": "large_string"
+      }
+    },
+    "roads_nodes.parquet": {
+      "description": "Road nodes: node_id, osm_id (-1 if synthetic), lon, lat, x_km, y_km (local plane), source",
+      "bytes": 107466,
+      "sha256": "f7760bdbf38a33fef28cd97cc5e3d82b882f054b26de0958954d30279698084b",
+      "format": "parquet",
+      "rows": 2096,
+      "columns": {
+        "node_id": "int64",
+        "osm_id": "int64",
+        "lon": "double",
+        "lat": "double",
+        "x_km": "double",
+        "y_km": "double",
+        "source": "large_string"
+      }
+    },
+    "splits.json": {
+      "description": "Event -> split map (train/val/test)",
+      "bytes": 403,
+      "sha256": "db0e918577b80a1eec2b1903b68e60c20537a289108b7ad2e0bd2c23469744e2",
+      "format": "json"
+    },
+    "stac_scenes.json": {
+      "description": "STAC scenes found (S1 season, S2 dry season) and COG windows read",
+      "bytes": 12170,
+      "sha256": "e9f87e93b8029d638898393e36196b1415b343025e9334140f01388aaa6c3cc8",
+      "format": "json"
+    },
+    "units_chips.parquet": {
+      "description": "Pseudo-village units on chips: unit_id, chip, event, split, pixel window r0,c0,r1,c1, lon, lat, area_ha, valid_share, label_water_share (truth), source",
+      "bytes": 22026,
+      "sha256": "3cd23c62a098879f0cdf8dc2ec136ac9f01c0884cbe6b8b220d76c010abbfaa1",
+      "format": "parquet",
+      "rows": 528,
+      "columns": {
+        "unit_id": "large_string",
+        "chip": "large_string",
+        "event": "large_string",
+        "split": "large_string",
+        "r0": "int64",
+        "c0": "int64",
+        "r1": "int64",
+        "c1": "int64",
+        "lon": "double",
+        "lat": "double",
+        "area_ha": "double",
+        "kind": "large_string",
+        "valid_share": "double",
+        "label_water_share": "double",
+        "source": "large_string"
+      }
+    },
+    "units_grid.geojson": {
+      "description": "Same grid units as polygons (EPSG:4326)",
+      "bytes": 16357,
+      "sha256": "544995214057557efb2b07c4e6c1b0b3ed797f1d8b0685964ba5b089fe3e3efe",
+      "format": "geojson"
+    },
+    "units_grid.parquet": {
+      "description": "Grid units over the study block: unit_id, row, col, lon, lat, west, south, east, north, area_ha, node_id, node_dist_km, depot_min_dry, n_passes, gap_median_days, gap_max_days",
+      "bytes": 11934,
+      "sha256": "bd6e0a6c6aa059e1c8b392e68ae3e1d28a2fffc3cc9c260c06aa940a68e069f1",
+      "format": "parquet",
+      "rows": 36,
+      "columns": {
+        "unit_id": "large_string",
+        "row": "int64",
+        "col": "int64",
+        "lon": "double",
+        "lat": "double",
+        "west": "double",
+        "south": "double",
+        "east": "double",
+        "north": "double",
+        "area_ha": "double",
+        "kind": "large_string",
+        "node_id": "int64",
+        "node_dist_km": "double",
+        "depot_min_dry": "double",
+        "n_passes": "int64",
+        "gap_median_days": "double",
+        "gap_max_days": "int64",
+        "source": "large_string"
+      }
+    }
+  },
+  "notebook": "01_data_platform.ipynb",
+  "split": {
+    "by": "event",
+    "events": {
+      "Bolivia": "test",
+      "Ghana": "val",
+      "India": "test",
+      "Mekong": "train",
+      "Nigeria": "train",
+      "Pakistan": "train",
+      "Paraguay": "train",
+      "Somalia": "train",
+      "Spain": "train",
+      "Sri-Lanka": "val",
+      "USA": "train"
+    }
+  },
+  "pixel_m": 20.0,
+  "chip_px": 128,
+  "unit_px": 64,
+  "region": {
+    "name": "Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)",
+    "bbox": [
+      81.95,
+      16.52,
+      82.07,
+      16.64
+    ],
+    "town": {
+      "name": "Amalapuram",
+      "lon": 82.006,
+      "lat": 16.578
+    },
+    "season": [
+      "2022-06-01",
+      "2022-10-31"
+    ],
+    "note": "demonstration surface; no ground truth",
+    "depot_node": 181,
+    "road_source": "osm-overpass",
+    "revisit_source": "stac:earth-search"
+  },
+  "receipt_id": "55d1e5ed4f6c018d"
+}

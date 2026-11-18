@@ -1,0 +1,25 @@
+# Shared by all Paddybird notebooks. Install into the repo-root .venv only.
+numpy
+scipy
+pandas
+pyarrow
+scikit-learn
+matplotlib
+rasterio
+shapely
+networkx
+folium
+ipywidgets
+ipykernel
+nbformat
+nbclient
+nbconvert
+jupyter_client
+pystac-client
+planetary-computer
+torch
+# layer 1 (01_data_platform): HTTP for Sen1Floods11, STAC, Overpass
+httpx
+# layer 5 and live demo (05_tool, 06_live_region_demo): connectivity probe; already used by pystac-client
+requests
+# layer 4 (04_field_planning): no extra packages (numpy, scipy, pandas, pyarrow, matplotlib above)

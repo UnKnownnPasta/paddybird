@@ -1,0 +1,70 @@
+{
+ "tune_seeds": [
+  100,
+  101,
+  102,
+  103,
+  104,
+  105,
+  106,
+  107,
+  108,
+  109,
+  110,
+  111,
+  112,
+  113,
+  114,
+  115,
+  116,
+  117,
+  118,
+  119
+ ],
+ "allocation": {
+  "uncertainty|pilot=0|batch=1": 0.13135416666666663,
+  "uncertainty|pilot=0|batch=8": 0.13135416666666666,
+  "uncertainty|pilot=1|batch=1": 0.13197916666666668,
+  "uncertainty|pilot=1|batch=8": 0.13260416666666663,
+  "uncertainty|pilot=2|batch=1": 0.14020833333333332,
+  "uncertainty|pilot=2|batch=8": 0.14041666666666666,
+  "decision|pilot=0|batch=1": 0.10020833333333334,
+  "decision|pilot=0|batch=8": 0.10177083333333335,
+  "decision|pilot=1|batch=1": 0.10333333333333335,
+  "decision|pilot=1|batch=8": 0.10697916666666668,
+  "decision|pilot=2|batch=1": 0.11229166666666668,
+  "decision|pilot=2|batch=8": 0.11458333333333333
+ },
+ "chosen_allocation": {
+  "uncertainty": {
+   "pilot": 0,
+   "batch": 1
+  },
+  "decision": {
+   "pilot": 0,
+   "batch": 1
+  }
+ },
+ "p_close": {
+  "None": 0.07333333333333333,
+  "0.9": 0.07833333333333334,
+  "0.7": 0.07166666666666667,
+  "0.5": 0.085
+ },
+ "chosen_p_close": 0.7,
+ "plan_slow_mean_abs_rel_error": {
+  "1.5": 0.29632011298523786,
+  "2.0": 0.26791605492539233,
+  "3.0": 0.22570919893483019,
+  "4.0": 0.21459633418670515,
+  "6.0": 0.3137224100747588,
+  "8.0": 0.5169724766218606
+ },
+ "chosen_plan_slow": 4.0,
+ "spine_priority_rmse": {
+  "gain": 0.06669813919931954,
+  "size": 0.06420430804283415,
+  "size_x_sqrt_gain": 0.066841738200731
+ },
+ "chosen_spine_priority": "size"
+}

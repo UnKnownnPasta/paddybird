@@ -1,0 +1,262 @@
+{
+ "method": "Poisson sampling over the frame, q_v = clip(c * priority_v, floor, 1), sum q = n_expected; q_v = 0 outside the frame",
+ "priority": "size",
+ "frame_margin": 0.6,
+ "n_expected": 8.0,
+ "floor": 0.05,
+ "seed": 4,
+ "units": [
+  {
+   "unit": "G0000",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.3167747783722677,
+   "drawn": true
+  },
+  {
+   "unit": "G0001",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.30814124105885565,
+   "drawn": true
+  },
+  {
+   "unit": "G0002",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.29486905295564486,
+   "drawn": false
+  },
+  {
+   "unit": "G0003",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.30054750530159424,
+   "drawn": false
+  },
+  {
+   "unit": "G0004",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.27424971031870043,
+   "drawn": false
+  },
+  {
+   "unit": "G0005",
+   "q": 0.3635242616684136,
+   "in_frame": true,
+   "visit_gain": 0.22534390290534054,
+   "drawn": false
+  },
+  {
+   "unit": "G0100",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.2870383076871305,
+   "drawn": false
+  },
+  {
+   "unit": "G0101",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.296155523494614,
+   "drawn": false
+  },
+  {
+   "unit": "G0102",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.30246273720509786,
+   "drawn": true
+  },
+  {
+   "unit": "G0103",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.30769302142825705,
+   "drawn": true
+  },
+  {
+   "unit": "G0104",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.15872988215689615,
+   "drawn": false
+  },
+  {
+   "unit": "G0105",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.08397493924341673,
+   "drawn": false
+  },
+  {
+   "unit": "G0200",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.27586305959345625,
+   "drawn": false
+  },
+  {
+   "unit": "G0201",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.3047029460027109,
+   "drawn": false
+  },
+  {
+   "unit": "G0202",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.3183073747215429,
+   "drawn": true
+  },
+  {
+   "unit": "G0203",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.31505690202153613,
+   "drawn": false
+  },
+  {
+   "unit": "G0204",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.08411179944393922,
+   "drawn": false
+  },
+  {
+   "unit": "G0205",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.13142883829660937,
+   "drawn": false
+  },
+  {
+   "unit": "G0300",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.28160635721662564,
+   "drawn": true
+  },
+  {
+   "unit": "G0301",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.3167652915296496,
+   "drawn": false
+  },
+  {
+   "unit": "G0302",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.3031981548521004,
+   "drawn": false
+  },
+  {
+   "unit": "G0303",
+   "q": 0.3636475738331587,
+   "in_frame": true,
+   "visit_gain": 0.3157784064430571,
+   "drawn": false
+  },
+  {
+   "unit": "G0304",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.1547139627528258,
+   "drawn": false
+  },
+  {
+   "unit": "G0305",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.2519254167517032,
+   "drawn": false
+  },
+  {
+   "unit": "G0400",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.2611211012256182,
+   "drawn": false
+  },
+  {
+   "unit": "G0401",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.08718417898328096,
+   "drawn": false
+  },
+  {
+   "unit": "G0402",
+   "q": 0.36377088599790375,
+   "in_frame": true,
+   "visit_gain": 0.19973333962841902,
+   "drawn": false
+  },
+  {
+   "unit": "G0403",
+   "q": 0.36377088599790375,
+   "in_frame": true,
+   "visit_gain": 0.2695985707737333,
+   "drawn": false
+  },
+  {
+   "unit": "G0404",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.17572329298411118,
+   "drawn": false
+  },
+  {
+   "unit": "G0405",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.3156606069039245,
+   "drawn": false
+  },
+  {
+   "unit": "G0500",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.1962856946788433,
+   "drawn": false
+  },
+  {
+   "unit": "G0501",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.08562315339767118,
+   "drawn": false
+  },
+  {
+   "unit": "G0502",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.19590042901800672,
+   "drawn": false
+  },
+  {
+   "unit": "G0503",
+   "q": 0.36377088599790375,
+   "in_frame": true,
+   "visit_gain": 0.30448822590875146,
+   "drawn": false
+  },
+  {
+   "unit": "G0504",
+   "q": 0.36377088599790375,
+   "in_frame": true,
+   "visit_gain": 0.16632869383467652,
+   "drawn": false
+  },
+  {
+   "unit": "G0505",
+   "q": 0.0,
+   "in_frame": false,
+   "visit_gain": 0.3187652770408916,
+   "drawn": false
+  }
+ ]
+}

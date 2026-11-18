@@ -1,0 +1,22 @@
+{
+ "name": "Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)",
+ "bbox": [
+  81.95,
+  16.52,
+  82.07,
+  16.64
+ ],
+ "town": {
+  "name": "Amalapuram",
+  "lon": 82.006,
+  "lat": 16.578
+ },
+ "season": [
+  "2022-06-01",
+  "2022-10-31"
+ ],
+ "note": "demonstration surface; no ground truth",
+ "depot_node": 181,
+ "road_source": "osm-overpass",
+ "revisit_source": "stac:earth-search"
+}

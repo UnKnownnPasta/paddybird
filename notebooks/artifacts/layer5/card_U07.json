@@ -1,0 +1,89 @@
+{
+ "unit_id": "U07",
+ "name": "Unit 07",
+ "call": "above",
+ "tau": 0.25,
+ "theta": 0.2636777826832649,
+ "s": 0.05382547743709745,
+ "range95": [
+  0.1581798469065539,
+  0.36917571845997593
+ ],
+ "P_u": 0.6002960788835127,
+ "p_call_right": 0.6002960788835127,
+ "n_checks": 5,
+ "scenes": [
+  {
+   "id": "SYNTH_S1A_IW_GRDH_20260604_DRY",
+   "date": "2026-06-04",
+   "sensor": "Sentinel-1 VV (synthetic)"
+  },
+  {
+   "id": "SYNTH_S1A_IW_GRDH_20260710_WET",
+   "date": "2026-07-10",
+   "sensor": "Sentinel-1 VV (synthetic)"
+  },
+  {
+   "id": "SYNTH_S1A_IW_GRDH_20260722_WET",
+   "date": "2026-07-22",
+   "sensor": "Sentinel-1 VV (synthetic)"
+  }
+ ],
+ "answer_text": "Unit 07: flooded paddy share 26.4% (95% range 15.8% to 36.9%). Call: above the 25% loss line. Probability the call is right: 0.60.",
+ "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+ "caveats": [
+  "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+  "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+ ],
+ "receipt": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "U07",
+   "theta": 0.263678,
+   "s": 0.053825,
+   "P_u": 0.600296,
+   "n_checks": 5,
+   "check_hashes": [
+    "4de6f14550247bd4",
+    "7c26edbb1cdabd3e",
+    "bee83b935ad966fa",
+    "c122e7c19810c961",
+    "ccdfbb6d1ebabae4"
+   ],
+   "scene_ids": [
+    "SYNTH_S1A_IW_GRDH_20260604_DRY",
+    "SYNTH_S1A_IW_GRDH_20260710_WET",
+    "SYNTH_S1A_IW_GRDH_20260722_WET"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "fixture",
+    "roads": "fixture",
+    "routes": "fixture",
+    "scenes": "fixture",
+    "checks": "fixture"
+   }
+  },
+  "output": {
+   "call": "above",
+   "theta": 0.2637,
+   "P_u": 0.6003,
+   "p_call_right": 0.6003,
+   "range95": [
+    0.1582,
+    0.3692
+   ]
+  },
+  "output_hash": "e78ff659f3be6c3f646b3fccb9fb4cb05779c7ae51c81aceef6fe6d18a1909c0",
+  "receipt_id": "f50358cd9caa9fcd"
+ },
+ "receipt_id": "f50358cd9caa9fcd"
+}

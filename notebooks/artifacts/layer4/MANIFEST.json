@@ -1,0 +1,165 @@
+{
+ "layer": 4,
+ "notebook": "04_field_planning.ipynb",
+ "input_source": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic",
+ "seed": 4,
+ "seeds": {
+  "tune": [
+   100,
+   119
+  ],
+  "eval": [
+   1000,
+   1059
+  ],
+  "bias": [
+   2000,
+   2159
+  ],
+  "truth_offset": 50000
+ },
+ "region": {
+  "units": 36,
+  "road_nodes": 2096,
+  "road_segments": 2567,
+  "tau": 0.25,
+  "m": 1.0,
+  "pi_h": [
+   0.1571,
+   0.7215
+  ]
+ },
+ "schema": {
+  "routes_day1.json": "{officers, day_minutes, ..., routes: [{officer, units[str], unit_index[int], node_path[int], planned_minutes, expected_gain}]}",
+  "checks_day1.json": "[{unit, unit_index, stratum, N_stratum, planned_checks, kind: design|adaptive, village_inclusion_prob, in_day1_route, inclusion_prob|null}]",
+  "inclusion_probs.json": "{method, priority, frame_margin, n_expected, floor, seed, units: [{unit, q, in_frame, visit_gain, drawn}]}",
+  "next_checks.json": "[{rank, unit, stratum, gain}]",
+  "eval_*.json": "held-out Monte Carlo summaries (mean, 95% band lo/hi)",
+  "tuning.json": "settings tried on tuning seeds only"
+ },
+ "shapes": {
+  "checks_day1": 72,
+  "routes": 3,
+  "units": 36
+ },
+ "versions": {
+  "python": "3.11.9",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "matplotlib": "3.11.2"
+ },
+ "inputs_sha256_16": {
+  "layer1/chips.npz": "21e2343c11cdb146",
+  "layer1/chips.parquet": "20acdd806d74bd6b",
+  "layer1/MANIFEST.json": "6a5abff51d50577b",
+  "layer1/region.json": "8e7168f0fb22186e",
+  "layer1/revisit_gaps.json": "f9c8be38136b33e5",
+  "layer1/revisit_passes.parquet": "fe1c9d12ff1da189",
+  "layer1/roads_edges.parquet": "af68e787edebbdba",
+  "layer1/roads_nodes.parquet": "f7760bdbf38a33fe",
+  "layer1/splits.json": "db0e918577b80a1e",
+  "layer1/stac_scenes.json": "e9f87e93b8029d63",
+  "layer1/units_chips.parquet": "3cd23c62a098879f",
+  "layer1/units_grid.geojson": "544995214057557e",
+  "layer1/units_grid.parquet": "bd6e0a6c6aa059e1",
+  "layer2/chips.csv": "b1f982d6157792a8",
+  "layer2/chips.parquet": "28bdad3b909587c4",
+  "layer2/MANIFEST.json": "60e98089f2331a39",
+  "layer2/metrics.json": "b2e04a609fd620de",
+  "layer2/models.json": "7e84a334c3cbd120",
+  "layer3/fig_calls_flip.png": "eac2b0a89ee18f17",
+  "layer3/fig_inputs.png": "41d799112656c69a",
+  "layer3/fig_one_draw.png": "8ea995f1d01379b0",
+  "layer3/fig_strata_fit.png": "c07cb4c2400d4cb2",
+  "layer3/fig_test_curves.png": "6bd65331157ecd89",
+  "layer3/fig_test_reliability.png": "5912f806beccca0e",
+  "layer3/fig_test_route.png": "14f61a06fd33cbf6",
+  "layer3/fig_val_curves.png": "08b7817626cbf2c6",
+  "layer3/fig_val_reliability.png": "5becd1bbfe0ec10e",
+  "layer3/fig_val_route.png": "3191e6772ee86816",
+  "layer3/hyper.json": "9714886d3803fc2f",
+  "layer3/MANIFEST.json": "4ff09fe9e808de3b",
+  "layer3/reliability.json": "dcd69ff67dcf10ab",
+  "layer3/test.json": "11ac4d5c163aeb52",
+  "layer3/test_first_run_v1.json": "c6004603249b99d6",
+  "layer3/unit_calls.csv": "4b71fd4b8a8d69b0",
+  "layer3/unit_calls_simulated_checks.csv": "1100c28d0ae02515",
+  "layer3/unit_strata.npz": "3d125fac73237dcf",
+  "layer3/validation.json": "6005a3e15a0cd989"
+ },
+ "code_sha256_16": {
+  "paddybird/allocation.py": "407d3e1a2c65f051",
+  "paddybird/routing.py": "787afb69dff4218e",
+  "paddybird/selection.py": "30181b865208f3c2"
+ },
+ "files": {
+  "checks_day1.json": {
+   "sha256_16": "36e92a0d24444a6b",
+   "bytes": 17757
+  },
+  "eval_allocation.json": {
+   "sha256_16": "49d6fc374c6a96ff",
+   "bytes": 6535
+  },
+  "eval_allocation_real_chips.json": {
+   "sha256_16": "ebef2f292b0a8514",
+   "bytes": 4545
+  },
+  "eval_bias.json": {
+   "sha256_16": "87ad24fef17bd90e",
+   "bytes": 4372
+  },
+  "eval_routing.json": {
+   "sha256_16": "9a1ffdf804a06f78",
+   "bytes": 8022
+  },
+  "eval_routing_real_roads.json": {
+   "sha256_16": "4ee46e9d4c050894",
+   "bytes": 3199
+  },
+  "fig_bias_check.png": {
+   "sha256_16": "2fcba330d42e6cf6",
+   "bytes": 50472
+  },
+  "fig_region.png": {
+   "sha256_16": "dd2ca7fea82c9cdf",
+   "bytes": 141318
+  },
+  "fig_route_wrong_vs_checks.png": {
+   "sha256_16": "3afc327b1567239a",
+   "bytes": 82116
+  },
+  "fig_wrong_vs_checks.png": {
+   "sha256_16": "c9be77513a88fbd6",
+   "bytes": 185510
+  },
+  "fig_wrong_vs_checks_real_chips.png": {
+   "sha256_16": "41e89834e033e8aa",
+   "bytes": 83580
+  },
+  "fig_wrong_vs_drive.png": {
+   "sha256_16": "20a43bac3f5ae5bd",
+   "bytes": 165863
+  },
+  "inclusion_probs.json": {
+   "sha256_16": "95eaac6f5248b139",
+   "bytes": 5110
+  },
+  "next_checks.json": {
+   "sha256_16": "382fa4c48362e62a",
+   "bytes": 3068
+  },
+  "route_day1.png": {
+   "sha256_16": "34f1e627d3557580",
+   "bytes": 218275
+  },
+  "routes_day1.json": {
+   "sha256_16": "c53a7dbabdece275",
+   "bytes": 9422
+  },
+  "tuning.json": {
+   "sha256_16": "97d2906eb78b1956",
+   "bytes": 1567
+  }
+ }
+}

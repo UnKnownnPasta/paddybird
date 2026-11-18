@@ -1,0 +1,62 @@
+[
+ {
+  "report_hash": "9f670544dfe1bf42",
+  "unit_id": "India_952728_u11",
+  "claim": "flooded",
+  "unit_call": "below",
+  "unit_P_u": 0.0,
+  "p_flooded_used": 0.08,
+  "basis": "calibrated prior of the plot's map stratum",
+  "consistent_prob": 0.08,
+  "lean": "inconsistent with radar",
+  "weight": "normal",
+  "within_72h": true,
+  "inspect_priority": 0.92,
+  "note": "Orders inspections; does not reject a claim. Self-selected reports do not enter theta_u here."
+ },
+ {
+  "report_hash": "28552f3c57642cb8",
+  "unit_id": "India_900498_u10",
+  "claim": "flooded",
+  "unit_call": "below",
+  "unit_P_u": 0.234,
+  "p_flooded_used": 0.166,
+  "basis": "unit flooded share theta_u (no plot location)",
+  "consistent_prob": 0.166,
+  "lean": "inconsistent with radar",
+  "weight": "normal",
+  "within_72h": true,
+  "inspect_priority": 0.834,
+  "note": "Orders inspections; does not reject a claim. Self-selected reports do not enter theta_u here."
+ },
+ {
+  "report_hash": "9b3cec125dac1490",
+  "unit_id": "India_747992_u01",
+  "claim": "flooded",
+  "unit_call": "above",
+  "unit_P_u": 0.842,
+  "p_flooded_used": 0.75,
+  "basis": "calibrated prior of the plot's map stratum",
+  "consistent_prob": 0.75,
+  "lean": "consistent with radar",
+  "weight": "normal",
+  "within_72h": true,
+  "inspect_priority": 0.25,
+  "note": "Orders inspections; does not reject a claim. Self-selected reports do not enter theta_u here."
+ },
+ {
+  "report_hash": "b0ceb944ae3922f3",
+  "unit_id": "India_747992_u10",
+  "claim": "flooded",
+  "unit_call": "above",
+  "unit_P_u": 0.637,
+  "p_flooded_used": 0.75,
+  "basis": "calibrated prior of the plot's map stratum",
+  "consistent_prob": 0.75,
+  "lean": "consistent with radar",
+  "weight": "low (plot below radar resolution)",
+  "within_72h": false,
+  "inspect_priority": 0.225,
+  "note": "Orders inspections; does not reject a claim. Self-selected reports do not enter theta_u here."
+ }
+]

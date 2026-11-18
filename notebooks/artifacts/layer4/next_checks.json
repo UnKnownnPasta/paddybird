@@ -1,0 +1,182 @@
+[
+ {
+  "rank": 1,
+  "unit": "G0505",
+  "stratum": "mapped_dry",
+  "gain": 0.17393148791384455
+ },
+ {
+  "rank": 2,
+  "unit": "G0202",
+  "stratum": "mapped_dry",
+  "gain": 0.1724610237180278
+ },
+ {
+  "rank": 3,
+  "unit": "G0303",
+  "stratum": "mapped_dry",
+  "gain": 0.1700727490175648
+ },
+ {
+  "rank": 4,
+  "unit": "G0405",
+  "stratum": "mapped_dry",
+  "gain": 0.16986575342632482
+ },
+ {
+  "rank": 5,
+  "unit": "G0203",
+  "stratum": "mapped_dry",
+  "gain": 0.16881376375828772
+ },
+ {
+  "rank": 6,
+  "unit": "G0000",
+  "stratum": "mapped_dry",
+  "gain": 0.1677679696371508
+ },
+ {
+  "rank": 7,
+  "unit": "G0301",
+  "stratum": "mapped_dry",
+  "gain": 0.16774013057551518
+ },
+ {
+  "rank": 8,
+  "unit": "G0001",
+  "stratum": "mapped_dry",
+  "gain": 0.15702959292301066
+ },
+ {
+  "rank": 9,
+  "unit": "G0503",
+  "stratum": "mapped_dry",
+  "gain": 0.15113880271427027
+ },
+ {
+  "rank": 10,
+  "unit": "G0302",
+  "stratum": "mapped_dry",
+  "gain": 0.1491395907309534
+ },
+ {
+  "rank": 11,
+  "unit": "G0505",
+  "stratum": "mapped_dry",
+  "gain": 0.14476236197161896
+ },
+ {
+  "rank": 12,
+  "unit": "G0202",
+  "stratum": "mapped_dry",
+  "gain": 0.14290631452911934
+ },
+ {
+  "rank": 13,
+  "unit": "G0103",
+  "stratum": "mapped_dry",
+  "gain": 0.14180668296708676
+ },
+ {
+  "rank": 14,
+  "unit": "G0303",
+  "stratum": "mapped_dry",
+  "gain": 0.14005685160089543
+ },
+ {
+  "rank": 15,
+  "unit": "G0405",
+  "stratum": "mapped_dry",
+  "gain": 0.1398009439275994
+ },
+ {
+  "rank": 16,
+  "unit": "G0203",
+  "stratum": "mapped_dry",
+  "gain": 0.13850105672018082
+ },
+ {
+  "rank": 17,
+  "unit": "G0002",
+  "stratum": "mapped_dry",
+  "gain": 0.137055294625046
+ },
+ {
+  "rank": 18,
+  "unit": "G0000",
+  "stratum": "mapped_dry",
+  "gain": 0.136978139706181
+ },
+ {
+  "rank": 19,
+  "unit": "G0301",
+  "stratum": "mapped_dry",
+  "gain": 0.1369429589697289
+ },
+ {
+  "rank": 20,
+  "unit": "G0201",
+  "stratum": "mapped_dry",
+  "gain": 0.1347365835469439
+ },
+ {
+  "rank": 21,
+  "unit": "G0102",
+  "stratum": "mapped_dry",
+  "gain": 0.13001670115449432
+ },
+ {
+  "rank": 22,
+  "unit": "G0003",
+  "stratum": "mapped_dry",
+  "gain": 0.12629497816946478
+ },
+ {
+  "rank": 23,
+  "unit": "G0505",
+  "stratum": "mapped_dry",
+  "gain": 0.12527706670541983
+ },
+ {
+  "rank": 24,
+  "unit": "G0001",
+  "stratum": "mapped_dry",
+  "gain": 0.12402327098658
+ },
+ {
+  "rank": 25,
+  "unit": "G0202",
+  "stratum": "mapped_dry",
+  "gain": 0.12310920347069965
+ },
+ {
+  "rank": 26,
+  "unit": "G0303",
+  "stratum": "mapped_dry",
+  "gain": 0.11992787677832212
+ },
+ {
+  "rank": 27,
+  "unit": "G0405",
+  "stratum": "mapped_dry",
+  "gain": 0.11963388842398914
+ },
+ {
+  "rank": 28,
+  "unit": "G0101",
+  "stratum": "mapped_dry",
+  "gain": 0.1186223578612694
+ },
+ {
+  "rank": 29,
+  "unit": "G0203",
+  "stratum": "mapped_dry",
+  "gain": 0.11814126174529838
+ },
+ {
+  "rank": 30,
+  "unit": "G0503",
+  "stratum": "mapped_dry",
+  "gain": 0.1168467353255997
+ }
+]

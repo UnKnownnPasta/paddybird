@@ -1,0 +1,255 @@
+{
+ "layer": 3,
+ "notebook": "03_estimation.ipynb",
+ "created": "2026-11-18",
+ "seed": 20261118,
+ "input": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+ "input_sources": {
+  "Bolivia_195474.npz": "6de0be2ab5edd415",
+  "Bolivia_23014.npz": "97a5926c6eca8ca8",
+  "Bolivia_233925.npz": "92dac97b16455ff7",
+  "Bolivia_242570.npz": "ae47f1224dac46c2",
+  "Bolivia_290290.npz": "4dece0f9eda199e1",
+  "Bolivia_294583.npz": "276f5db68fddd637",
+  "Bolivia_314919.npz": "ac2030e6f5fe007b",
+  "Bolivia_360519.npz": "c712c87da0855b2b",
+  "Bolivia_379434.npz": "cf99258fddca717f",
+  "Bolivia_432776.npz": "080a8a6effa0f1d3",
+  "Bolivia_76104.npz": "527ee5ad692f802e",
+  "Ghana_11745.npz": "63e918fb85ef7b03",
+  "Ghana_264787.npz": "d375d2f7b3d46bbf",
+  "Ghana_308249.npz": "e7cc1ea2d2a96874",
+  "Ghana_61925.npz": "6dba6ecfbaa67a4f",
+  "Ghana_868803.npz": "ec3088f03a40c889",
+  "Ghana_887131.npz": "65448fab7800f5ea",
+  "Ghana_953791.npz": "a0284982bd15a079",
+  "India_1050276.npz": "191e075e94e83bd3",
+  "India_1072277.npz": "3c593c816f2dde20",
+  "India_324254.npz": "9c0e2f699c647b7d",
+  "India_500266.npz": "d396e61e7e9d8b23",
+  "India_56450.npz": "1df208d575986023",
+  "India_707886.npz": "a5b7911066095dcd",
+  "India_747992.npz": "1a2e0205fbd5b97a",
+  "India_804466.npz": "5ed5437706410193",
+  "India_900498.npz": "3411a03f50a55fd5",
+  "India_91379.npz": "6cc4452642cf0a10",
+  "India_943439.npz": "c8c1757747407191",
+  "India_952728.npz": "f188203734c182b9",
+  "Mekong_1111068.npz": "2e9204357270f836",
+  "Mekong_1149855.npz": "e83dbf1806442fef",
+  "Mekong_1191208.npz": "5a9e7e79d632406d",
+  "Mekong_119477.npz": "8880da0d7f74a336",
+  "Mekong_1282475.npz": "ec12099bd45fa36f",
+  "Mekong_1395593.npz": "1ac5ee0159ed38f7",
+  "Mekong_1396181.npz": "a64699f0208391b4",
+  "Mekong_221789.npz": "1095363fc0c191b5",
+  "Mekong_424793.npz": "53da5ddf17404e4d",
+  "Mekong_474783.npz": "980dd08e2ab45d50",
+  "Mekong_52610.npz": "1f54bee248754417",
+  "Nigeria_143329.npz": "ad8097a2cdbfaee8",
+  "Nigeria_22088.npz": "a9e3868b974ca7c7",
+  "Nigeria_225131.npz": "6b1047473be6aa7f",
+  "Nigeria_31096.npz": "4f15a1f792ef5286",
+  "Nigeria_35845.npz": "b22a4770c5281c35",
+  "Nigeria_439488.npz": "a08b53fcafc1a9cc",
+  "Nigeria_598959.npz": "c2a5d48753e62620",
+  "Nigeria_600295.npz": "df41684a8d254e17",
+  "Nigeria_78061.npz": "1255ce9ea7916ef9",
+  "Nigeria_81933.npz": "ba02eb38fff58221",
+  "Nigeria_952958.npz": "b59e99d589c4d35a",
+  "Nigeria_984831.npz": "170fa739b83b158f",
+  "Pakistan_1027214.npz": "9cfecec2b465c7f2",
+  "Pakistan_167553.npz": "290c9af2c7f2c454",
+  "Pakistan_246510.npz": "ba31c460bedd0178",
+  "Pakistan_35915.npz": "5799ac20d00a1313",
+  "Pakistan_366265.npz": "dbe375dd41d26ea8",
+  "Pakistan_43105.npz": "d097a8341e670de8",
+  "Pakistan_548910.npz": "8e3479467b0d09d4",
+  "Pakistan_667363.npz": "70d8f4ac84a2a0ed",
+  "Pakistan_694942.npz": "34955eb7ce9adb15",
+  "Pakistan_70625.npz": "721e050339189e9d",
+  "Pakistan_94095.npz": "3de75b377b107aed",
+  "Paraguay_1056717.npz": "b3fd354be18c1752",
+  "Paraguay_11869.npz": "06ac2556f4cd676f",
+  "Paraguay_12870.npz": "13c6bb70b10f1f6b",
+  "Paraguay_179624.npz": "0b4be817795e39cd",
+  "Paraguay_191503.npz": "aee0c3e38273baf0",
+  "Paraguay_24341.npz": "5938a26652ed5975",
+  "Paraguay_246154.npz": "d14f24de6596f633",
+  "Paraguay_48673.npz": "c8323efe460db6ca",
+  "Paraguay_721886.npz": "d2a1282684676793",
+  "Paraguay_934240.npz": "3ff1d5f63627a350",
+  "Paraguay_997480.npz": "b77e5955d65fe732",
+  "Somalia_195014.npz": "013b024d439e7749",
+  "Somalia_205466.npz": "95bd96c887f060f6",
+  "Somalia_256539.npz": "04c744616b5217ef",
+  "Somalia_32375.npz": "5589fc87c1924fa8",
+  "Somalia_61368.npz": "f406597425313622",
+  "Somalia_649376.npz": "2935b30a5d75a920",
+  "Somalia_685158.npz": "b5cd0c6db12c4905",
+  "Somalia_7931.npz": "59370ed60965822e",
+  "Somalia_886726.npz": "2847de835e36951c",
+  "Somalia_94102.npz": "c46f63364ebfbc1d",
+  "Somalia_989553.npz": "67d62af567347798",
+  "Somalia_992457.npz": "ee8858adf6af212f",
+  "Spain_2523247.npz": "ecba64c861713a98",
+  "Spain_2938657.npz": "4704fadafd87154b",
+  "Spain_3285448.npz": "d2f6bf759c193713",
+  "Spain_337094.npz": "04793fd04de7db73",
+  "Spain_4282030.npz": "0f2dd17f497abcea",
+  "Spain_6199994.npz": "9f606efa32b5731f",
+  "Spain_6537196.npz": "193a5c66e40a085e",
+  "Spain_6860600.npz": "4811be3173fe58f4",
+  "Spain_716716.npz": "680feee1ce24f4bc",
+  "Spain_8154154.npz": "494aa511c45c7877",
+  "Spain_8199661.npz": "7eafcc6885f9ac01",
+  "Spain_8565131.npz": "d84af8f681d62e59",
+  "Sri-Lanka_1038087.npz": "b7ebea108c7b736f",
+  "Sri-Lanka_117737.npz": "33975136da501202",
+  "Sri-Lanka_132922.npz": "84d7d7d1c65568b7",
+  "Sri-Lanka_450918.npz": "2e1822903519b0c3",
+  "Sri-Lanka_49764.npz": "a44f66f9203d23f6",
+  "Sri-Lanka_523539.npz": "c0af38871e225908",
+  "Sri-Lanka_55568.npz": "46fdef5583b42abd",
+  "Sri-Lanka_612594.npz": "38859fd5e354c137",
+  "Sri-Lanka_849649.npz": "f12cfc1d572edad0",
+  "Sri-Lanka_85652.npz": "7d380ff1e91f84cb",
+  "Sri-Lanka_922192.npz": "3ae974472dd4a571",
+  "USA_1039203.npz": "5ff98c393f68152b",
+  "USA_1068362.npz": "ded88ad9439c3e41",
+  "USA_211406.npz": "2b8af0d5885ea5df",
+  "USA_224165.npz": "b5fdb9813dee1c32",
+  "USA_225017.npz": "2ab3fb6da95a9210",
+  "USA_652955.npz": "c5a797b98d52f2ed",
+  "USA_693819.npz": "2edea307928560c4",
+  "USA_741073.npz": "0174c66f28d7c86d",
+  "USA_758178.npz": "fc4afbd91370afdb",
+  "USA_806273.npz": "84e6364fa32dbdff",
+  "USA_994009.npz": "1bdd01efb726e1c5",
+  "layer2/MANIFEST.json": "60e98089f2331a39"
+ },
+ "tau": 0.25,
+ "plots_per_visit": 4,
+ "budgets": [
+  0,
+  4,
+  8,
+  16,
+  32,
+  64
+ ],
+ "reps": {
+  "validation": 120,
+  "test": 200
+ },
+ "units": {
+  "train": 125,
+  "val": 27,
+  "test": 34
+ },
+ "shapes": {
+  "unit_calls.csv": [
+   34,
+   11
+  ],
+  "unit_strata.npz/W_uh": [
+   34,
+   3
+  ]
+ },
+ "schema": {
+  "unit_calls.csv": "unit_id, region, theta (flooded paddy share), s (std error), call (above|below, never undecided), P_u = Phi((theta-0.25)/s), P_right, n_checks, n_sites, theta_map_raw, P_map_raw; state before any field check",
+  "unit_calls_simulated_checks.csv": "as unit_calls.csv after one SIMULATED draw of 16 checks per unit, plus farmer_reports, report_share, flip_b, theta_if_reports_trusted",
+  "unit_strata.npz": "per unit (rows) and stratum (cols: mapped_dry, uncertain, mapped_flooded): W_uh, Fbar_uh, n_uh, lam_uh, Rt_uh; W_uh_n0; unit_id",
+  "hyper.json": "tau, cuts, m, Rpool, T, sigma2, icc, deff, pi_h, pi_h_2 (2 strata at 0.5), map_rmse, m_grid_rmse (fitted on the training region only)",
+  "validation.json": "metric tables [method][budget] on the validation region, random and route designs",
+  "test.json": "metric tables on the test region (random, route, route_unreached), between-region spread, report-claim checks",
+  "reliability.json": "reliability curves of P_u at budget 16",
+  "test_first_run_v1.json": "frozen record of the first clean test run of estimator v1 (real layer 2 maps); not regenerated"
+ },
+ "files": {
+  "fig_calls_flip.png": {
+   "sha256_16": "eac2b0a89ee18f17",
+   "bytes": 34793
+  },
+  "fig_inputs.png": {
+   "sha256_16": "41d799112656c69a",
+   "bytes": 73886
+  },
+  "fig_one_draw.png": {
+   "sha256_16": "8ea995f1d01379b0",
+   "bytes": 41066
+  },
+  "fig_strata_fit.png": {
+   "sha256_16": "c07cb4c2400d4cb2",
+   "bytes": 68444
+  },
+  "fig_test_curves.png": {
+   "sha256_16": "6bd65331157ecd89",
+   "bytes": 141910
+  },
+  "fig_test_reliability.png": {
+   "sha256_16": "5912f806beccca0e",
+   "bytes": 71049
+  },
+  "fig_test_route.png": {
+   "sha256_16": "14f61a06fd33cbf6",
+   "bytes": 108835
+  },
+  "fig_val_curves.png": {
+   "sha256_16": "08b7817626cbf2c6",
+   "bytes": 141426
+  },
+  "fig_val_reliability.png": {
+   "sha256_16": "5becd1bbfe0ec10e",
+   "bytes": 74702
+  },
+  "fig_val_route.png": {
+   "sha256_16": "3191e6772ee86816",
+   "bytes": 108558
+  },
+  "hyper.json": {
+   "sha256_16": "9714886d3803fc2f",
+   "bytes": 1671
+  },
+  "reliability.json": {
+   "sha256_16": "dcd69ff67dcf10ab",
+   "bytes": 8563
+  },
+  "test.json": {
+   "sha256_16": "11ac4d5c163aeb52",
+   "bytes": 50277
+  },
+  "test_first_run_v1.json": {
+   "sha256_16": "c6004603249b99d6",
+   "bytes": 21373
+  },
+  "unit_calls.csv": {
+   "sha256_16": "4b71fd4b8a8d69b0",
+   "bytes": 2839
+  },
+  "unit_calls_simulated_checks.csv": {
+   "sha256_16": "1100c28d0ae02515",
+   "bytes": 3491
+  },
+  "unit_strata.npz": {
+   "sha256_16": "3d125fac73237dcf",
+   "bytes": 5052
+  },
+  "validation.json": {
+   "sha256_16": "6005a3e15a0cd989",
+   "bytes": 30692
+  }
+ },
+ "code_sha256_16": {
+  "calls.py": "782c645be16bbdaa",
+  "estimator.py": "2dbb900d61a7a739",
+  "variance.py": "8732593ec454701f"
+ },
+ "versions": {
+  "python": "3.11.9",
+  "numpy": "2.4.6",
+  "matplotlib": "3.11.2"
+ },
+ "notes": "Synthetic unless input says real. Checks in unit_calls_simulated_checks.csv are simulated. No abstain state."
+}

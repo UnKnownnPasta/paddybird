@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+.ipynb_checkpoints/
+node_modules/
+*.tif
+/data/
+/runtime/
+# generated report files (see docs/report/build/README.md)
+docs/report/build/report_raw.*
+docs/report/build/report.docx
+docs/report/build/report.pdf
+docs/report/build/tocx/

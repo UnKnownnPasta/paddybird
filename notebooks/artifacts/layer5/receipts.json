@@ -1,0 +1,2046 @@
+{
+ "India_1050276_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1050276_u00",
+   "theta": 0.0442,
+   "s": 0.09304,
+   "P_u": 0.01349,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0442,
+   "P_u": 0.0135,
+   "p_call_right": 0.9865,
+   "range95": [
+    0.0,
+    0.2266
+   ]
+  },
+  "output_hash": "715f1d50482263b58586ed5ab384b7c0bdb2577d718b2b0d91221c11a2b67472",
+  "receipt_id": "552e6a6c8ec51fb6"
+ },
+ "India_1050276_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1050276_u01",
+   "theta": 0.0535,
+   "s": 0.07176,
+   "P_u": 0.00309,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0535,
+   "P_u": 0.0031,
+   "p_call_right": 0.9969,
+   "range95": [
+    0.0,
+    0.1941
+   ]
+  },
+  "output_hash": "2c112f75b06294b1bc9f2f4509ed4b1adb506cc4819dcb7bd02c2a8183a81b31",
+  "receipt_id": "04d2453b3871b511"
+ },
+ "India_1050276_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1050276_u10",
+   "theta": 0.04024,
+   "s": 0.07504,
+   "P_u": 0.00259,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0402,
+   "P_u": 0.0026,
+   "p_call_right": 0.9974,
+   "range95": [
+    0.0,
+    0.1873
+   ]
+  },
+  "output_hash": "d190ee4a774a9809eaeb22ca660e649f52f2e5acdcca60637eb859daaa3191c8",
+  "receipt_id": "e6c94f826fb51aaa"
+ },
+ "India_1050276_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1050276_u11",
+   "theta": 0.01433,
+   "s": 0.06,
+   "P_u": 4e-05,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0143,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1319
+   ]
+  },
+  "output_hash": "b28b3ffa0e177a2981d7fc364b0dacec026ef7d78815f89c38b053aed3db7078",
+  "receipt_id": "e4f8c7f04d85aa41"
+ },
+ "India_1072277_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1072277_u01",
+   "theta": 0.03277,
+   "s": 0.07107,
+   "P_u": 0.00112,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0328,
+   "P_u": 0.0011,
+   "p_call_right": 0.9989,
+   "range95": [
+    0.0,
+    0.1721
+   ]
+  },
+  "output_hash": "8cee6c1065f9ce614703b9307380ff1c0b21f20c88f4fa05a33ac6e693de57ae",
+  "receipt_id": "90e4d6b3eeb43ef7"
+ },
+ "India_1072277_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1072277_u10",
+   "theta": 0.03273,
+   "s": 0.0937,
+   "P_u": 0.01021,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0327,
+   "P_u": 0.0102,
+   "p_call_right": 0.9898,
+   "range95": [
+    0.0,
+    0.2164
+   ]
+  },
+  "output_hash": "cd5c5a0be7e32124d86901058ce11818b185675bb809dc04ff075c991668420a",
+  "receipt_id": "c80d86eabe0041d8"
+ },
+ "India_1072277_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_1072277_u11",
+   "theta": 0.03666,
+   "s": 0.07916,
+   "P_u": 0.00352,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0367,
+   "P_u": 0.0035,
+   "p_call_right": 0.9965,
+   "range95": [
+    0.0,
+    0.1918
+   ]
+  },
+  "output_hash": "5e60d227002f1c91f2f4c119c655c2cb9bba650669499a86867c2a1a867df57b",
+  "receipt_id": "7d630b185780e463"
+ },
+ "India_500266_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_500266_u00",
+   "theta": 0.00612,
+   "s": 0.0535,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0061,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.111
+   ]
+  },
+  "output_hash": "85b5fa9907de2ca2d467739e2f1cf6efcb2d6bbd977981eb8373f842bb621ccd",
+  "receipt_id": "6e48b9cf8585833b"
+ },
+ "India_500266_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_500266_u01",
+   "theta": 0.03624,
+   "s": 0.08555,
+   "P_u": 0.00623,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0362,
+   "P_u": 0.0062,
+   "p_call_right": 0.9938,
+   "range95": [
+    0.0,
+    0.2039
+   ]
+  },
+  "output_hash": "ca93d03d54b99d118bb397d68bef579496e97451cff85780345a3ef014886288",
+  "receipt_id": "02cef5849cf86637"
+ },
+ "India_500266_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_500266_u10",
+   "theta": 0.01468,
+   "s": 0.05455,
+   "P_u": 1e-05,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0147,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1216
+   ]
+  },
+  "output_hash": "c9e59d52cf1726f89e85fbb01dfbb300907dec5366fa9915cd7f70a00ea0064f",
+  "receipt_id": "95da297d8ed12b06"
+ },
+ "India_500266_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_500266_u11",
+   "theta": 0.0,
+   "s": 0.05139,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1007
+   ]
+  },
+  "output_hash": "042db8c99e5e8636316549476c3dd4a2d85808b1da5ac579469613c74715d1ab",
+  "receipt_id": "6cc1370d6f285d18"
+ },
+ "India_707886_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_707886_u00",
+   "theta": 0.0,
+   "s": 0.04777,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0936
+   ]
+  },
+  "output_hash": "56864e4184672fbaff608796a2213e465a7f7da00114b76461ca16c46b088184",
+  "receipt_id": "b43251f64475b258"
+ },
+ "India_707886_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_707886_u01",
+   "theta": 0.0,
+   "s": 0.04775,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0936
+   ]
+  },
+  "output_hash": "361c0c766a59ab2a57ce0a99bbe774e10740018d9741c3f5b75db488b38fc94f",
+  "receipt_id": "c4cbd3c51a2b7f04"
+ },
+ "India_707886_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_707886_u10",
+   "theta": 0.0,
+   "s": 0.04775,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0936
+   ]
+  },
+  "output_hash": "6318936b3d5a7cdcc72dd6a3ed65e92ef418e5393e598b52c89f93c61500d28c",
+  "receipt_id": "660224a77eb6ec5e"
+ },
+ "India_747992_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_747992_u00",
+   "theta": 0.4584,
+   "s": 0.26882,
+   "P_u": 0.7809,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "above",
+   "theta": 0.4584,
+   "P_u": 0.7809,
+   "p_call_right": 0.7809,
+   "range95": [
+    0.0,
+    0.9853
+   ]
+  },
+  "output_hash": "249b11eb1dcbb66c8d06424ec3cd331796d77f8a8ec5e4e3e662f128ee9da77e",
+  "receipt_id": "ed933c2bea534ded"
+ },
+ "India_747992_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_747992_u01",
+   "theta": 0.409844,
+   "s": 0.159679,
+   "P_u": 0.841595,
+   "n_checks": 3,
+   "check_hashes": [
+    "6b9a994b5b6a82c0",
+    "8b2e2b10318e0557",
+    "ce21966796364786"
+   ],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "above",
+   "theta": 0.4098,
+   "P_u": 0.8416,
+   "p_call_right": 0.8416,
+   "range95": [
+    0.0969,
+    0.7228
+   ]
+  },
+  "output_hash": "cf59a9dbc2b23e51d6dd779efb8dc767e602dd19626f9fcbb6a2ce8dfb74ac2c",
+  "receipt_id": "83e0750175b478bd"
+ },
+ "India_747992_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_747992_u10",
+   "theta": 0.32625,
+   "s": 0.21789,
+   "P_u": 0.63681,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "above",
+   "theta": 0.3262,
+   "P_u": 0.6368,
+   "p_call_right": 0.6368,
+   "range95": [
+    0.0,
+    0.7533
+   ]
+  },
+  "output_hash": "09e9fbc46f5e7546120401ba508dc2c14293dd933a328078c485302bc2d891c4",
+  "receipt_id": "8fe9302e3ced4469"
+ },
+ "India_747992_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_747992_u11",
+   "theta": 0.10026,
+   "s": 0.10122,
+   "P_u": 0.06953,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.1003,
+   "P_u": 0.0695,
+   "p_call_right": 0.9305,
+   "range95": [
+    0.0,
+    0.2987
+   ]
+  },
+  "output_hash": "31e093d7990bf9fbfb86188e144e2d94df680a106886f309a0c74f0dc127f2de",
+  "receipt_id": "817f4e83ab6da5a8"
+ },
+ "India_804466_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_804466_u00",
+   "theta": 0.02266,
+   "s": 0.062,
+   "P_u": 0.00012,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0227,
+   "P_u": 0.0001,
+   "p_call_right": 0.9999,
+   "range95": [
+    0.0,
+    0.1442
+   ]
+  },
+  "output_hash": "28a0f71692da53702e835d226b19b9e037d8dd2e99b42991d47c14803e32d701",
+  "receipt_id": "bb8862747bbf2dec"
+ },
+ "India_804466_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_804466_u01",
+   "theta": 0.01389,
+   "s": 0.06735,
+   "P_u": 0.00023,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0139,
+   "P_u": 0.0002,
+   "p_call_right": 0.9998,
+   "range95": [
+    0.0,
+    0.1459
+   ]
+  },
+  "output_hash": "009954f8250d9e901ebfd601d0168b29fce2e24345ecb6335c86c2aa917cabdb",
+  "receipt_id": "effa7506d239d6a4"
+ },
+ "India_804466_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_804466_u10",
+   "theta": 0.04162,
+   "s": 0.08712,
+   "P_u": 0.00838,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0416,
+   "P_u": 0.0084,
+   "p_call_right": 0.9916,
+   "range95": [
+    0.0,
+    0.2124
+   ]
+  },
+  "output_hash": "f6f78ef603c117cedbcdc6383b166defbcc4c2dd80dd9362dafaf881f207af19",
+  "receipt_id": "151326b4788c2051"
+ },
+ "India_804466_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_804466_u11",
+   "theta": 0.05716,
+   "s": 0.13783,
+   "P_u": 0.08089,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0572,
+   "P_u": 0.0809,
+   "p_call_right": 0.9191,
+   "range95": [
+    0.0,
+    0.3273
+   ]
+  },
+  "output_hash": "7d1acdded91f5e6407a41c011087e3bb451c357056cd08d8e11a464b285f12bb",
+  "receipt_id": "a967723452444a8a"
+ },
+ "India_900498_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_900498_u10",
+   "theta": 0.16563,
+   "s": 0.116,
+   "P_u": 0.23352,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.1656,
+   "P_u": 0.2335,
+   "p_call_right": 0.7665,
+   "range95": [
+    0.0,
+    0.393
+   ]
+  },
+  "output_hash": "dd55995e8d7f93a41d143a53fb800a3c672edf76d81b02d6da74ac8d46419b39",
+  "receipt_id": "d2a7881e012eed80"
+ },
+ "India_900498_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_900498_u11",
+   "theta": 0.0,
+   "s": 0.04872,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0955
+   ]
+  },
+  "output_hash": "434b3ea7a8e873c20ef5390fdb2c568defc3edc178cba78449348673387e30b5",
+  "receipt_id": "6397539954fc9f45"
+ },
+ "India_91379_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_91379_u00",
+   "theta": 0.02334,
+   "s": 0.05138,
+   "P_u": 1e-05,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0233,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.124
+   ]
+  },
+  "output_hash": "20f60410e6168df44fae2e29b45b4fc44d9101f92e9475b02c1ecf40686b6ba8",
+  "receipt_id": "fd9868d29bc05eaa"
+ },
+ "India_91379_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_91379_u01",
+   "theta": 0.04076,
+   "s": 0.05957,
+   "P_u": 0.00022,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0408,
+   "P_u": 0.0002,
+   "p_call_right": 0.9998,
+   "range95": [
+    0.0,
+    0.1575
+   ]
+  },
+  "output_hash": "1c1a7f316edcab84b3cc969ecd89d89224c6a801438dc1af1ae5644863fc4a53",
+  "receipt_id": "2f707cf20d7a09e2"
+ },
+ "India_91379_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_91379_u10",
+   "theta": 0.0034,
+   "s": 0.04775,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0034,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.097
+   ]
+  },
+  "output_hash": "bdd28ba82d2e3a3f11cee10b7b3123f4be0dc053628d55e1cff4c6132a54b1a1",
+  "receipt_id": "9a875d3d93354f77"
+ },
+ "India_91379_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_91379_u11",
+   "theta": 0.00893,
+   "s": 0.0496,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0089,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1061
+   ]
+  },
+  "output_hash": "d93df30cb6b1306e8590b7e35d2aa83aa5ee595dc6f3b6f86316192853e5948d",
+  "receipt_id": "41b8146c0ab65085"
+ },
+ "India_943439_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_943439_u10",
+   "theta": 0.1134,
+   "s": 0.08106,
+   "P_u": 0.04597,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.1134,
+   "P_u": 0.046,
+   "p_call_right": 0.954,
+   "range95": [
+    0.0,
+    0.2723
+   ]
+  },
+  "output_hash": "e202f975c4a828ca09beb1be51d9b0dd850f4236da6e26477149f97541bbda24",
+  "receipt_id": "76aa7b07028a009b"
+ },
+ "India_943439_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_943439_u11",
+   "theta": 0.10053,
+   "s": 0.09094,
+   "P_u": 0.05012,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.1005,
+   "P_u": 0.0501,
+   "p_call_right": 0.9499,
+   "range95": [
+    0.0,
+    0.2788
+   ]
+  },
+  "output_hash": "c691564088daedae57d12e431211bb41cd6be57c95b4fa2b31d5e864eea60c0b",
+  "receipt_id": "7b710e9bcb54d3da"
+ },
+ "India_952728_u00": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_952728_u00",
+   "theta": 0.00846,
+   "s": 0.04983,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0085,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1061
+   ]
+  },
+  "output_hash": "e7849f35597b4b566e258e7c2612afae709d8bbfaffee66e7bd9c59509f97430",
+  "receipt_id": "0c53eba1cc43c152"
+ },
+ "India_952728_u01": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_952728_u01",
+   "theta": 0.0,
+   "s": 0.04857,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0952
+   ]
+  },
+  "output_hash": "32e6e1e69d03437ac21e62943d9d61d9be77396a0ec3cb1d262956672851c0ee",
+  "receipt_id": "fde2f96aacfbbb65"
+ },
+ "India_952728_u10": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_952728_u10",
+   "theta": 0.00102,
+   "s": 0.05162,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.001,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.1022
+   ]
+  },
+  "output_hash": "d33452577ad9c14d369127084baa66ab0213a92d8582f307b22407e45ed68293",
+  "receipt_id": "98ca65446e4ee430"
+ },
+ "India_952728_u11": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_952728_u11",
+   "theta": 0.0,
+   "s": 0.04791,
+   "P_u": 0.0,
+   "n_checks": 0,
+   "check_hashes": [],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over the unit layout (flooded where nearby units are above tau)",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "schematic grid (units are scattered clusters; real lon/lat kept in lon_real, lat_real)",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "real layer 2 artifacts (artifacts/layer2/maps (121 chips); units: layer 1 chip windows (121 chips))",
+    "layer4 says": "layer1 roads and units (Godavari delta block (Amalapuram, Konaseema, Andhra Pradesh)); flood layer semi-synthetic"
+   }
+  },
+  "output": {
+   "call": "below",
+   "theta": 0.0,
+   "P_u": 0.0,
+   "p_call_right": 1.0,
+   "range95": [
+    0.0,
+    0.0939
+   ]
+  },
+  "output_hash": "ee94b7ec8f5d583fd18627dda4470be0521478d5f7155e014c5ab6ec3da2ab10",
+  "receipt_id": "fc4310ebcc22aa51"
+ }
+}

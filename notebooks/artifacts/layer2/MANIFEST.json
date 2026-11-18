@@ -1,0 +1,97 @@
+{
+  "layer": 2,
+  "notebook": "02_mapping.ipynb",
+  "seed": 20261118,
+  "created": "2026-11-18 11:40",
+  "input": {
+    "source": "layer1",
+    "dir": "artifacts\\layer1",
+    "fetch": null,
+    "split_source": "layer1",
+    "splits": {
+      "train": [
+        "Mekong",
+        "Nigeria",
+        "Pakistan",
+        "Paraguay",
+        "Somalia",
+        "Spain",
+        "USA"
+      ],
+      "val": [
+        "Ghana",
+        "Sri-Lanka"
+      ],
+      "test": [
+        "Bolivia",
+        "India"
+      ]
+    },
+    "chips_per_split": {
+      "train": 80,
+      "val": 18,
+      "test": 23
+    },
+    "assumed_layer1_chip_schema": {
+      "file": "artifacts/layer1/**/*.npz, one chip per file, or stacked with a leading chip axis and a 'chip' array",
+      "required": {
+        "s1_vv": "float (H,W) post-event VV dB gamma0",
+        "s1_vh": "float (H,W) post-event VH dB",
+        "label": "int (H,W) 1 water, 0 not water, -1 unlabelled",
+        "event": "str"
+      },
+      "optional": {
+        "chip": "str",
+        "split": "train|val|test, constant per event",
+        "s2": "float (6,H,W) reflectance B2 B3 B4 B8 B11 B12",
+        "perm_water": "uint8 (H,W) JRC permanent water",
+        "landcover": "uint8 (H,W) ESA WorldCover 2021 codes",
+        "paddy": "float or uint8 (H,W) paddy mask or probability",
+        "s1_pre_vv": "float (H,W)",
+        "s1_pre_vh": "float (H,W)"
+      }
+    },
+    "source_hashes": {
+      "chips.npz": "21e2343c11cdb146"
+    }
+  },
+  "outputs": {
+    "maps/<chip>.npz": {
+      "encoding": "uint8, value/250 = probability, 255 = no call (outside domain)",
+      "arrays": {
+        "p_flooded_paddy": "calibrated P(flooded paddy)",
+        "p_flooded": "calibrated P(flooded, not permanent water)",
+        "paddy": "paddy mask or probability used",
+        "p_sub_ge_{3,7,10,14}d": "SEMI-SYNTHETIC P(submerged >= d days) x paddy",
+        "crop_loss_intolerant": "SEMI-SYNTHETIC expected plant loss share, intolerant rice x P(flooded paddy)",
+        "label": "int8 hand label passed through (1 water, 0 not, -1 unlabelled)",
+        "domain": "uint8 1 where a call is made (labelled, not permanent water)",
+        "chip": "str",
+        "event": "str",
+        "split": "str"
+      },
+      "shape": [
+        128,
+        128
+      ],
+      "pixel_m": 20
+    },
+    "chips.parquet": "one row per chip: split, pixel counts, expected / label / baseline flooded-paddy pixels, bounds (lon/lat) if known",
+    "chips.csv": "same without bounds",
+    "models.json": "fusion weights, calibrator, pixel-model selection, duration model",
+    "metrics.json": "val and test tables, gaps, per-event test, area check, semi-synthetic duration check"
+  },
+  "paddy_source": [
+    "WorldCover 2021 cropland (class 40) proxy"
+  ],
+  "semi_synthetic": [
+    "p_sub_ge_*",
+    "crop_loss_intolerant",
+    "duration"
+  ],
+  "output_hashes": {
+    "chips.parquet": "28bdad3b909587c4",
+    "models.json": "7e84a334c3cbd120",
+    "metrics.json": "b2e04a609fd620de"
+  }
+}

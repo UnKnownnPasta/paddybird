@@ -1,0 +1,551 @@
+{
+ "windows": [
+  {
+   "name": "s2_nir",
+   "scene": "S2B_44QND_20230306_0_L2A",
+   "date": "2023-03-06",
+   "href": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/44/Q/ND/2023/3/S2B_44QND_20230306_0_L2A/B08.tif",
+   "crs": "EPSG:32644",
+   "bounds": [
+    606780.0,
+    1832370.0,
+    608710.0,
+    1834370.0
+   ],
+   "res_m": 10.0,
+   "window": [
+    10680,
+    6565,
+    193,
+    200
+   ],
+   "seconds": 4.6
+  },
+  {
+   "name": "s2_scl",
+   "scene": "S2B_44QND_20230306_0_L2A",
+   "date": "2023-03-06",
+   "href": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/44/Q/ND/2023/3/S2B_44QND_20230306_0_L2A/SCL.tif",
+   "crs": "EPSG:32644",
+   "bounds": [
+    606780.0,
+    1832380.0,
+    608720.0,
+    1834380.0
+   ],
+   "res_m": 20.0,
+   "window": [
+    5340,
+    3282,
+    97,
+    100
+   ],
+   "seconds": 0.9
+  },
+  {
+   "name": "dem",
+   "scene": "Copernicus GLO-30",
+   "date": null,
+   "href": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N16_00_E082_00_DEM/Copernicus_DSM_COG_10_N16_00_E082_00_DEM.tif",
+   "crs": "EPSG:4326",
+   "bounds": [
+    81.94986111111112,
+    16.520138888888887,
+    82.06986111111111,
+    16.640138888888888
+   ],
+   "res_m": 0.0002777777777777778,
+   "window": [
+    -180,
+    1296,
+    432,
+    432
+   ],
+   "seconds": 2.8
+  }
+ ],
+ "s1": [
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D",
+   "sensor": "S1",
+   "date": "2022-10-25",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.932663,
+    15.337746,
+    83.590851,
+    17.340136
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+   "sensor": "S1",
+   "date": "2022-10-13",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.934479,
+    15.337955,
+    83.592628,
+    17.340105
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+   "sensor": "S1",
+   "date": "2022-10-01",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.932457,
+    15.337118,
+    83.590691,
+    17.340174
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+   "sensor": "S1",
+   "date": "2022-09-19",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.934097,
+    15.33605,
+    83.59243,
+    17.340092
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+   "sensor": "S1",
+   "date": "2022-09-07",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.931305,
+    15.337,
+    83.58934,
+    17.340019
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+   "sensor": "S1",
+   "date": "2022-08-26",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.933067,
+    15.337227,
+    83.59111,
+    17.339943
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+   "sensor": "S1",
+   "date": "2022-08-14",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.932762,
+    15.337181,
+    83.590828,
+    17.339996
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+   "sensor": "S1",
+   "date": "2022-08-02",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.9328,
+    15.337935,
+    83.590645,
+    17.340029
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+   "sensor": "S1",
+   "date": "2022-07-21",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.933266,
+    15.337841,
+    83.591171,
+    17.340149
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+   "sensor": "S1",
+   "date": "2022-07-16",
+   "platform": "sentinel-1a",
+   "orbit_state": "ascending",
+   "relative_orbit": 129,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.263382,
+    15.144604,
+    82.924484,
+    17.330378
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+   "sensor": "S1",
+   "date": "2022-07-09",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.949921,
+    15.337716,
+    83.636009,
+    17.556362
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+   "sensor": "S1",
+   "date": "2022-06-27",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.949249,
+    15.337403,
+    83.635368,
+    17.556284
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+   "sensor": "S1",
+   "date": "2022-06-15",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.950577,
+    15.337397,
+    83.636719,
+    17.556368
+   ]
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+   "sensor": "S1",
+   "date": "2022-06-03",
+   "platform": "sentinel-1a",
+   "orbit_state": "descending",
+   "relative_orbit": 19,
+   "cloud_cover": null,
+   "catalog": "earth-search",
+   "bbox": [
+    80.949646,
+    15.337174,
+    83.635872,
+    17.556454
+   ]
+  }
+ ],
+ "s2": [
+  {
+   "id": "S2A_44QND_20230311_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-11",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 1.110925,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2A_44QPD_20230311_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-11",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 1.772279,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93551802491417,
+    16.184446609726493,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2B_44QND_20230306_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-06",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.001563,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2B_44QPD_20230306_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-06",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.006189,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413776,
+    16.186017938155857,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2A_44QND_20230301_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-01",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.279568,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2A_44QPD_20230301_0_L2A",
+   "sensor": "S2",
+   "date": "2023-03-01",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.005466,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413746,
+    16.18593724997387,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2B_44QND_20230224_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-24",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.377076,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2B_44QPD_20230224_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-24",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.232745,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413749,
+    16.1859604475039,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2B_44QND_20230214_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-14",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 1.237985,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2B_44QPD_20230214_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-14",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 3.262046,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413746,
+    16.1859398333115,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2B_44QND_20230204_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-04",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.003816,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2B_44QPD_20230204_0_L2A",
+   "sensor": "S2",
+   "date": "2023-02-04",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.101848,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413718,
+    16.185857229541927,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2B_44QND_20230115_0_L2A",
+   "sensor": "S2",
+   "date": "2023-01-15",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 2.451684,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2B_44QPD_20230115_0_L2A",
+   "sensor": "S2",
+   "date": "2023-01-15",
+   "platform": "sentinel-2b",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 0.550882,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228411893,
+    16.185456120886748,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  },
+  {
+   "id": "S2A_44QND_20230110_0_L2A",
+   "sensor": "S2",
+   "date": "2023-01-10",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 1.618236,
+   "catalog": "earth-search",
+   "bbox": [
+    80.99982132489406,
+    16.189948975724036,
+    82.0322955075111,
+    17.184983323158896
+   ]
+  },
+  {
+   "id": "S2A_44QPD_20230110_0_L2A",
+   "sensor": "S2",
+   "date": "2023-01-10",
+   "platform": "sentinel-2a",
+   "orbit_state": null,
+   "relative_orbit": null,
+   "cloud_cover": 4.948134,
+   "catalog": "earth-search",
+   "bbox": [
+    81.93552228413755,
+    16.185961458001085,
+    82.97251395918559,
+    17.182791762213984
+   ]
+  }
+ ]
+}

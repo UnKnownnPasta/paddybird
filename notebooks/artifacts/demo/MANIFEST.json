@@ -1,0 +1,44 @@
+{
+ "notebook": "06_live_region_demo.ipynb",
+ "status": "skipped",
+ "reason": "PADDYBIRD_OFFLINE=1",
+ "region": {
+  "name": "Barpeta district, Assam (box inside the district)",
+  "state": "Assam",
+  "bbox": [
+   90.95,
+   26.3,
+   91.15,
+   26.45
+  ]
+ },
+ "scenes": [],
+ "ground_truth": false,
+ "accuracy_claim": null,
+ "statement": "No field ground truth exists for this region; no accuracy claim is made.",
+ "assumptions": [
+  "pseudo-units (4 x 4 grid), not insurance units",
+  "flood probability not calibrated on this region",
+  "WorldCover cropland as paddy stand-in",
+  "no field checks; s_u from a 0.05 floor and n_eff = px/25",
+  "stand-in road lattice, not OSM"
+ ],
+ "run_utc": "2026-11-18T06:23:47+00:00",
+ "versions": {
+  "python": "3.11.9",
+  "numpy": "2.4.6",
+  "pandas": "3.1.1"
+ },
+ "code_sha256_16": {
+  "paddybird/intake.py": "e82c67416a2e9f6c",
+  "paddybird/card.py": "828d7cbe8d3e959c",
+  "paddybird/views.py": "6a04e4661bf3232b"
+ },
+ "files": {
+  "cards.json": "eb3d24870ae14f4d",
+  "radar_maps.png": "9c3d544aa43062a6",
+  "route_view.png": "d84bd13c2554d4b0",
+  "unit_calls.csv": "e7f95ea6b1b8ea13",
+  "unit_map.png": "72cef97cf8290eda"
+ }
+}

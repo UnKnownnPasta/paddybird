@@ -1,0 +1,25 @@
+{
+ "by": "event",
+ "events": {
+  "Bolivia": "test",
+  "Ghana": "val",
+  "India": "test",
+  "Mekong": "train",
+  "Nigeria": "train",
+  "Pakistan": "train",
+  "Paraguay": "train",
+  "Somalia": "train",
+  "Spain": "train",
+  "Sri-Lanka": "val",
+  "USA": "train"
+ },
+ "fixed_test": [
+  "India",
+  "Bolivia"
+ ],
+ "fixed_val": [
+  "Sri-Lanka",
+  "Ghana"
+ ],
+ "source": "sen1floods11"
+}

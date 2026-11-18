@@ -1,0 +1,158 @@
+{
+ "unit_id": "India_943439_u01",
+ "name": "India_943439_u01",
+ "call": "above",
+ "tau": 0.25,
+ "theta": 0.260824179878188,
+ "s": 0.04710276001264362,
+ "range95": [
+  0.16850277025340651,
+  0.3531455895029695
+ ],
+ "P_u": 0.5908761241007089,
+ "p_call_right": 0.5908761241007089,
+ "n_checks": 3,
+ "scenes": [
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+   "date": "2022-06-03",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+   "date": "2022-06-15",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+   "date": "2022-06-27",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+   "date": "2022-07-09",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+   "date": "2022-07-16",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+   "date": "2022-07-21",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+   "date": "2022-08-02",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+   "date": "2022-08-14",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+   "date": "2022-08-26",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+   "date": "2022-09-07",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+   "date": "2022-09-19",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+   "date": "2022-10-01",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+   "date": "2022-10-13",
+   "sensor": ""
+  },
+  {
+   "id": "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D",
+   "date": "2022-10-25",
+   "sensor": ""
+  }
+ ],
+ "answer_text": "India_943439_u01: flooded paddy share 26.1% (95% range 16.9% to 35.3%). Call: above the 25% loss line. Probability the call is right: 0.59.",
+ "method": "Stratified estimate from the calibrated flood map, corrected by field checks weighted by their known inclusion probabilities; the call is always given and P_u says how far to trust it.",
+ "caveats": [
+  "Share of paddy area flooded is a proxy: insured-plot records are not public.",
+  "P_u assumes the stated variance; spatial clustering inside a unit can widen it."
+ ],
+ "receipt": {
+  "schema": "paddybird.receipt/1",
+  "inputs": {
+   "unit_id": "India_943439_u01",
+   "theta": 0.260824,
+   "s": 0.047103,
+   "P_u": 0.590876,
+   "n_checks": 3,
+   "check_hashes": [
+    "2bea98cf0d727465",
+    "2dd4103726b2255e",
+    "c7ddb787a9fd629a"
+   ],
+   "scene_ids": [
+    "S1A_IW_GRDH_1SDV_20220603T002251_20220603T002321_043491_053160",
+    "S1A_IW_GRDH_1SDV_20220615T002252_20220615T002321_043666_05369A",
+    "S1A_IW_GRDH_1SDV_20220627T002253_20220627T002322_043841_053BDB",
+    "S1A_IW_GRDH_1SDV_20220709T002253_20220709T002323_044016_054109",
+    "S1A_IW_GRDH_1SDV_20220716T124350_20220716T124419_044126_05445C",
+    "S1A_IW_GRDH_1SDV_20220721T002258_20220721T002324_044191_05464D",
+    "S1A_IW_GRDH_1SDV_20220802T002258_20220802T002324_044366_054B71",
+    "S1A_IW_GRDH_1SDV_20220814T002259_20220814T002325_044541_0550DE",
+    "S1A_IW_GRDH_1SDV_20220826T002300_20220826T002326_044716_0556C3",
+    "S1A_IW_GRDH_1SDV_20220907T002301_20220907T002326_044891_055CB2",
+    "S1A_IW_GRDH_1SDV_20220919T002300_20220919T002326_045066_056290",
+    "S1A_IW_GRDH_1SDV_20221001T002301_20221001T002327_045241_05686C",
+    "S1A_IW_GRDH_1SDV_20221013T002301_20221013T002327_045416_056E53",
+    "S1A_IW_GRDH_1SDV_20221025T002301_20221025T002327_045591_05737D"
+   ],
+   "tau": 0.25,
+   "params": {
+    "m": 10.0,
+    "pi_h": [
+     0.08,
+     0.75
+    ]
+   },
+   "method": "paddybird-tool/0.1",
+   "sources": {
+    "units": "real: artifacts/layer3/unit_calls.csv",
+    "roads": "fixture lattice over real unit layout",
+    "routes": "fixture planner over fixture lattice (layer-4 routes_day1 visits other units than layer 3 shows, so not used)",
+    "scenes": "real: artifacts/layer1/receipts/layer1_build.json",
+    "checks": "none (no layer-4 checks table)",
+    "unit layout": "real: artifacts/layer1/units_chips.parquet",
+    "layer1 says": "chips: sen1floods11, roads: osm-overpass, revisit: stac:earth-search, stac: live-or-cached, units: grid and chip constructions (no admin polygons)",
+    "layer2 says": "layer1",
+    "layer3 says": "synthetic stand-in (artifacts/layer2/MANIFEST.json not found)",
+    "layer4 says": "synthetic stand-in (layers 1 to 3 not yet written)"
+   }
+  },
+  "output": {
+   "call": "above",
+   "theta": 0.2608,
+   "P_u": 0.5909,
+   "p_call_right": 0.5909,
+   "range95": [
+    0.1685,
+    0.3531
+   ]
+  },
+  "output_hash": "b89277fd2d02d99507874ec2a7f32ea5115825a2d38822cf2a6e46150a6e6168",
+  "receipt_id": "02fa33366185f35f"
+ },
+ "receipt_id": "02fa33366185f35f"
+}
