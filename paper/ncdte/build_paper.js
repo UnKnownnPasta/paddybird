@@ -89,14 +89,22 @@ const add = (...x) => body.push(...x);
 
 // ---------------- title block ----------------
 add(C(`Paddybird: Estimating Flooded Cropland per Unit from Radar Maps and Field Checks`, { size: 28, bold: true, after: 200 }));
-add(C(`**Authors:** Sai Bhuwan S*, Nikhil S Rao, Yashita Murlidhar Mandavilli, Shashwat Mittal`, { size: 22, italics: true, after: 40 }));
-add(C(`**Affiliation:** Undergraduate Students (B.E., Computer Science and Engineering), RV Institute of Technology and Management, Bengaluru, Karnataka, India`, { size: 22, italics: true, after: 40 }));
+const HR = (t, o = {}) => new TextRun({ font: F, size: 22, italics: true, bold: o.bold, superScript: o.sup, text: t });
+add(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 240, after: 40 }, children: [
+  HR('Authors: ', { bold: true }),
+  HR('Sai Bhuwan S'), HR('1', { sup: true }), HR('*, Nikhil S Rao'), HR('2', { sup: true }),
+  HR(', Yashita Murlidhar Mandavilli'), HR('3', { sup: true }), HR(', Shashwat Mittal'), HR('4', { sup: true }),
+] }));
+add(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 240, after: 40 }, children: [
+  HR('Affiliation', { bold: true }), HR('1,2,3,4', { sup: true, bold: true }), HR(': ', { bold: true }),
+  HR('Undergraduate Students (B.E., Computer Science and Engineering), RV Institute of Technology and Management, Bengaluru, Karnataka, India'),
+] }));
 add(C(`**Under the guidance of:** Mr. S Murugan, Assistant Professor, Department of Computer Science and Engineering, RV Institute of Technology and Management, Bengaluru, Karnataka, India`, { size: 22, italics: true, after: 40 }));
 add(C(`**Corresponding author mail id:** rvit24bcs019.rvitm@rvei.edu.in`, { size: 22, italics: true, after: 40 }));
 add(C(`**Acknowledgements:** The authors thank Mr. S Murugan for guidance on this work.`, { size: 22, italics: true, after: 200 }));
 
 add(C(`Abstract`, { size: 26, bold: true, after: 100 }));
-add(P(`Flood maps are scored pixel by pixel, but insurance and relief decisions are made per unit, with a stated confidence. We measure how many unit calls a calibrated SAR flood map gets wrong on events it never saw, and how many of those errors a few routed field checks remove. The pipeline has four layers: data, mapping, estimation and field planning. We tested it on 11 Sen1Floods11 events, split by whole event, with India and Bolivia as the test events. Against Otsu thresholding the fused map reached IoU 0.42 (Otsu 0.19) and calibration error (ECE) 0.039 (Otsu 0.338). Inside a cropland mask it captured only 60% of the labelled flooded area. A unit counts as flooded when its estimated flooded share passes 25%; on 34 India units the map alone was wrong 14.7% of the time. Add 16 or 32 field checks per unit and the estimator's error falls to 9.8% and 6.8%, against 13.1% and 9.8% for the checks alone. Its nominal 90% intervals covered 81% and 87%. In simulation, chosen checks and flood-aware routing cut errors further. Fewer than about 12 checks per unit did worse than the map. We report where each step fails.`, { noIndent: true }));
+add(P(`Flood maps are scored pixel by pixel, yet insurance and relief decisions are made per unit and need a stated confidence. We ask how many unit calls a calibrated SAR flood map gets wrong on events it never saw, and how many of those errors a handful of routed field checks can remove. The pipeline has four layers: data, mapping, estimation and field planning. We tested it on 11 Sen1Floods11 events, split by whole event, with India and Bolivia as the test events. Against Otsu thresholding, the fused map reached IoU 0.42 (Otsu 0.19) and a calibration error (ECE) of 0.039 (Otsu 0.338), but inside a cropland mask it captured only 60% of the labelled flooded area. A unit counts as flooded once its estimated flooded share passes 25%. On 34 India units the map alone was wrong 14.7% of the time. With 16 or 32 field checks per unit the estimator's error fell to 9.8% and 6.8%, where the checks alone managed 13.1% and 9.8%, although its nominal 90% intervals covered only 81% and 87%. In simulation, chosen checks and flood-aware routing cut errors further. Below about 12 checks per unit, though, the map did better. We report where each step fails.`, { noIndent: true }));
 add(P(`**Keywords:** flood mapping; Sentinel-1 SAR; calibration; survey estimation; field planning; crop insurance`, { noIndent: true, after: 160 }));
 
 // ---------------- 1 Introduction ----------------
@@ -169,10 +177,10 @@ add(table([3300, 1200, 1200, 1200, 1500], [
   ['Fused and calibrated', '0.039', '0.063', '0.42', '0.84'],
 ], [A.LEFT]));
 add(gap());
-add(BODY(`The learned model did not beat the threshold rule on IoU, on validation or test. On validation events the fused Brier score (0.040) was worse than either predictor alone (about 0.031). Fusion won on test (0.063 against 0.073), yet that order did not hold on validation. Overall ECE also flatters the map: most pixels are easy dry ones. Restrict to pixels called at least 5% wet and the fused ECE rises to 0.128. In the cropland mask, fused ECE was 0.099 (baseline 0.402), but the map found 5.1 km² of flooded cropland where 8.6 km² was labelled, a ratio of 0.60. The baseline claimed 16.0 km².`));
+add(BODY(`The learned model did not beat the threshold rule on IoU, on validation or on test. Brier scores told a more mixed story. On validation events the fused score (0.040) was worse than either predictor alone, which sat near 0.031, and only on test did fusion come out ahead (0.063 against 0.073). That order did not hold earlier, so we do not lean on it. Overall ECE also flatters the map, because most pixels are easy dry ones. Restrict the count to pixels called at least 5% wet and the fused ECE rises to 0.128. Inside the cropland mask the fused ECE was a respectable 0.099 (baseline 0.402), yet the map found only 5.1 km² of flooded cropland where 8.6 km² was labelled, a ratio of 0.60. The baseline, for its part, claimed 16.0 km².`));
 
 add(LEAD(`Estimation with field checks`));
-add(BODY(`Table 2 sets three ways of making the call against each other on the 34 India units. The map alone was wrong 14.7% of the time, whatever the budget. With 16 randomly drawn checks per unit the estimator erred 9.8% of the time; at 32 checks, 6.8%. Checks alone gave 13.1% and 9.8%. Coverage of the 90% interval was 81% and 87%: the intervals are too narrow. An independent-pixel variance would have cut coverage to 76%. At 16 checks the ECE of P_u was 0.041 (Figures 2 and 3).`, { keepNext: true }));
+add(BODY(`Table 2 sets three ways of making the call side by side on the 34 India units. The map alone was wrong 14.7% of the time, and no budget changes that, since it uses no checks. Give the estimator 16 randomly drawn checks per unit and it erred 9.8% of the time; at 32 checks the figure fell to 6.8%. Checks on their own did worse, at 13.1% and 9.8%. The intervals were the weak spot. A nominal 90% interval covered the truth 81% and 87% of the time, so they are too narrow. An independent-pixel variance would have cut coverage to 76%. At 16 checks the ECE of P_u was 0.041 (Figures 2 and 3).`, { keepNext: true }));
 add(TCAP(2, `Wrong-call rate and coverage of the 90% interval on the India test units, random checks.`));
 add(table([2300, 1500, 1500, 1500, 1500], [
   ['Checks per unit', 'Map only', 'Checks only', 'Paddybird', 'Coverage'],
@@ -225,28 +233,28 @@ add(BODY(`Checks pay off once there are enough of them. Between about 12 and 32 
 add(LEAD(`What planning adds`));
 add(BODY(`Choosing checks by expected drop in wrong calls helped most at moderate budgets. Flood-aware routing earned its keep when flooded roads really changed the best route. At the extremes, with very few or very many checks, the plain baselines came close. We read that as a property of the evaluation: gains appear where budgets are tight and roads are cut.`));
 add(LEAD(`Link to related work`));
-add(BODY(`Like the Sen1Floods11 authors [3], we found simple thresholding hard to beat on some measures. The step after the map is what the dataset papers [3, 4] leave out. Comparison is indirect: they report pixel scores, we report unit calls.`));
+add(BODY(`Like the Sen1Floods11 authors [3], we found that simple thresholding is hard to beat on some measures. What the dataset papers [3, 4] leave out is the step after the map, and that is where this work sits. The comparison is only indirect, because they report pixel scores and we report unit calls.`));
 
 // ---------------- 6 Limitations ----------------
 add(H1(`6. Limitations`));
 add(LEAD(`Paddy is a proxy`));
-add(BODY(`Masking uses WorldCover cropland: what we measure is flooded cropland, not flooded rice. These chips carry no paddy label.`));
+add(BODY(`Masking uses WorldCover cropland, so what we measure is flooded cropland and not flooded rice. The chips carry no paddy label, and nothing here can tell the two apart.`));
 add(LEAD(`Map shortfall and SAR only`));
-add(BODY(`About 40% of the labelled flooded cropland area goes uncounted. With no optical bands in the chips, optical water indices were out of reach. A development run on other chips with optical bands scored better; no decision rests on it.`));
+add(BODY(`About 40% of the labelled flooded cropland area goes uncounted. The chips have no optical bands, which put optical water indices out of reach. A development run on other chips that did have optical bands scored better, but no decision rests on it.`));
 add(LEAD(`Few test events`));
-add(BODY(`Two test events, and only India has test units. Estimation intervals are wide, and 34 units give coarse wrong-call rates.`));
+add(BODY(`There are only two test events, and only India yields test units. With 34 units, each wrong-call rate moves in coarse steps, and the estimation intervals are wide.`));
 add(LEAD(`Simulated field checks and roads`));
-add(BODY(`Field checks are drawn from hand labels. Road flood probabilities on the Godavari block are semi-synthetic, as the mapping layer has no flood map there. No officers or trips were observed. The planning study mixes real roads, real chips and synthetic scenarios; each result says which.`));
+add(BODY(`Field checks are drawn from hand labels. The mapping layer has no flood map for the Godavari block, so road flood probabilities there are semi-synthetic. No officers or trips were observed. The planning study mixes real roads, real chips and synthetic scenarios, and each result says which one it rests on.`));
 add(LEAD(`Intervals under-cover`));
-add(BODY(`Nominal 90% intervals covered 81% to 87% in estimation and 78% to 80% under route-style selection. P_u is reasonably calibrated (ECE 0.041), not reliable.`));
+add(BODY(`Nominal 90% intervals covered 81% to 87% of truths in estimation and only 78% to 80% under route-style selection. P_u is reasonably calibrated (ECE 0.041), but it is not reliable.`));
 add(LEAD(`Units and the duration layer`));
 add(BODY(`Units are windows cut from chips, not insurance boundaries. The code has a submergence-duration module, but its onset and duration are simulated; it stays out of the results.`));
 add(LEAD(`Changes to the design`));
-add(BODY(`Fixed before any result: the 25% call threshold and the event split. Changed after seeing results: the estimator. Version 1 shrank every unit towards the training correction. It failed its coverage bound on a single clean test run (0.739 at 16 checks). Version 2 adds a between-event prior variance and learns the pool from each region's own checks; we built it on validation data, but after seeing the v1 test result. Its test numbers are therefore not a clean estimate, and the frozen v1 record is in the repository. The mapping test cell was first run in a development run on layer 1 data. Only a crash fix followed, with no tuning. For planning, the road-closure cut-off (0.7), the slow-down factor (4) and size-proportional village selection were chosen on tuning seeds separate from the evaluation seeds.`));
+add(BODY(`Two things were fixed before any result existed: the 25% call threshold and the event split. The estimator was the one thing we changed after seeing results. Version 1 shrank every unit towards the training correction, and on a single clean test run it failed its coverage bound (0.739 at 16 checks). Version 2 adds a between-event prior variance and learns the pool from each region's own checks. We built it on validation data, but only after seeing the v1 test result, so its test numbers are not a clean estimate. The frozen v1 record is in the repository. The mapping test cell was first run in a development run on layer 1 data, and only a crash fix followed, with no tuning. For planning, the road-closure cut-off (0.7), the slow-down factor (4) and size-proportional village selection were all chosen on tuning seeds kept separate from the evaluation seeds.`));
 
 // ---------------- 7 Conclusion ----------------
 add(H1(`7. Conclusion`));
-add(P(`On flood events not used for fitting, a calibrated SAR map got 14.7% of unit calls wrong and found 60% of the flooded cropland area. Sixteen to 32 randomly drawn field checks per unit brought the error to 9.8% and 6.8%, better than either source alone, though the stated 90% intervals covered only 81% to 87%. In simulation, chosen checks and flood-aware routes helped further. Below about 12 checks per unit, the map did better. We recommend four habits: report a map-only baseline, score whole events, keep inclusion probabilities for every check, and hold the map call until a unit has enough checks. A pilot would need real insurance units, a paddy label, optical bands and officers' actual trips.`));
+add(P(`On flood events not used for fitting, a calibrated SAR map got 14.7% of unit calls wrong and found only 60% of the flooded cropland area. Sixteen to 32 randomly drawn field checks per unit brought the error down to 9.8% and 6.8%, better than either source alone, though the stated 90% intervals covered just 81% to 87%. In simulation, chosen checks and flood-aware routes helped further. Below about 12 checks per unit the map did better, which is the practical catch. From this we take four habits: report a map-only baseline, score whole events, keep inclusion probabilities for every check, and hold the map call until a unit has enough checks. A pilot would need real insurance units, a paddy label, optical bands and the actual trips officers make.`));
 
 add(H1(`Data and code availability`));
 add(P(`Sen1Floods11 chips (CC BY 4.0), ESA WorldCover, the JRC surface-water layer, Sentinel-1 scenes from public STAC catalogues and OpenStreetMap roads are all public. Code, the notebooks that produce every table and figure, and the frozen first-run test records are at https://github.com/UnKnownnPasta/paddybird.`, { noIndent: true }));
