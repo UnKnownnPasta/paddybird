@@ -1,0 +1,819 @@
+#%% md
+# STUDY NOTEBOOK 1: Layer 1, Data and Platform
+
+**Who this is for:** a team member who needs to know Layer 1 and has to explain it to the guide, answer questions on it, and read its code without fear.
+
+**What you need before you start:** nothing about satellites, nothing about statistics beyond "what is an average". Basic Python is enough. Every new word is explained the first time it appears and is collected again in the glossary at the end.
+
+**How to study this notebook (do it in this order)**
+
+1. Read top to bottom once, running every code cell (Shift+Enter). The code cells are tiny on purpose. They use toy numbers so you can see the idea with your own eyes.
+2. After each section there is a box called **Say it to the guide**. Cover the section and say that box out loud in your own words. If you can, move on. If you cannot, re-read.
+3. At the end there is a **numbers to remember** table and a **glossary**. Mug those. They are what examiners ask.
+4. Only after that, open the real notebook `01_data_platform.ipynb` next to this one. Section numbers here match its steps (a) to (e).
+
+> Notation used everywhere: **bold** = a term you must know. `code font` = a name that exists in the real code.
+
+#%% md
+## 0. The whole project in one page (so you know where Layer 1 sits)
+
+**The problem.** A flood damages paddy (rice) fields. Farmers have crop insurance (the scheme is called PMFBY). Insurance is not settled farmer by farmer. It is settled per **insurance unit**, usually a village or a group of villages. The rule our project works with: **if more than 25 percent of a unit's paddy area is flooded, the unit counts as "above the loss line" and gets paid.** We write that 25 percent as **tau = 0.25**.
+
+**The difficulty.** Nobody can walk to every field in every village after a flood. Roads are flooded too. So the officer needs a way to say, for each unit, "above 25 percent" or "below 25 percent", quickly and with an honest idea of how sure we are.
+
+**Our idea in five layers.**
+
+| Layer | Plain-English job | One-line picture |
+|---|---|---|
+| **1 Data and platform** | Collect and prepare everything: satellite images, labelled examples, the list of units, the road map, and a record-keeping system | the kitchen: buy and wash the ingredients |
+| 2 Mapping | Turn each satellite pixel into "probability this is flooded" | the first rough guess from the sky |
+| 3 Estimation | Combine the map with a few field visits to give each unit a number and a call | the careful calculation |
+| 4 Field planning | Decide which villages to visit and by which roads | the day plan for officers |
+| 5 Tool | Show everything to officers on screen | the dashboard |
+
+**Layer 1 is the foundation.** If Layer 1 is wrong (for example, test data leaks into training data), every later number is dishonest, even if the maths later is perfect.
+
+**Two project rules you must be able to quote**
+
+* **No abstain state.** Every unit always gets a call ("above" or "below"). The uncertainty is carried by a number called **P_u** (explained in the Layer 5 notebook), not by saying "I don't know".
+* **Split by flood event, not by tile.** You will understand fully why in section 2.
+
+**Honesty rules for this project (say these before the guide asks):** the field checks are *simulated* from hand labels (no officer was actually followed); "paddy" is a *proxy* (we use cropland, because the dataset has no paddy label); the Godavari demo region has *no ground truth*, so we make no accuracy claim on it.
+
+#%% md
+## 1. Zero-knowledge primer: satellites, radar, pixels
+
+You cannot understand the data if you do not understand what the numbers physically mean. Read slowly.
+
+### 1.1 What is a satellite image, really?
+
+A satellite image is a **grid of numbers**. Each small square of the ground is one number (or a few). That square is a **pixel**. If one pixel covers 10 m by 10 m of ground, we say the **resolution is 10 m**. A 100 m by 100 m field would then be 10 x 10 = 100 pixels.
+
+### 1.2 Optical vs radar (why radar for floods)
+
+| | Optical (like a camera) | Radar (SAR) |
+|---|---|---|
+| Needs sunlight | yes | **no**, it brings its own signal |
+| Sees through clouds | **no** | **yes** |
+| In the monsoon | clouds block the view | works |
+
+Floods happen in the monsoon, under thick cloud. So the main sensor is **radar**. The word is **SAR**: *Synthetic Aperture Radar*. You only need the first idea: the satellite sends a microwave pulse down and records how much comes back.
+
+### 1.3 Sentinel-1
+
+**Sentinel-1** is a radar satellite of the European Space Agency (ESA). Its data is free. It visits the same place roughly every **12 days** per satellite on the same orbit. (There were two satellites, 1A and 1B. 1B failed in December 2021, so after that only 1A is used, which is why the revisit time is 12 days and not 6. This matters in section 7.)
+
+### 1.4 Backscatter and why water is dark
+
+The amount of signal that comes back to the satellite is the **backscatter**.
+
+* **Rough surfaces** (crops, soil, trees, buildings) scatter the pulse in many directions, so a lot comes back: **bright**.
+* **Calm flat water** acts like a mirror: the pulse bounces away like a ball off the floor, almost nothing returns: **dark**.
+
+So **flooded land looks dark in radar**. That one sentence is the physical basis of the whole project.
+
+### 1.5 Decibels (dB)
+
+Backscatter is stored in **dB (decibels)**, a log scale: `dB = 10 * log10(power)`. Typical values: land is around -5 to -12 dB, water is below roughly -15 to -20 dB. More negative = darker = more likely water.
+
+### 1.6 VV and VH
+
+Radar pulses can be sent and received with a chosen orientation ("polarisation"). **VV** = sent vertical, received vertical. **VH** = sent vertical, received horizontal. You get two images per scene: `vv` and `vh`. VV is the main one for water; VH helps tell some crops apart. You do not need more than this.
+
+### 1.7 sigma0 and gamma0
+
+Both are "calibrated backscatter". **sigma0** is relative to ground area. **gamma0** is corrected for the viewing angle of the satellite, so near and far parts of an image are comparable. Our code goes from sigma0 to gamma0 by adding a fixed **+1 dB** (called `SHIFT_DB = 1.0`). It is a simple, documented approximation, not a full correction.
+
+**Try it.**
+
+#%% code
+import numpy as np, pandas as pd, matplotlib.pyplot as plt, json, hashlib, heapq, datetime as dt
+np.set_printoptions(precision=3, suppress=True)
+
+# dB <-> linear power
+def to_db(p):  return 10 * np.log10(p)
+def to_lin(d): return 10 ** (d / 10)
+
+print("linear 1.0   ->", to_db(1.0), "dB")
+print("linear 0.1   ->", to_db(0.1), "dB   (10 times weaker = -10 dB)")
+print("linear 0.01  ->", to_db(0.01), "dB  (100 times weaker = -20 dB)")
+print("-15 dB       ->", to_lin(-15), "of the power (about 3 percent)")
+
+# Make a tiny fake 'radar picture': a river (dark) cutting through land (bright)
+rng = np.random.default_rng(0)
+img = rng.normal(-8, 1.2, (40, 40))          # land around -8 dB
+img[:, 15:25] = rng.normal(-20, 1.0, (40, 10))  # a 10-pixel wide river around -20 dB
+plt.figure(figsize=(3.4, 3.4)); plt.imshow(img, cmap="gray", vmin=-25, vmax=0)
+plt.title("fake VV picture: dark = water"); plt.axis("off"); plt.show()
+
+# the simplest water detector: 'darker than a threshold is water'
+water = img < -15
+print("fraction called water:", water.mean(), "(truth: the river is 10 of 40 columns = 0.25)")
+
+#%% md
+**Say it to the guide (section 1):** "We use Sentinel-1 radar because floods come with clouds and radar sees through clouds. Calm water reflects the radar pulse away, so flooded land looks dark, below about -15 dB. The pixel size is 10 m in the raw data and 20 m in our working grid."
+
+#%% md
+## 2. Step (a): labelled chips and the event-level split
+
+### 2.1 The dataset: Sen1Floods11
+
+To teach or test a flood detector you need pictures where a human has already marked "this is water". That is a **label**. The public dataset we use is **Sen1Floods11** (Bonafilia et al., 2020, free, CC BY 4.0). Facts to memorise:
+
+* **446** hand-labelled image pieces from **11 flood events** around the world;
+* each piece is **512 x 512 pixels at 10 m**; the piece is called a **chip**;
+* each chip comes with VV, VH, a hand-drawn **water label**, and a map of **permanent water** (rivers and lakes that are always there, from a European Commission product called JRC).
+
+The 11 **events** (one event = one flood in one country at one time): Bolivia, Ghana, India, Mekong, Nigeria, Pakistan, Paraguay, Somalia, Spain, Sri-Lanka, USA.
+
+### 2.2 The working grid (what our code does to each chip)
+
+Function `to_working_grid` in `data.py`:
+
+1. Take 10 m sigma0 in dB.
+2. Convert dB to **linear power**, then average each **2 x 2 block of pixels**. The result is a **20 m** pixel. (Always average in linear power, never in dB; see the code cell below for why.)
+3. Convert back to dB and add **+1 dB** (sigma0 to gamma0).
+4. The label also goes to 20 m: a 20 m pixel is **water if at least half of its labelled 10 m sub-pixels are water**. A pixel where **no** sub-pixel is labelled gets **-1** ("unlabelled"). Labels in the arrays therefore mean: `1` water, `0` not water, `-1` unknown.
+
+### 2.3 The small sample we keep
+
+The full dataset is large (about 3 MB per chip). We keep a small committed sample: **up to 12 chips per event**, **centre crop 128 x 128 pixels at 20 m** = **2.56 km on a side**. Result in our repository: **11 events x 12 chips = 132 chips**, stored as `float16` to save space.
+
+**Try it: why average in linear power, not in dB.**
+
+#%% code
+# Four 10 m pixels: three land (-8 dB) and one very bright building (+5 dB)
+db4 = np.array([-8.0, -8.0, -8.0, 5.0])
+
+wrong = db4.mean()                      # average the dB numbers directly
+right = to_db(to_lin(db4).mean())       # convert to power, average, convert back
+print("average in dB (WRONG):        %.2f dB" % wrong)
+print("average in power (RIGHT):     %.2f dB" % right)
+print("The physical quantity that adds up is power (energy), so we average power.")
+
+# The 2x2 block mean exactly as to_working_grid does it, on a tiny array
+db10 = np.array([[-10., -12., -20., -22.],
+                 [-11., -13., -21., -23.],
+                 [ -9.,  -9.,  -9.,  -9.],
+                 [ -9.,  -9.,  -9.,  -9.]])
+lin = to_lin(db10)
+blocks = lin.reshape(2, 2, 2, 2).mean(axis=(1, 3))     # (rows/2, 2, cols/2, 2) -> mean over the 2s
+db20 = to_db(blocks) + 1.0                              # the +1 dB sigma0 -> gamma0 shift
+print("\n4x4 at 10 m  ->  2x2 at 20 m (with +1 dB shift):\n", db20)
+
+# The label rule: 20 m pixel is water if at least half of its LABELLED sub-pixels are water
+lab10 = np.array([[1, 1, 0, 0],
+                  [1, 0, 0, -1],
+                  [-1, -1, 0, 0],
+                  [-1, -1, 0, 0]])
+l = lab10.reshape(2, 2, 2, 2)
+labelled = (l >= 0).sum(axis=(1, 3)); water_n = (l == 1).sum(axis=(1, 3))
+lab20 = np.where(labelled == 0, -1, (water_n * 2 >= labelled).astype(int))
+print("\nlabel at 20 m (1 water, 0 dry, -1 unlabelled):\n", lab20)
+
+#%% md
+### 2.4 Train, validation, test: the three piles
+
+When we build a model we split the labelled data into three piles:
+
+| Pile | Used for | Analogy |
+|---|---|---|
+| **train** | the model learns from it | the textbook you study from |
+| **validation (val)** | we tune choices and check progress | practice tests |
+| **test** | scored **once**, at the very end | the final exam |
+
+If the final exam questions were in your textbook, your marks would say nothing about your real knowledge. That is **leakage**.
+
+### 2.5 Why we split by EVENT and not by tile (the most important idea in Layer 1)
+
+**Tile / chip split** (what many people do): shuffle all chips randomly, put 70 percent in train, 30 percent in test. Chips from the same flood then sit on both sides.
+
+**Why that cheats.** Chips from the same event share a hidden "look": same satellite viewing geometry, same soil moisture, same season, same crop stage, same neighbouring pixels. A model can quietly memorise "in this event, dark-ish means water" and then gets full marks on the neighbouring test chips. But in real use, the **next flood is a new event** the model has never seen. So the score is inflated.
+
+**Event split** (what we do): the **whole event** goes to exactly one pile. The test pile contains only floods the model has never seen in any form. That is the honest question: "will it work on a new flood?"
+
+The Sen1Floods11 official split mixes events across piles, so we **ignore it** and make our own.
+
+**Our assignment (fixed on 2026-11-18, before any model was fitted, so we could not tune it to look good):**
+
+| Pile | Events | Why |
+|---|---|---|
+| **test** | **India**, **Bolivia** | India is our target region. Bolivia is the dataset's own held-out region |
+| **val** | **Sri-Lanka**, **Ghana** | Sri-Lanka is South Asian and close to our target, Ghana adds variety |
+| **train** | the other seven: Mekong, Nigeria, Pakistan, Paraguay, Somalia, Spain, USA | |
+
+**Say it exactly like this:** "We fit on train and validation events and score test events once. We say *events not used for fitting*, not 'held out'."
+
+**Try it: a toy that shows leakage with your own eyes.** We create 10 fake events. Each event has its own hidden rule (a different threshold) and its own signature, and every chip carries that signature. We train a simple "copy the label of the most similar known example" model two ways. In the tile split the model finds a same-event neighbour (same signature, same rule) and copies a correct label. In the event split the signature of the new event matches nobody, so the model copies a stranger's rule.
+
+#%% code
+rng = np.random.default_rng(1)
+n_events, per_event = 10, 120
+thr = rng.normal(0, 2.0, n_events)                     # each event has its own true rule: 'water if x is above my threshold'
+sig = rng.uniform(-6, 6, n_events)                     # each event also has a signature (think: sensor geometry, soil, season)
+X, F, y, ev = [], [], [], []
+for e in range(n_events):
+    x = rng.normal(0, 2, per_event)                    # the measured value (think: backscatter)
+    X.append(x); y.append((x > thr[e]).astype(int))    # the label follows that event's own rule
+    F.append(sig[e] + rng.normal(0, 0.05, per_event))  # the signature leaks into every chip of the event
+    ev.append(np.full(per_event, e))
+X, F, y, ev = map(np.concatenate, (X, F, y, ev))
+feat = np.c_[X, F]                                     # what the model sees: the value AND the signature
+
+def one_nn_accuracy(tr, te):
+    d = ((feat[te][:, None, :] - feat[tr][None, :, :]) ** 2).sum(-1)
+    pred = y[tr][d.argmin(1)]                          # copy the label of the most similar known example
+    return (pred == y[te]).mean()
+
+idx = rng.permutation(len(y))
+tr_tile, te_tile = idx[:840], idx[840:]                # 70/30 random split (tile split)
+test_events = [8, 9]
+te_ev = np.flatnonzero(np.isin(ev, test_events)); tr_ev = np.flatnonzero(~np.isin(ev, test_events))
+
+print("TILE split  accuracy: %.3f   <- looks great, but it is cheating" % one_nn_accuracy(tr_tile, te_tile))
+print("EVENT split accuracy: %.3f   <- the honest number for a NEW flood" % one_nn_accuracy(tr_ev, te_ev))
+
+#%% md
+### 2.6 The leakage assertion (read the real code)
+
+An **assertion** is a line that stops the program with an error if something that must be true is false. `D.assert_no_leakage` checks, in this order:
+
+1. Group the table by event. Count how many *different splits* each event appears in. **Every count must be 1.** (If an event is in two piles, stop.)
+2. No chip id appears twice.
+3. Only the three allowed split names exist: train, val, test.
+4. The set of events in train, in val, and in test **do not overlap** (pairwise).
+
+Below is a simplified copy. Then we deliberately break the rule to watch it complain.
+
+#%% code
+def assert_no_leakage(df, group="event", split="split"):
+    n = df.groupby(group)[split].nunique()
+    bad = n[n > 1]
+    assert bad.empty, f"leakage: events in more than one split: {list(bad.index)}"
+    print("ok: every event is in exactly one split")
+
+good = pd.DataFrame({"chip": ["a","b","c","d"], "event": ["India","India","Ghana","USA"], "split": ["test","test","val","train"]})
+assert_no_leakage(good)
+
+bad = good.copy(); bad.loc[1, "split"] = "train"      # one India chip sneaks into train
+try:
+    assert_no_leakage(bad)
+except AssertionError as err:
+    print("caught:", err)
+
+#%% md
+### 2.7 Optional: look at one REAL chip
+
+If the file `../data/sen1floods11_sample.npz` exists in your copy of the repository, this cell shows a real chip: VV, VH, the hand label, and permanent water. (If it does not exist, the cell just says so.)
+
+#%% code
+from pathlib import Path
+cache = next((p for p in [Path("../data/sen1floods11_sample.npz"), Path("data/sen1floods11_sample.npz"), Path("notebooks/data/sen1floods11_sample.npz")] if p.exists()), None)
+if cache is None:
+    print("sample file not found; skip this cell")
+else:
+    z = np.load(cache, allow_pickle=False)
+    print("arrays:", z.files, "| vv shape (chips, rows, cols):", z["vv"].shape, "| dtype:", z["vv"].dtype)
+    events = z["event"].astype(str)
+    k = int(np.flatnonzero(events == "India")[0])
+    fig, ax = plt.subplots(1, 4, figsize=(11, 3))
+    for a, (img, t, kw) in zip(ax, [(z["vv"][k].astype("float32"), "VV dB", dict(cmap="gray", vmin=-25, vmax=0)),
+                                    (z["vh"][k].astype("float32"), "VH dB", dict(cmap="gray", vmin=-32, vmax=-8)),
+                                    (np.ma.masked_less(z["label"][k], 0), "hand label (water=1)", dict(cmap="Blues")),
+                                    (np.ma.masked_less(z["perm_water"][k], 0), "permanent water", dict(cmap="Purples"))]):
+        a.imshow(img, **kw); a.set_title(t, fontsize=9); a.axis("off")
+    fig.suptitle(f"chip {z['chip'][k]} (event {events[k]}), 128 x 128 pixels of 20 m = 2.56 km")
+    plt.show()
+    from collections import Counter
+    print("chips per event in the sample:", dict(Counter(events.tolist())))
+
+#%% md
+**Say it to the guide (section 2):** "Our labelled data is Sen1Floods11: 446 hand-labelled chips from 11 flood events. We cut a small sample of 12 chips per event, 128 by 128 pixels at 20 m. We split by whole event because chips from one flood look alike, so a tile split leaks. India and Bolivia are test, Sri-Lanka and Ghana are validation, the other seven are train. The split was fixed before any model was fitted, and an assertion in the code stops the run if any event appears in two splits."
+
+#%% md
+## 3. Step (b): STAC search and COG window reads
+
+This step is the *plumbing* that fetches real satellite data from the internet. Its output is small and only a few things downstream depend on it (mainly the pass dates in step e).
+
+### 3.1 The problem: satellite archives are huge
+
+Millions of scenes, each hundreds of MB to GB. You cannot download everything, and you do not want a whole scene just to look at a 2 km square.
+
+### 3.2 STAC: the catalogue (like a library index)
+
+**STAC** = *SpatioTemporal Asset Catalog*. It is a standard way for archives to offer a search: "give me scenes from sensor X, over this box, between these dates, with at most this much cloud". The answer is a list of **items** (scenes). Each item has **assets** (links to the actual files, for example the VV band).
+
+Our code: `D.stac_search(sensor, bbox, start, end, max_cloud)`. A **bbox** (bounding box) is just four numbers: west, south, east, north (longitude/latitude).
+
+We use two catalogues: **Earth Search** (AWS) first, and **Planetary Computer** (Microsoft) as a **failover** (a backup that is used automatically if the first one fails).
+
+Two searches are made:
+
+| Search | What | Why |
+|---|---|---|
+| Sentinel-1, June to October 2022 | the pass dates over the study block | for the revisit model in step (e) |
+| Sentinel-2 L2A, Jan to Mar 2023, cloud at most 5 percent | one clear optical scene | to read an NIR band and a scene-classification map as a demo |
+
+(**Sentinel-2** is an optical satellite. **L2A** = already corrected for the atmosphere. **NIR** = near-infrared band. **SCL** = scene classification layer, which marks cloud, vegetation, water and so on.)
+
+### 3.3 COG and window reads: download only what you need
+
+**COG** = *Cloud Optimized GeoTIFF*. An ordinary GeoTIFF image file must be read from the start. A COG is **organised internally in tiles with an index at the top**. Because of that, a program can ask the server: "send me bytes 40,000 to 90,000 only". That is called an **HTTP range request**.
+
+A **window read** (`D.read_window`) = use the index to find which internal tiles overlap your small box, then range-request **just those**. So a 2 km window from a 100 km scene costs a few hundred KB, not hundreds of MB.
+
+We read three windows: Sentinel-2 NIR, Sentinel-2 SCL, and the **Copernicus GLO-30 DEM**.
+
+* **DEM** = *Digital Elevation Model*: a height map. GLO-30 means 30 m pixels. We use it to compute **slope**, because water does not stand on steep ground, so steep pixels can be masked out later (a layer 2 job; height-above-nearest-drainage, HAND, also lives in layer 2).
+
+### 3.4 Offline safety
+
+Everything fetched is cached in `notebooks/data/`. Setting the environment variable `PADDYBIRD_OFFLINE=1` forbids all network calls. Any failure is printed and the step is **skipped**, not crashed. Nothing downstream needs (b) except pass dates, and those fall back to a **simulated** schedule (clearly marked `synthetic`). Remember: **every artifact records its source** (`sen1floods11`, `osm-overpass`, `stac`, or `synthetic`) in `MANIFEST.json`, so a stand-in can never be mistaken for real data.
+
+### 3.5 The study block
+
+A 12 x 13 km block of the **Godavari delta around Amalapuram (Konaseema, Andhra Pradesh)**: continuous paddy, many village roads, flooded in July 2022. bbox = [81.95, 16.52, 82.07, 16.64]. It is **only a demonstration surface**. It has **no ground truth**, so no accuracy is claimed on it.
+
+#%% code
+# What a window read means, with a fake 'big image' and a 2 km window. Nothing is downloaded here.
+big_rows, big_cols = 10000, 10000          # a 100 km x 100 km scene at 10 m = 10000 x 10000 pixels
+tile = 512                                 # COG internal tile size
+win = (4000, 4000, 200, 200)               # col, row, width, height of OUR box: 200 px x 10 m = 2 km
+
+c0, r0, w, h = win
+tiles_needed = len(range(c0 // tile, (c0 + w - 1) // tile + 1)) * len(range(r0 // tile, (r0 + h - 1) // tile + 1))
+total_tiles = (big_cols // tile + 1) * (big_rows // tile + 1)
+print(f"tiles to fetch: {tiles_needed} of {total_tiles} ({100*tiles_needed/total_tiles:.2f} percent of the scene)")
+
+# The bbox of the study block, and its approximate size in km
+w_, s_, e_, n_ = 81.95, 16.52, 82.07, 16.64
+lat0 = (s_ + n_) / 2
+kx, ky = 111.32 * np.cos(np.radians(lat0)), 110.57     # km per degree of lon, lat (see units.py)
+print(f"study block: {(e_-w_)*kx:.1f} km (E-W) x {(n_-s_)*ky:.1f} km (N-S)")
+
+#%% md
+**Say it to the guide (section 3):** "We search the STAC catalogue for scenes by place, date and cloud cover. The files are Cloud Optimized GeoTIFFs, so we fetch only the small window we need with HTTP range requests instead of downloading a whole scene. We read a Sentinel-2 NIR band, its scene classification, and a 30 m elevation model. All of it is cached, can run offline, and is only a demo with no ground truth."
+
+#%% md
+## 4. Step (c): insurance units and the road graph
+
+### 4.1 What is a unit?
+
+Insurance pays per **unit**: usually a village or gram panchayat. We would like real village boundary polygons, but openly licensed ones that we can commit to the repository do not exist for our block. So we use **two stand-ins** and keep a loader (`U.load_admin_geojson`) ready for real polygons (for example from geoBoundaries) when we get them.
+
+| Kind | What it is | Used for |
+|---|---|---|
+| **Grid units** | the study block cut into **6 x 6 = 36 equal cells**, each about 2.1 x 2.2 km = **about 472 ha** (a delta village is about this size) | routing and the unit-calls table in layers 4 and 5 |
+| **Chip units** ("pseudo-villages") | each 128 x 128 chip is cut into **2 x 2 = 4 units** of 64 x 64 pixels (1.28 km, **163.84 ha** each) | scoring in layer 3, because we know the true flooded share from the hand label |
+
+Numbers to remember: 132 chips x 4 = **528 chip units**, split **336 train / 96 val / 96 test**. One hectare (ha) = 10,000 m2 = 100 m x 100 m.
+
+**Why chip units are safe:** each chip unit **inherits the event and split** of its chip. So a unit can never end up on the other side of the line from its own event. The code even asserts this (`cu.groupby("chip").split.nunique() == 1`).
+
+**Truth for a chip unit:** `label_water_share` = (labelled water pixels) / (labelled pixels) inside the unit. This is the "right answer" Layer 3 tries to estimate.
+
+### 4.2 The area of a polygon (and why we use "km per degree")
+
+Longitude/latitude are angles, not metres. One degree of latitude is about 110.57 km everywhere, but one degree of longitude shrinks as you go toward the poles: `111.32 * cos(latitude)` km. At Amalapuram (lat about 16.6) that is about 106.7 km. The code multiplies degrees by these factors to get kilometres, then uses the **shoelace formula** for polygon area, then converts km2 to hectares (x 100).
+
+#%% code
+# Reproduce the grid-unit area for one cell of the 6x6 grid
+bbox = (81.95, 16.52, 82.07, 16.64)
+nx = ny = 6
+w, s, e, n = bbox
+dx, dy = (e - w) / nx, (n - s) / ny
+lat0 = s + dy / 2
+kx, ky = 111.32 * np.cos(np.radians(lat0)), 110.57
+
+# shoelace formula on a rectangle (x0,y0)-(x1,y1)
+x0, x1 = w * kx, (w + dx) * kx
+y0, y1 = s * ky, (s + dy) * ky
+ring_x = np.array([x0, x1, x1, x0]); ring_y = np.array([y0, y0, y1, y1])
+area_km2 = 0.5 * abs(np.dot(ring_x, np.roll(ring_y, -1)) - np.dot(ring_y, np.roll(ring_x, -1)))
+print(f"one cell: {dx*kx:.2f} km x {dy*ky:.2f} km = {area_km2:.2f} km2 = {area_km2*100:.0f} ha   (real artifact says about 472 ha)")
+
+# Chip unit area: 64 pixels of 20 m each way
+side_m = 64 * 20
+print(f"chip unit: {side_m} m per side, area {side_m**2/1e4:.2f} ha   (artifact: 163.84)")
+print("chips: 11 events x 12 =", 11 * 12, "| chip units:", 11 * 12 * 4)
+
+# Unit ids: G + row + col for grid units, <chip>_u<row><col> for chip units
+print("example grid ids:", [f"G{i:02d}{j:02d}" for i in range(2) for j in range(3)])
+
+#%% md
+### 4.3 The road graph
+
+Officers have to **drive** to villages (that is layer 4's problem). Layer 1 prepares the road network.
+
+**Words:**
+
+* **Graph** = a set of **nodes** (points) joined by **edges** (lines). Here a node is a road **intersection or road end**, an edge is a road stretch between two nodes.
+* **OpenStreetMap (OSM)** = free community map of the world. **Overpass API** = a web service to query OSM data by area. We ask it for **drivable roads** (motorway down to track) inside the bbox.
+* **Simplify to intersections**: OSM stores a curved road as many little points. We keep only the points where roads meet or end, and add up the length between them. This shrinks the graph a lot.
+* **Largest connected component**: after building the graph, some road bits may be isolated islands. We keep only the biggest connected piece so that every kept node can reach every other.
+
+**Travel time on a dry day** (`base_min`): `minutes = 60 * length_km / speed_kmh`. Speeds are *assumed* rural Indian speeds by road class (officers on two-wheelers or jeeps): primary 45, secondary 40, tertiary 32, unclassified 25, residential 20, track 12 km/h and so on. These are assumptions, not measurements.
+
+Real numbers in our run: **2,096 nodes**, **2,567 edges**, source `osm-overpass`.
+
+**Snapping:** every unit is a polygon, but a graph has only nodes. So each unit is **snapped** to its **nearest road node** (straight-line distance). The check requires that distance be under **2 km**.
+
+**Depot:** where officers start. It is the road node nearest to **Amalapuram town** (node 181).
+
+**Shortest travel time = Dijkstra's algorithm.** From the depot it finds the least total minutes to every node. In our run, the median dry travel time depot to unit is about **9.6 min**, the maximum about **16.8 min**.
+
+**Fallback:** if OSM is unreachable and there is no cache, `synthetic_road_graph` builds a jittered lattice and marks it `synthetic`.
+
+**Try it: Dijkstra by hand-sized example.**
+
+#%% code
+# A tiny road graph. Nodes 0..5. Edge = (u, v, length_km, speed_kmh).
+roads = [(0, 1, 3.0, 45), (1, 2, 2.0, 32), (0, 3, 1.5, 20), (3, 2, 1.5, 20), (2, 4, 4.0, 40), (3, 5, 6.0, 12), (4, 5, 1.0, 25)]
+minutes = {}                                   # adjacency with travel minutes, base_min = 60*L/speed
+for u, v, L, sp in roads:
+    m = 60 * L / sp
+    minutes.setdefault(u, []).append((v, m)); minutes.setdefault(v, []).append((u, m))   # undirected
+print("edge minutes:", {(u, v): round(60 * L / sp, 2) for u, v, L, sp in roads})
+
+def dijkstra(adj, src):
+    dist = {src: 0.0}
+    pq = [(0.0, src)]
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist.get(u, 1e18):
+            continue
+        for v, w in adj.get(u, []):
+            nd = d + w
+            if nd < dist.get(v, 1e18):
+                dist[v] = nd; heapq.heappush(pq, (nd, v))
+    return dist
+
+depot = 0
+print("shortest minutes from depot", depot, ":", {k: round(v, 2) for k, v in sorted(dijkstra(minutes, depot).items())})
+print("note: node 2 is reached via 0-1-2 (4.0+3.75 = 7.75 min, 5.0 km) or via 0-3-2 (4.5+4.5 = 9.0 min, 3.0 km). Dijkstra minimises MINUTES, so it picks the longer but faster road.")
+
+# Snapping: nearest node to a unit centre
+nodes_xy = np.array([[0, 0], [3, 0], [3, 2], [0, 1.5], [6, 2], [2, 4]], float)
+unit_centre = np.array([2.6, 1.0])
+d = np.hypot(*(nodes_xy - unit_centre).T)
+print("unit snaps to node", d.argmin(), "at distance %.2f km" % d.min())
+
+#%% md
+**Say it to the guide (section 4):** "Insurance settles per unit, but we do not have open village polygons, so we use grid units over the Godavari block (36 cells of about 472 ha) and chip units on the labelled chips (528 units of 164 ha) where we know the true flooded share. Chip units inherit their chip's event, so they cannot leak. Roads come from OpenStreetMap, simplified to intersections, largest connected piece, with assumed class speeds giving dry travel minutes. Each unit is snapped to the nearest node and the depot is the node nearest Amalapuram. Dijkstra gives travel times."
+
+#%% md
+## 5. Step (d): receipts and survey inclusion probabilities
+
+This is the most conceptually difficult step. It has two ideas glued together: **(i) the receipt**, a tamper-evident record, and **(ii) inclusion probabilities**, the thing that keeps field-sample statistics honest. Take them one at a time.
+
+### 5.1 Idea (i): the receipt
+
+**Goal:** if someone asks "how did you get this number, and can I re-do it?", we can prove it. A **receipt** is a JSON record containing: which inputs went in (identified by hashes), the parameters, the scenes and windows used, the outputs (by hash) and the survey block.
+
+Three terms:
+
+* **JSON** = a text format of key-value pairs, readable by people and programs.
+* **Canonical JSON** = the same data always written in exactly the same way (keys sorted, no spaces). Without that, the same data could produce different text and different hashes. Code: `json.dumps(obj, sort_keys=True, separators=(",", ":"))`.
+* **SHA-256 hash** = a fingerprint function. Feed in any data, get a 64-character code. **Same data gives the same code. Change one tiny thing and the code changes completely.** You cannot go backwards from the code to the data.
+
+**Receipt fields:** `schema`, `step`, `inputs` (name to hash), `params`, `scenes`, `windows`, `survey`, `outputs` (name to hash), `notes`, `output_hash` = hash of outputs and survey, `receipt_id` = **first 16 characters** of the hash of the whole body.
+
+**Verifying** (`verify_receipt`): recompute `receipt_id` and `output_hash` and compare; optionally re-hash the output files; and check every `pi` is in (0, 1]. If anything was edited, it fails.
+
+**Try it.**
+
+#%% code
+def canonical(obj):  return json.dumps(obj, sort_keys=True, separators=(",", ":"), default=str)
+def digest(obj):     return hashlib.sha256(canonical(obj).encode()).hexdigest()
+
+print("same data, different key order -> same canonical text?",
+      canonical({"a": 1, "b": 2}) == canonical({"b": 2, "a": 1}))
+print("hash of 'flood':  ", hashlib.sha256(b"flood").hexdigest()[:20], "...")
+print("hash of 'flood.': ", hashlib.sha256(b"flood.").hexdigest()[:20], "...  (one character added, completely different)")
+
+def build_receipt(step, inputs, params, outputs, survey=None):
+    body = {"schema": "paddybird.receipt/1", "step": step, "inputs": dict(sorted(inputs.items())), "params": params,
+            "survey": survey, "outputs": dict(sorted(outputs.items()))}
+    body["output_hash"] = digest({"outputs": body["outputs"], "survey": survey})
+    body["receipt_id"] = digest(body)[:16]
+    return body
+
+def verify_receipt(rec):
+    body = {k: v for k, v in rec.items() if k != "receipt_id"}
+    if digest(body)[:16] != rec["receipt_id"]: return False
+    if digest({"outputs": rec["outputs"], "survey": rec["survey"]}) != rec["output_hash"]: return False
+    return True
+
+rec = build_receipt("demo", {"chips": digest("chip file bytes")}, {"seed": 20261118}, {"ht_share": digest(0.3412)})
+print("receipt_id:", rec["receipt_id"], "| verifies:", verify_receipt(rec))
+
+rec_tampered = json.loads(canonical(rec)); rec_tampered["params"]["seed"] = 1      # someone edits a parameter
+print("after tampering, verifies:", verify_receipt(rec_tampered))
+
+#%% md
+### 5.2 Idea (ii): inclusion probability and the Horvitz-Thompson estimator
+
+This explains why the receipt has a `survey` block.
+
+**The situation.** We cannot check every field. We check a *sample*. We want to estimate the **share of the frame that is flooded** from that sample. (A **frame** is the complete list of places we could check. Here: a 4 x 4 lattice of candidate points in each unit.)
+
+**The trap.** Suppose we deliberately visit more places that the map says are wet (because those are more interesting). Then our sample has more flooded places than the real frame does. A plain average of the sample over-states flooding. This is **selection bias**.
+
+**The fix, in three steps:**
+
+1. Choose places with a **known random rule**, so that we can write down for each place its chance of being chosen. That chance is its **first-order inclusion probability**, written **pi** (the Greek letter, pronounced "pie"). It must satisfy 0 < pi <= 1.
+2. Give each chosen place a **weight = 1 / pi**. A place that had only a 25 percent chance of being picked "stands for" 4 places.
+3. Estimate the **total** as the sum of `y / pi` over the chosen places (here `y = 1` if the check found flooding, else 0). Divide by the frame size to get a share. This is the **Horvitz-Thompson (HT) estimator**. It is **unbiased**: averaged over many possible draws, it equals the truth.
+
+Related: **Hajek** estimator (used in layer 3) divides by the sum of the weights instead of the frame size; same idea, more stable.
+
+**Our design (`stratified_srswor`):**
+
+* **Strata** = groups the frame is divided into. Here **stratum = unit x map class**, where map class is "map wet" if VV < -15 dB (a fixed physical threshold, nothing is fitted) and "map dry" otherwise.
+* **SRSWOR** = *simple random sample without replacement*: inside a stratum, pick **n_h** places completely at random with no repeats.
+* **Stratified SRSWOR** = do that separately in every stratum. We take **2 checks per stratum**.
+* Inclusion probability of every place in stratum h: **pi = n_h / N_h** (n_h picked out of N_h in the stratum). Exactly known.
+
+**Worked example.** Stratum "map wet" has N=40 places, we pick n=10: pi = 10/40 = 0.25, weight 4. Stratum "map dry" has N=160, we pick n=10: pi = 10/160 = 0.0625, weight 16. We sampled equally (10 and 10), but wet places are only 20 percent of the frame. The weights fix that.
+
+**Try it: HT versus the naive average, 2000 repeated draws.**
+
+#%% code
+rng = np.random.default_rng(7)
+# Frame: 40 'map wet' places (80% truly flooded) and 160 'map dry' places (10% truly flooded)
+y_wet  = (rng.random(40)  < 0.80).astype(int)
+y_dry  = (rng.random(160) < 0.10).astype(int)
+frame_y = np.r_[y_wet, y_dry]; stratum = np.r_[np.zeros(40, int), np.ones(160, int)]
+N_h = np.array([40, 160]); n_h = np.array([10, 10]); pi_h = n_h / N_h
+truth = frame_y.mean()
+print("pi per stratum:", pi_h, "| weights 1/pi:", 1 / pi_h, "| true flooded share of frame: %.3f" % truth)
+
+ht, naive = [], []
+for _ in range(2000):
+    chosen = np.r_[rng.choice(np.flatnonzero(stratum == 0), 10, replace=False),
+                   rng.choice(np.flatnonzero(stratum == 1), 10, replace=False)]
+    y = frame_y[chosen]; pi = pi_h[stratum[chosen]]
+    ht.append((y / pi).sum() / len(frame_y))        # Horvitz-Thompson share
+    naive.append(y.mean())                          # plain average of what we saw
+print("mean of HT draws:    %.3f   (close to truth: unbiased)" % np.mean(ht))
+print("mean of naive draws: %.3f   (too high: we over-sampled the wet places)" % np.mean(naive))
+plt.figure(figsize=(6, 2.8)); plt.hist(ht, 30, alpha=.6, label="HT"); plt.hist(naive, 30, alpha=.6, label="naive")
+plt.axvline(truth, c="k", ls="--", label="truth"); plt.legend(); plt.title("why receipts store pi"); plt.show()
+
+#%% md
+**Why "bias" is the important word:** one single draw of either estimator can be off. HT is not "always right". It is right **on average over repeated draws**. That is what unbiased means, and it is what the final check tests (the HT bias over 300 draws must be under 0.01 and below the naive bias).
+
+### 5.3 The survey block in the receipt
+
+`survey_block` stores, for every **selected** check: `check_id`, `unit_id`, `stratum`, `pi`, `weight = 1/pi`, `reached` (was it actually visited; None until the field day ends), `pi_realised` (optional corrected probability). Plus: the `design` name, the `seed`, `n_selected`, `frame_size`, and the strata summary (N_h, n_h). The allowed design names: `stratified_srswor`, `pps_systematic`, `poisson`, `census`, `route_nominal`. It **raises an error if any pi is outside (0, 1]**.
+
+**Who uses it:** layer 3 weights field checks by 1/pi. Layer 4 writes this block for real field days. Layer 1 only demonstrates the mechanism on **train-split** chips.
+
+**Numbers for the demo:** 16 candidate check points per chip unit (4 x 4 lattice), design stratified SRSWOR, 2 checks per stratum, seed 20261118.
+
+**Say it to the guide (section 5):** "A receipt is canonical JSON containing SHA-256 hashes of every input and output, the parameters and a survey block, so anyone can re-derive and verify a number. The survey block stores each field check's inclusion probability pi, the chance it had of being picked. We weight checks by 1 over pi, which is the Horvitz-Thompson estimator. This removes the bias you would otherwise get from visiting wet-looking places more often. Our demo draws 300 times and shows HT is unbiased while the plain average is not."
+
+#%% md
+## 6. Step (e): the revisit-gap model
+
+### 6.1 The problem
+
+Sentinel-1 does not film continuously. It passes **once every 12 days** (per orbit). Between passes we know **nothing** about a field. If a field was dry on 1 Aug and wet on 13 Aug, the flood started **somewhere in between**, we do not know the day.
+
+### 6.2 Words
+
+* **Pass** = one satellite overflight that gives an image of a place. One row per (date, relative orbit). **Relative orbit** = the numbered track of the satellite's repeating path.
+* **Gap** = days between two consecutive passes over the same place.
+* **Revisit gap model** = the distribution of gaps. We estimate `P(gap >= d)` = fraction of gaps lasting at least d days. It is called a **survival function**, because "survives" means "the gap lasts at least d days". Code: `gap_survival`.
+* **Interval-censored** = we know a value only to lie *between two known bounds*, not exactly. Here the **onset** of flooding lies between the last dry pass and the first wet pass. The **recession** (water going away) lies between the last wet pass and the next dry pass.
+* **Left censoring**: no dry pass before the first wet one, so the onset could be anywhere earlier. **Right censoring**: still wet at the last pass, so the end is unknown.
+
+Layer 2 later turns these brackets into **P(submerged >= d days)**, because crops tolerate short flooding and die from long flooding.
+
+### 6.3 What `censor_interval` computes (read this carefully)
+
+Given pass dates and a wet/dry flag at each pass, take the **first run of consecutive wet passes**: the first wet pass is index `i`, the last wet pass of the run is index `j`.
+
+* `onset_lo` = date of the dry pass just before `i` (None if none: left censored); `onset_hi` = date of pass `i`.
+* `recede_lo` = date of pass `j`; `recede_hi` = date of the dry pass just after `j` (None if none: right censored).
+* **dur_min** = (date j - date i) + 1 days. It was wet at both ends, so at least this long.
+* **dur_max** = (recede_hi - onset_lo) - 1 days, only if both ends are known; else None.
+
+**Try it, with a case worked by hand first.** Passes every 12 days: 1 Jul (dry), 13 Jul (dry), 25 Jul (wet), 6 Aug (wet), 18 Aug (wet), 30 Aug (dry).
+
+* Wet run is 25 Jul to 18 Aug: `dur_min` = 24 + 1 = **25** days.
+* `onset_lo` = 13 Jul, `recede_hi` = 30 Aug: 48 days between, minus 1 = **47**.
+* So the flood lasted between **25 and 47 days**.
+
+#%% code
+def censor_interval(dates, wet):
+    o = sorted(dt.date.fromisoformat(d) for d in dates)
+    w = [bool(x) for x in wet]
+    if not any(w):
+        return {"dur_min": 0, "dur_max": 0}
+    i = w.index(True); j = i
+    while j + 1 < len(w) and w[j + 1]:
+        j += 1
+    onset_lo   = o[i - 1] if i > 0 else None
+    recede_hi  = o[j + 1] if j + 1 < len(o) else None
+    return {"onset_lo": onset_lo, "onset_hi": o[i], "recede_lo": o[j], "recede_hi": recede_hi,
+            "dur_min": (o[j] - o[i]).days + 1,
+            "dur_max": ((recede_hi - onset_lo).days - 1) if (onset_lo and recede_hi) else None,
+            "left_censored": onset_lo is None, "right_censored": recede_hi is None}
+
+dates = ["2022-07-01", "2022-07-13", "2022-07-25", "2022-08-06", "2022-08-18", "2022-08-30"]
+print(censor_interval(dates, [0, 0, 1, 1, 1, 0]))
+print("\nno dry pass before the wet one (left censored):")
+print(censor_interval(dates, [1, 1, 0, 0, 0, 0]))
+print("\nstill wet at the last pass (right censored):")
+print(censor_interval(dates, [0, 0, 0, 1, 1, 1]))
+
+# Optionally compare with the real project function
+try:
+    import sys; sys.path.insert(0, str(next(p for p in [Path("../"), Path("."), Path("notebooks")] if (p / "paddybird").exists())))
+    from paddybird import data as D
+    real = D.censor_interval(dates, [0, 0, 1, 1, 1, 0])
+    print("\nreal project function agrees on durations:", real["dur_min"] == 25 and real["dur_max"] == 47)
+except Exception as exc:
+    print("\n(real function not importable here, skipped:", type(exc).__name__, ")")
+
+#%% code
+# Gaps and the survival function P(gap >= d), on a simulated 12-day schedule with some missed passes
+rng = np.random.default_rng(3)
+def simulate_passes(start, end, revisit=12, offsets=(0,), drop=0.05):
+    d0, d1 = dt.date.fromisoformat(start), dt.date.fromisoformat(end)
+    out = set()
+    for off in offsets:
+        d = d0 + dt.timedelta(days=off)
+        while d <= d1:
+            if rng.random() >= drop: out.add(d)
+            d += dt.timedelta(days=revisit)
+    return sorted(out)
+
+passes = simulate_passes("2022-06-01", "2022-10-31", offsets=(0,))   # one orbit, 5 percent of passes missed
+gaps = np.diff([p.toordinal() for p in passes])
+surv = np.array([(gaps >= d).mean() for d in range(41)])
+print("number of passes:", len(passes), "| gaps (days):", sorted(set(gaps.tolist())))
+print("P(gap >= 5) = %.2f, P(gap >= 12) = %.2f" % (surv[5], surv[12]))
+
+# days since the last pass for every calendar day: climbs 0,1,2,... then resets
+days = np.arange(dt.date(2022, 6, 1).toordinal(), dt.date(2022, 10, 31).toordinal() + 1)
+ds = np.array([p.toordinal() for p in passes])
+idx = np.searchsorted(ds, days, side="right") - 1
+since = np.where(idx >= 0, days - ds[np.clip(idx, 0, None)], np.nan)
+fig, ax = plt.subplots(1, 2, figsize=(10, 2.8))
+ax[0].plot(days - days[0], since); ax[0].set_title("days since last pass (sawtooth)"); ax[0].set_xlabel("day of season")
+ax[1].step(range(41), surv, where="post"); ax[1].set_title("P(gap >= d)"); ax[1].set_xlabel("d (days)")
+plt.tight_layout(); plt.show()
+print("Real artifact (Earth Search passes): 14 passes per grid unit, median gap 12 days, longest gap 12 days, P(gap >= 12) = 0.85 (so 15 percent of real gaps are shorter than 12 days).")
+print("In the toy, a missed pass makes a 24-day gap. That is why real data are checked, not assumed.")
+
+#%% md
+**Important: the wet/dry sequence in the real notebook is made up.** Cell 20 of `01_data_platform.ipynb` uses `[False, False, True, True, True, False, ...]` only to show the censoring logic. It is **illustrative, not an observation**. Say so if asked.
+
+**Say it to the guide (section 6):** "Sentinel-1 revisits every 12 days, so we never see the exact start or end of a flood. Submergence duration is interval-censored: onset lies between the last dry and first wet pass, recession between the last wet and next dry pass. We build the real pass dates from STAC for each grid unit, the distribution of gaps P(gap at least d), and the days-since-last-pass curve. Layer 2 turns those brackets into the probability of being submerged for at least d days."
+
+#%% md
+## 7. Writing the artifacts, the manifest, and the final checks
+
+### 7.1 The file contract
+
+Layers do **not** import each other's code. They pass **files**, stored in `notebooks/artifacts/layer1/`. This is the *contract*. Layer 2 can run from the committed Layer 1 files even if Layer 1 is not re-run.
+
+| File | One-line meaning | Size / rows in our run |
+|---|---|---|
+| `chips.npz` | pixel arrays: vv, vh, label, perm_water, plus chip, event, split, bounds | 132 chips, 6.6 MB |
+| `chips.parquet` | one row per chip (event, split, water_share, valid_share, bounds, source) | 132 rows |
+| `units_chips.parquet` | chip units (pseudo-villages) with true `label_water_share` | 528 rows |
+| `units_grid.parquet`, `.geojson` | the 36 grid units, node id, depot minutes, passes, gap stats | 36 rows |
+| `roads_nodes.parquet`, `roads_edges.parquet` | the road graph | 2,096 nodes, 2,567 edges |
+| `revisit_passes.parquet` | one row per pass covering each grid unit | 504 rows (36 units x 14) |
+| `revisit_gaps.json` | gap list, P(gap >= d), censoring example | |
+| `region.json` | bbox, depot node, season, sources | |
+| `splits.json` | event to split map | 11 events |
+| `stac_scenes.json` | scenes found, windows read | |
+| `receipts/survey_demo.json`, `receipts/layer1_build.json` | the two receipts | |
+| `MANIFEST.json` | the index of everything with hashes and sources | |
+
+**File formats you should recognise:** **parquet** = compact column-based table file (read with pandas). **npz** = NumPy's zipped bundle of arrays. **geojson** = geographic shapes in JSON.
+
+`MANIFEST.json` lists, for each file: description, byte size, SHA-256, rows or array shapes, columns, and the **source flags** (`chips: sen1floods11`, `roads: osm-overpass`, `revisit: stac:earth-search`, ...).
+
+### 7.2 The final checks (memorise the list; each is an `assert`)
+
+The "metric" of a data layer is not accuracy. It is **nothing leaks and everything reproduces**. Each line below is checked by the real notebook, and if any fails the notebook stops.
+
+| # | Check | Why it matters |
+|---|---|---|
+| 1 | event split, no leakage (chips and units agree) | honest test scores |
+| 2 | train, val and test are all non-empty | a split with an empty pile is meaningless |
+| 3 | at least 50 real chips, or the run is flagged synthetic | no fake data passed off as real |
+| 4 | road graph reachable from the depot | every unit can be visited |
+| 5 | every unit snaps within 2 km of a road node | a unit with no nearby road cannot be routed |
+| 6 | HT bias under 0.01 **and** below the unweighted bias | the inclusion-probability idea works |
+| 7 | every pi is in (0, 1] | a probability must be a probability |
+| 8 | both receipts verify | tamper-evident records are intact |
+| 9 | artifacts under 20 MB | the repository stays small |
+
+Our run produced 6.6 MB of chips plus small files, comfortably under 20 MB.
+
+**Say it to the guide (section 7):** "Layers talk through files with a MANIFEST that records schemas, hashes and the source of each artifact, so real and synthetic can never be confused. A data layer's check is not accuracy but integrity: no leakage, reachable roads, probabilities in range, receipts that re-verify, and a size budget."
+
+#%% md
+## 8. The numbers to remember (mug this table)
+
+| Thing | Value |
+|---|---|
+| Loss line **tau** | **0.25** (25 percent of the unit's paddy area) |
+| Satellite | **Sentinel-1** radar, free, ESA |
+| Revisit | **12 days** per orbit (1A only after the 1B failure, Dec 2021) |
+| Water in radar | dark, below about **-15 dB** (VV) |
+| Dataset | **Sen1Floods11**, **446** chips, **11** events, 512 x 512 at 10 m |
+| Working grid | **20 m**, via 2 x 2 mean in linear power, then **+1 dB** (sigma0 to gamma0) |
+| Sample kept | up to **12** chips per event, crop **128 x 128** = **2.56 km**; **132** chips |
+| Splits (by event) | **test**: India, Bolivia. **val**: Sri-Lanka, Ghana. **train**: Mekong, Nigeria, Pakistan, Paraguay, Somalia, Spain, USA |
+| Split fixed on | **2026-11-18**, before any model was fit |
+| Chip units | 2 x 2 per chip, 64 x 64 px, **163.84 ha**; **528** units = 336 train + 96 val + 96 test |
+| Grid units | 6 x 6 = **36**, about **472 ha** each, over the Godavari block |
+| Study block | Amalapuram, Konaseema, Andhra Pradesh; bbox [81.95, 16.52, 82.07, 16.64]; season 1 Jun to 31 Oct 2022 |
+| Roads | OpenStreetMap via Overpass; **2,096** nodes, **2,567** edges; assumed speeds; snap under 2 km |
+| Dry travel time depot to unit | median about **9.6 min**, max about **16.8 min** |
+| Passes | 14 per grid unit, 504 rows; median gap 12 days |
+| Survey demo | 16 candidate points per chip unit, stratified SRSWOR, **2 per stratum**, seed **20261118** |
+| Receipt id | first **16** hex characters of a SHA-256 |
+| Final size limit | **20 MB** |
+| Offline switch | environment variable `PADDYBIRD_OFFLINE=1` |
+
+#%% md
+## 9. Glossary (alphabetical)
+
+* **Abstain**: refuse to give an answer. Our project **forbids** it. Every unit gets a call.
+* **Artifact**: a file one layer writes for the next layer.
+* **Assertion**: a line of code that stops the program if a condition is false.
+* **Backscatter**: how much of the radar signal returns to the satellite.
+* **bbox**: bounding box, (west, south, east, north).
+* **Censoring (interval)**: knowing a value only lies between two bounds.
+* **Chip**: a small cut-out image piece of a larger scene.
+* **COG**: Cloud Optimized GeoTIFF, an image file organised so you can fetch parts of it.
+* **Depot**: the starting road node of the officers (nearest Amalapuram).
+* **DEM**: Digital Elevation Model, a height map (we use Copernicus GLO-30, 30 m).
+* **dB (decibel)**: log scale, `10 * log10(power)`.
+* **Dijkstra**: algorithm for shortest paths in a graph.
+* **Edge / node**: a road stretch / an intersection or road end.
+* **Event**: one flood in one place at one time. The unit of splitting.
+* **Frame**: the full list of places a sample could be drawn from.
+* **gamma0 / sigma0**: calibrated backscatter, gamma0 corrected for viewing angle.
+* **Gap (revisit)**: days between two satellite passes over one place.
+* **Graph**: nodes joined by edges.
+* **Hash (SHA-256)**: a 64-character fingerprint of data.
+* **Horvitz-Thompson (HT)**: the unbiased estimator that weights each sampled place by 1 / pi.
+* **Inclusion probability (pi)**: the known chance a place was selected into the sample.
+* **JRC**: Joint Research Centre (EU), source of the permanent-water map.
+* **Label**: the human-provided right answer.
+* **Leakage**: test information sneaking into training, which inflates scores.
+* **Manifest**: the index file listing every artifact with schema and hashes.
+* **OSM / Overpass**: OpenStreetMap / its query service.
+* **Parquet / npz / geojson**: file formats (table / arrays / shapes).
+* **Pass**: one satellite overflight of a place.
+* **Pixel**: one grid square of an image.
+* **PMFBY**: Pradhan Mantri Fasal Bima Yojana, the crop-insurance scheme.
+* **Polarisation (VV, VH)**: the orientation of sent and received radar waves.
+* **Pseudo-village**: our name for a chip unit, a stand-in for a real village.
+* **Receipt**: a canonical JSON record with hashes that lets anyone re-derive a result.
+* **Relative orbit**: the numbered repeating track of the satellite.
+* **Resolution**: the ground size of one pixel.
+* **SAR**: Synthetic Aperture Radar.
+* **Selection bias**: error caused by choosing sample places in a way that is not representative.
+* **Snap**: assign a unit to its nearest road node.
+* **SRSWOR**: simple random sampling without replacement.
+* **STAC**: SpatioTemporal Asset Catalog, a standard for searching satellite archives.
+* **Stratum / strata**: a group (or the groups) a frame is divided into before sampling.
+* **Survival function**: P(gap >= d).
+* **Synthetic**: made up by us, never real data. Always flagged in the manifest.
+* **tau**: the loss line, 0.25.
+* **Unit**: an insurance unit (village or similar), the thing that gets a call.
+* **Window read**: fetching only a small box of a big image.
+
+#%% md
+## 10. Questions an examiner may ask, and the one-line answers
+
+1. **Why radar and not ordinary satellite photos?** Floods come with cloud. Radar sees through cloud and does not need sunlight.
+2. **Why is water dark in radar?** Calm water is a flat mirror for the pulse, which bounces away, so little returns.
+3. **Why split by event and not by tile?** Chips of one flood look alike, so a tile split lets the model peek at the answer. The next real flood is a new event.
+4. **Why was the split fixed before any model was fit?** So it could not be tuned to produce good-looking scores.
+5. **Why not use the Sen1Floods11 official split?** It mixes chips of the same event across splits.
+6. **Why average in linear power and not dB?** Power is the quantity that adds up physically. Averaging dB under-weights bright pixels.
+7. **What is a COG window read?** Fetching only the internal tiles that overlap our small box, by HTTP range requests.
+8. **What is STAC?** A standard catalogue search for satellite scenes by place, date and cloud cover.
+9. **Why grid units and chip units?** Open village polygons are not available. Grid units are for routing, chip units have known truth for scoring.
+10. **Why do chip units inherit the chip's split?** To make leakage across units impossible.
+11. **What is a receipt?** Canonical JSON with SHA-256 hashes of inputs and outputs and the survey block, so a result can be re-derived and checked.
+12. **What is an inclusion probability?** The known chance that a place was picked into the sample. It must be in (0, 1].
+13. **Why weight by 1 / pi?** To undo the unequal chances of selection. It makes the estimate unbiased.
+14. **What does unbiased mean?** Over many repeated draws the estimate averages to the truth. One draw can still be off.
+15. **What is interval censoring?** Knowing an event time only to lie between two pass dates.
+16. **Why does the revisit gap matter?** We never see the exact flood start or end, so duration has a minimum and a maximum, not one value.
+17. **What does the Layer 1 final check test, if not accuracy?** Integrity: no leakage, reachable roads, probabilities in range, verified receipts, small files.
+18. **What is real and what is simulated in Layer 1?** Real: Sen1Floods11 chips, OSM roads, STAC pass dates. Constructed: the units. Illustrative only: the wet/dry sequence. No ground truth on the Godavari block.
+19. **Is the project predicting paddy?** Not exactly. The mask is ESA WorldCover cropland, a proxy for paddy.
+20. **Did officers actually do the field checks?** No. Field checks are simulated from hand labels.

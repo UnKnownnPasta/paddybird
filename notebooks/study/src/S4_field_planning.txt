@@ -1,0 +1,663 @@
+#%% md
+# STUDY NOTEBOOK 4: Layer 4, Field planning
+
+**Who this is for:** a team member who needs to know Layer 4: deciding **where the next field check should go, which roads the officers should drive, and how to pick villages so the checks are not biased**. You should be able to explain it to the guide, read `04_field_planning.ipynb` and the helper files (`allocation.py`, `routing.py`, `selection.py`), and answer awkward questions honestly.
+
+**What you need before you start:** basic Python, basic stats, a little ML. Everything else (the normal curve, look-ahead, shortest paths, greedy routing, Poisson sampling) is taught here from zero, with toy code you can run.
+
+**How to study this notebook**
+
+1. Read top to bottom and run every code cell (Shift+Enter).
+2. After each section, cover the page and say the **Say it to the guide** box in your own words.
+3. At the end: the **numbers to remember**, the **glossary** and the **question list**. Mug those.
+4. Then open the real `04_field_planning.ipynb`. The section numbers here match it.
+
+> **bold** = a term you must know. `code font` = a name that exists in the real code.
+
+**Everything in Layer 4 is simulated.** There is no real field campaign. Truth is drawn by computer, roads and flooding over the study block are semi-synthetic, and officers are virtual. Say this whenever you quote a number.
+
+#%% md
+## 0. What Layer 4 does, in plain words
+
+Layer 3 gives every village a call ("flooded share above 25 percent, yes or no") and a probability that the call is right. Some calls are shaky. We have a limited budget of **field checks** (an officer walks to a plot and looks) and a limited **field time** (3 officers, 4 hours a day, bad roads). Layer 4 answers three questions:
+
+| Question | Answer in one line | Section |
+|---|---|---|
+| **Which check next?** (no travel limit) | Put the next check where it is expected to reduce the number of **wrong calls** the most | 1 |
+| **Which roads, which villages today?** | Visit the villages with the best **gain per extra minute**, on a road map that knows which roads are flooded | 2 and 3 |
+| **How do we avoid a biased sample?** | Draw a small random "spine" of villages with **known inclusion probabilities**, so pooled estimates can be weighted | 4 |
+
+The two ideas to burn in:
+
+1. **Decision-aware.** We do not chase "the village with the most uncertainty". We chase "the village where one more check is most likely to **change a call from wrong to right**". A village far above or far below 25 percent does not need more checks, however noisy it is.
+2. **Honest evaluation.** Settings are chosen on **tuning seeds**. Results are scored on **separate evaluation seeds** that were never used for tuning. Every planner is compared with simple **baselines**.
+
+**Project rules that apply here:** no abstain state (every village always has a call); say when something is simulated; baselines beside every model; report the places where the method does **not** win.
+
+#%% md
+## 1. Primer: the maths you need
+
+### 1.1 The normal curve and Phi
+
+The **bell curve** (normal distribution) with average 0 and spread 1 has a cumulative function written **Phi(z)** (Greek capital phi). `Phi(z)` = the probability that a standard bell-curve value is **below z**. Facts to remember: Phi(0) = 0.5, Phi(1) is about 0.84, Phi(-1) is about 0.16, Phi(1.645) is about 0.95, Phi(-3) is about 0.001. In Python: `scipy.special.ndtr(z)`.
+
+### 1.2 The call, the estimate and "chance the call is wrong"
+
+For a village u we have an estimate **theta** of its flooded share and a standard error **s** (typical size of its error). The loss line is **tau = 0.25**. The call is "above" if theta > tau, else "below".
+
+The estimate is uncertain, so we model the truth as bell-curve distributed around theta with spread s. The **chance that the call is wrong** is the chance that the truth lies on the other side of the line:
+
+**P_wrong = Phi( - |theta - tau| / s )**
+
+* theta exactly on the line (d = 0): P_wrong = 0.5, a coin flip.
+* theta one standard error from the line: P_wrong = 0.16.
+* theta three standard errors away: 0.001.
+
+So what matters is **d / s**, the distance to the line **measured in standard errors**, not just s.
+
+### 1.3 Greedy and look-ahead
+
+**Greedy**: at each step take the action that looks best right now, without planning many steps ahead. Layer 4 is greedy throughout: next check, next village.
+
+**Look-ahead**: to judge "how much would one more check help?", we cannot know what the check will find. So we **average over what it could find**: the estimate would move by a random amount (a bell curve), and after the check the standard error would be smaller. We compute the expected P_wrong after the check and subtract it from the current P_wrong. That subtraction is the **gain**.
+
+### 1.4 Gauss-Hermite quadrature (the averaging trick)
+
+To average a function over a bell curve you need an integral. **Gauss-Hermite quadrature** replaces the integral by a weighted sum at a few fixed points. The code uses **15 points**: `np.polynomial.hermite_e.hermegauss(15)` returns the points `GH_X` and weights `GH_W` (normalised to sum to 1). Then `E[g(Z)]` is about `sum(GH_W * g(GH_X))` for a standard bell curve Z. You do not need to derive it. You need to say: "it is a fast, accurate way to average over a bell curve using 15 points".
+
+Try it.
+
+#%% code
+import numpy as np, pandas as pd, matplotlib.pyplot as plt, math, time
+from scipy.special import ndtr
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import dijkstra
+np.set_printoptions(precision=3, suppress=True)
+TAU = 0.25
+
+# Phi facts
+for z in (0, 1, -1, 1.645, -3):
+    print(f"Phi({z:>6}) = {ndtr(z):.4f}")
+
+# chance the call is wrong for different distances from the line, with s = 0.05
+def p_wrong(d, s):
+    return ndtr(-np.abs(d) / np.maximum(s, 1e-9))
+print()
+for theta in (0.25, 0.30, 0.35, 0.40):
+    print(f"theta = {theta:.2f}, s = 0.05 -> d/s = {(theta - TAU) / 0.05:4.1f} -> P(call is wrong) = {p_wrong(theta - TAU, 0.05):.3f}")
+
+# Gauss-Hermite: average of x^2 over a standard bell curve is exactly 1; check, then compare with brute force
+GH_X, GH_W = np.polynomial.hermite_e.hermegauss(15); GH_W = GH_W / GH_W.sum()
+print("\nGauss-Hermite estimate of E[Z^2] (true value 1):", round(float((GH_W * GH_X ** 2).sum()), 6))
+f = lambda z: ndtr(-np.abs(0.10 + 0.05 * z) / 0.04)      # some function of a bell-curve value
+brute = f(np.random.default_rng(0).normal(size=2_000_000)).mean()
+print("E[f(Z)]  15-point rule: %.5f | brute force with 2 million random draws: %.5f" % ((GH_W * f(GH_X)).sum(), brute))
+
+#%% md
+**Say it to the guide (section 1):** "The chance that a village's call is wrong is Phi of minus the distance to the 25 percent line divided by the standard error. What matters is how many standard errors from the line it sits. To judge a possible check we use a look-ahead: we average over what the check might find, using a 15-point Gauss-Hermite rule, and measure how much the expected chance of being wrong drops."
+
+#%% md
+## 2. Where the next check goes: allocation (notebook sections 2 and 2b, `allocation.py`)
+
+### 2.1 The estimator inside Layer 4
+
+Layer 4 re-implements Layer 3's **two-stratum** form (the contract between layers is files, not imports). Plots in a village are split by the map into **mapped dry** (h = 0) and **mapped flooded** (h = 1). With the checks so far:
+
+* `n_uh` checks and `k_uh` found flooded in stratum h of village u.
+* **p_uh = (k_uh + m * pi_h) / (n_uh + m)**: the shrunk flooded rate. **pi_h** is the calibration prior (about how often a mapped-dry or mapped-flooded plot is truly flooded) and **m** is its strength (**m = 1** from Layer 3). With no checks, p_uh = pi_h.
+* **theta_u = sum_h W_uh * p_uh**, where **W_uh** is the share of the village's plots in stratum h.
+* **s_u^2 = sum_h W_uh^2 * p_uh (1 - p_uh) / (n_uh + m + 1) * fpc_uh**, where **fpc** (finite population correction) = 1 - n/N shrinks the variance as you check a larger share of the stratum.
+* call = theta_u > tau; **P_u = Phi((theta_u - tau) / s_u)**.
+
+### 2.2 The four allocation rules (all answer every village; only the placement of checks differs)
+
+| Rule | What it does |
+|---|---|
+| **random** | each check goes to a uniformly random plot of the whole region |
+| **proportional** | checks split by village size, and inside a village by stratum share |
+| **uncertainty-only** | greedy: next check where the **variance** (s^2) falls the most. Decision-blind |
+| **decision** (ours) | greedy: next check where the **expected drop in P_wrong** is largest (the look-ahead) |
+
+### 2.3 The look-ahead gain (`lookahead_gain`)
+
+One more check in a stratum changes the variance from **v_now** to **v_after** (v_after is smaller). The estimate will move by a random amount whose variance is the amount of information gained, **v_now - v_after**. So the future distance to the line is
+
+**d' = d + sqrt(v_now - v_after) * Z**, with Z a standard bell-curve value, and the future standard error is **s' = sqrt(v_after)**.
+
+**gain = P_wrong(d, s_now) - E_Z[ Phi( - |d'| / s' ) ]**, averaged with the 15-point rule.
+
+Read it: a village right next to the line with large variance gets a **large gain** (a check could easily push the estimate to a clear side and the standard error shrinks). A village far from the line gets **almost no gain**, even if its variance is large. That is the entire difference from the uncertainty-only rule.
+
+Try it: build the look-ahead, show the gain by distance to the line, and verify it against brute-force simulation.
+
+#%% code
+def lookahead_gain(d, v_now, v_after):
+    """expected drop in P(wrong call) when the variance goes from v_now to v_after (same as allocation.lookahead_gain)."""
+    d, v_now, v_after = np.asarray(d, float), np.asarray(v_now, float), np.asarray(v_after, float)
+    sd_move = np.sqrt(np.maximum(v_now - v_after, 0))
+    s1 = np.sqrt(np.maximum(v_after, 1e-14))
+    after = (ndtr(-np.abs(d[..., None] + sd_move[..., None] * GH_X) / s1[..., None]) * GH_W).sum(-1)
+    return p_wrong(d, np.sqrt(v_now)) - after
+
+# one village, s_now = 0.06, one more check would bring s to 0.055
+v0, v1 = 0.06 ** 2, 0.055 ** 2
+ds = np.array([0.0, 0.03, 0.06, 0.12, 0.18, 0.30])
+g = lookahead_gain(ds, np.full_like(ds, v0), np.full_like(ds, v1))
+print(pd.DataFrame({"distance to line d": ds, "d / s": ds / 0.06, "P_wrong now": p_wrong(ds, 0.06), "gain from one more check": g}).round(4).to_string(index=False))
+print("\nThe gain is biggest for a village sitting ON the line and is already almost zero at 2 standard errors (d = 0.12).")
+print("Far from the line (d = 0.30) the gain is zero, although the variance is exactly the same as in the first row. That is the whole idea.\n")
+
+# verify one row by brute force simulation
+rng = np.random.default_rng(1); d = 0.03
+sim = np.mean(ndtr(-np.abs(d + np.sqrt(v0 - v1) * rng.normal(size=1_000_000)) / np.sqrt(v1)))
+print("check d = 0.03: gain by 15-point rule %.5f | by simulation %.5f" % (float(lookahead_gain(np.array([d]), np.array([v0]), np.array([v1]))[0]), p_wrong(d, 0.06) - sim))
+print("(close but not identical: the rule uses only 15 points and |d| has a kink at 0. That is accurate enough for ranking villages.)")
+
+# cross-check with the real code if the project package is importable
+try:
+    from paddybird import allocation as A
+    print("real A.lookahead_gain agrees:", bool(np.allclose(A.lookahead_gain(ds, np.full_like(ds, v0), np.full_like(ds, v1)), g)))
+except Exception as e:
+    print("(real module not importable from here; skipped cross-check)", type(e).__name__)
+
+#%% md
+### 2.4 A small allocation experiment you can run
+
+Below: a toy region of 60 villages with two strata each. The map-based prior `pi_h` is **wrong in some villages** (their true flooded rate differs), so checks are needed. We spend 0 to 32 checks per village on average with each rule and count the **wrong calls** against the truth. This is a simplified mirror of `alloc_trial`.
+
+Differences from the real code, stated honestly: no finite-population correction, fixed prior, single stratum split, no pilot phase, and the plot-level truth is drawn on the fly. It only shows the **idea**; the real numbers are in section 2.5.
+
+#%% code
+def make_toy(seed, U=60, N=600, pi=(0.04, 0.70), bias_sd=0.9):
+    r = np.random.default_rng(seed)
+    Wf = np.clip(r.beta(1.2, 3.0, U) * 1.0, 0.02, 0.95)                     # share of a village that the map calls flooded
+    # TRUE flooded rate in each stratum varies by village (the map is wrong by a village-specific amount on the logit scale)
+    lg = lambda p: np.log(p / (1 - p)); ex = lambda x: 1 / (1 + np.exp(-x))
+    b = r.normal(0, bias_sd, U)
+    ptrue = np.stack([ex(lg(pi[0]) + b), ex(lg(pi[1]) + b)], 1)           # (U, 2)
+    W = np.stack([1 - Wf, Wf], 1)
+    theta_true = (W * ptrue).sum(1)                                        # expected true flooded share
+    return dict(U=U, N=N, W=W, ptrue=ptrue, theta_true=theta_true, above=theta_true > TAU, pi=np.array(pi))
+
+class Surv:
+    def __init__(self, toy, m, rng):
+        self.t, self.m, self.rng = toy, m, rng
+        self.n = np.zeros((toy["U"], 2)); self.k = np.zeros((toy["U"], 2))
+    def est(self):
+        t = self.t; p = (self.k + self.m * t["pi"]) / (self.n + self.m)
+        theta = (t["W"] * p).sum(1)
+        v = t["W"] ** 2 * p * (1 - p) / (self.n + self.m + 1)
+        return theta, v, p
+    def check(self, u, h):
+        self.n[u, h] += 1; self.k[u, h] += self.rng.random() < self.t["ptrue"][u, h]
+    def calls(self):
+        theta, v, _ = self.est(); return theta > TAU
+
+def gains(S, rule):
+    theta, v0, p = S.est(); n1 = S.n + 1
+    v1 = S.t["W"] ** 2 * p * (1 - p) / (n1 + S.m + 1)
+    if rule == "uncertainty":
+        return v0 - v1                                                     # drop in the variance of each stratum
+    tot = v0.sum(1, keepdims=True)
+    d = np.repeat((theta - TAU)[:, None], 2, 1)
+    return lookahead_gain(d, np.repeat(tot, 2, 1), tot - v0 + v1)          # drop in P(wrong call)
+
+def run_rule(toy, rule, budgets, seed, m=1.0):
+    rng = np.random.default_rng(seed); S = Surv(toy, m, rng); U = toy["U"]
+    cps = sorted(b * U for b in budgets); out = {}; spent = 0
+    if 0 in cps: out[0] = S.calls()
+    plots = np.stack([np.repeat(np.arange(U), 2), np.tile([0, 1], U)], 1)
+    wts = (toy["W"].ravel() * toy["N"])                                    # random rule: pick a plot uniformly -> stratum by size
+    while spent < cps[-1]:
+        if rule == "random":
+            j = rng.choice(len(plots), p=wts / wts.sum()); S.check(*plots[j])
+        elif rule == "proportional":
+            share = (wts / wts.sum()) * (spent + 1); j = int(np.argmax(share - S.n.ravel())); S.check(*plots[j])
+        else:
+            g = gains(S, rule); j = int(np.argmax(g)); S.check(*divmod(j, 2))
+        spent += 1
+        if spent in cps: out[spent] = S.calls()
+    return {b: float(np.mean(out[b * U] != toy["above"])) for b in budgets}
+
+BUD = [0, 2, 4, 8, 16, 32]
+t0 = time.time(); res = {r: [] for r in ("random", "proportional", "uncertainty", "decision")}
+for seed in range(16):
+    toy = make_toy(seed)
+    for r in res:
+        o = run_rule(toy, r, BUD, seed + 100); res[r].append([o[b] for b in BUD])
+tab = pd.DataFrame({r: 100 * np.mean(v, 0) for r, v in res.items()}, index=BUD).T
+tab.columns = [f"{b} checks" for b in BUD]
+print(f"mean WRONG calls (%) over 16 toy regions of 60 villages ({time.time() - t0:.0f} s)")
+print(tab.round(1).to_string())
+print("\nIn this toy the decision rule is best at every budget and even 2 checks per village already help it. In the REAL synthetic evaluation (section 2.5) 2 to 4 checks were worse than the map for every rule.")
+print("The difference is that this toy has a strongly wrong prior in many villages; do not quote toy numbers, they only show the mechanism.")
+
+#%% md
+**Say it to the guide (section 2.1 to 2.4):** "For each village and stratum we shrink the checked flooded rate toward the calibration prior. The chance a call is wrong is Phi of minus distance to the line over s. The decision rule sends the next check to the village and stratum with the largest expected drop in that chance, using a 15-point look-ahead over what the check might find. It beats random, proportional and variance-only rules because it ignores villages that are clearly far from the line, however noisy."
+
+#%% md
+### 2.5 The real allocation results (`eval_allocation.json`)
+
+**Synthetic evaluation:** 60 held-out scenarios (evaluation seeds 1000 to 1059), 80 villages each, settings chosen on 20 separate tuning seeds (100 to 119): pilot 0, batch 1 for both greedy rules. **Wrong 25 percent calls (%) by mean checks per village:**
+
+| Rule | 0 | 2 | 4 | 8 | 12 | 16 | 24 | 32 |
+|---|---|---|---|---|---|---|---|---|
+| random | 11.4 | 20.4 | 21.1 | 18.0 | 15.5 | 14.0 | 11.8 | 10.0 |
+| proportional | 11.4 | 22.5 | 21.7 | 18.3 | 15.1 | 13.8 | 11.5 | 9.8 |
+| uncertainty-only | 11.4 | 23.5 | 18.0 | 15.8 | 14.0 | 12.6 | 11.1 | 10.4 |
+| **decision (ours)** | 11.4 | **19.2** | **14.7** | **11.8** | **9.8** | **8.6** | **7.5** | **7.3** |
+
+**How to read this (you must be able to say all of it):**
+
+1. At 16 checks per village the decision rule makes **8.6 percent** wrong calls against 12.6 (uncertainty-only), 13.8 (proportional), 14.0 (random). Paired 95 percent intervals are well below zero.
+2. It reaches the baselines' 32-check level (about 10 percent) with about **12 checks**.
+3. **Few checks are worse than none.** At 2 to 4 checks per village **every rule is worse than the map alone** (11.4 percent), because with a weak prior (m = 1) a village's early, noisy checks swing its estimate. Ours matches the map only at about **8 checks** and beats it from **12**. This is stated openly. It argues for a stronger prior in Layer 3 or for keeping the map call until a village has enough checks.
+4. The settings (pilot and batch) were tuned for both greedy rules, so the baseline gets the same care.
+
+**Real map error check (`eval_allocation_real_chips.json`):** the synthetic map error is our own assumption, so the rules were also run on **91 labelled test pseudo-villages** (Bolivia and India, events not used for fitting; pi_h fitted on **train** events only: 0.025 and 0.677; labels are water, not flooded paddy). **Wrong calls (%), by checks per unit 0, 2, 4, 8, 16, 32:**
+
+| Rule | 0 | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| random | 8.8 | 10.3 | 9.4 | 6.6 | 4.7 | 3.7 |
+| proportional | 8.8 | 10.5 | 8.4 | 6.2 | 5.1 | 3.4 |
+| uncertainty-only | 8.8 | 7.1 | 6.2 | 4.9 | 4.3 | 3.1 |
+| **decision** | 8.8 | **6.6** | **5.8** | **4.1** | **3.6** | 3.6 |
+
+* Decision is best or tied from 2 to 16 checks (at 8 checks 4.1 against 4.9 and 6.2 to 6.6).
+* **At 32 checks it loses its edge**: 3.6 against 3.1 for uncertainty-only (paired +0.5 points, interval [+0.1, +0.9]) and level with random and proportional. Once most villages are settled, spending on the variance of the rest is as good or better.
+* On real map error, a few checks **do** help (unlike the synthetic world): 8.8 falls to 6.6 at 2 checks for decision.
+
+#%% md
+## 3. The flood-aware road graph and the Dijkstra shortest path (notebook section 3, `routing.py`)
+
+### 3.1 What the graph is
+
+A **graph** is nodes (road junctions) joined by edges (road segments). Each edge has a **dry travel time** `base_min` and a **flood probability** `p_edge` from Layer 2. Dijkstra's algorithm (see notebook 1, section 6) finds the fastest path from a start node to every other node. Layer 4 runs it **from the depot and from every village**, so it has a table `D` of travel minutes between all those sites.
+
+### 3.2 Three ways to price a road segment (`edge_costs`)
+
+| Mode | Cost of a segment | Used for |
+|---|---|---|
+| **blind** | `base` (dry time) | the usual practice and the `nearest` and `gain_blind` planners |
+| **aware** | `base * (1 + (s_plan - 1) * p_flood)`, and **closed (infinite)** if `p_flood >= p_close` | the planner |
+| **true** | `base * 8` if the segment is actually flooded on the day, else `base` | the simulated reality officers drive on |
+
+The simulated truth: **a flooded segment takes 8 times its dry time** (an assumption from the partial report, section 3.5). Segments are flooded independently with their Layer 2 probability.
+
+### 3.3 Why the planner does NOT use 8
+
+Pricing each segment at its **expected time** with the true factor 8 sounds right, but it **over-states** travel. On the day, the officer takes whichever road happens to be dry. The cost of the **path with minimum expected cost** is higher than the **expected minimum cost** (the minimum of the random path times is below the minimum of their expectations). So `s_plan` is a **fitted planning parameter** chosen on tuning seeds by the mean absolute relative error of the predicted depot-to-village times. Result: **s_plan = 4**, not 8.
+
+Try it: two routes to a village, a short road that is flooded half the time and a long dry road. Compare the true expected time, the expected-cost plan, and the reality an officer gets.
+
+#%% code
+rng = np.random.default_rng(2)
+# Two alternative paths depot -> village. Each path has 3 segments. Dry time 10 min each segment, p_flood 0.4, flooded = 8x slower.
+SLOW = 8.0; p = 0.4; base = np.full((2, 3), 10.0)
+n = 200_000
+flooded = rng.random((n, 2, 3)) < p                                    # independent flooding per segment
+true_time = (base[None] * np.where(flooded, SLOW, 1.0)).sum(2)         # (n, 2) true travel time on each path on a random day
+best_true = true_time.min(1)                                           # officer takes whichever path turned out faster
+print("True expected time of the fastest path on the day (what the officer experiences): %.1f min" % best_true.mean())
+for s_plan in (1.0, 4.0, 8.0):
+    cost_per_segment = base * (1 + (s_plan - 1) * p)
+    plan = cost_per_segment.sum(1).min()
+    print(f"plan with s_plan = {s_plan:3.0f}: predicted {plan:6.1f} min | relative error {(plan - best_true.mean()) / best_true.mean():+6.1%}")
+print("\ns_plan = 8 (the true slow-down) OVER-states travel time: it prices every path at its average, but on the day the officer picks the lucky path.")
+print("s_plan = 1 (dry map) UNDER-states it. The best value sits in between, and where exactly depends on the road network and flood probabilities.")
+print("The real project fitted s_plan = 4 on its tuning seeds for exactly this reason (this toy is a different network, so do not expect 4 here).")
+
+#%% md
+### 3.4 Road closure p_close
+
+Segments with flood probability **above p_close are removed** from the graph for planning (cost infinite, `np.where(p >= p_close, inf, w)`), so routes avoid roads that are probably impassable. **p_close was tuned** on tuning seeds by the wrong-call rate after the last day, choosing from None, 0.9, 0.7, 0.5. It chose **0.7** (tuning wrong 7.2 percent against 7.3 for None, 7.8 for 0.9 and 8.5 for 0.5).
+
+### 3.5 Travel-time accuracy (held-out)
+
+Mean absolute relative error of depot-to-village times, 60 held-out scenarios (`travel_time_rel_error`):
+
+| Road pricing | Mean abs relative error | Signed (bias) |
+|---|---|---|
+| dry road map | **29.5 percent** | -29.5 percent (always too optimistic) |
+| flood-aware with s_plan = 8 | **52.1 percent** | +51.5 percent (way too pessimistic) |
+| **flood-aware, s_plan = 4 (fitted)** | **21.0 percent** | +7.4 percent |
+
+So **the obvious flood-aware cost is worse than the dry map**; the fitted one is better. Tuning grid (tuning seeds, mean abs error): 1.5 gives 0.296, 2 gives 0.268, 3 gives 0.226, **4 gives 0.215**, 6 gives 0.314, 8 gives 0.517.
+
+**Say it to the guide (section 3):** "Roads carry a dry time and a flood probability from Layer 2. The planner prices a segment at base times one plus s_plan minus one times the flood probability and closes segments above a cut-off, then uses Dijkstra. In the simulated truth a flooded road is 8 times slower, but planning with 8 over-states travel by 50 percent because officers pick whichever road is dry on the day. So the planning factor was fitted on tuning seeds, giving 4, which cuts the travel-time error to 21 percent against 30 percent for the dry map."
+
+#%% md
+## 4. Orienteering: which villages, which route, each day (notebook section 4)
+
+### 4.1 The problem
+
+3 officers, **4 hours (240 min) a day**. A visit to a village means driving there plus **12 checks of 1.5 min each = 18 min** of service time. Which villages should each officer visit, in what order? This is the **orienteering problem**: collect the most **reward** (here: expected drop in wrong calls) within a time limit. It is hard to solve exactly, so we use a **greedy heuristic**.
+
+### 4.2 Visit gain (`visit_gain`)
+
+Each morning, for every village, compute the **expected drop in P_wrong from a visit of 12 checks** using the same look-ahead as section 2, with the 12 checks split by `visit_plan` between the two strata (each next check goes to the stratum with the larger variance drop). Call this the village's gain **g_v**.
+
+### 4.3 Greedy insertion by gain per extra minute (`insertion`)
+
+1. Start with K = 3 empty routes (depot to depot).
+2. For every unvisited village v, find the **cheapest insertion**: the position in any officer's route that adds the least extra time `dt = D[a,v] + D[v,b] - D[a,b] + service`, provided the officer's day still fits in 240 min.
+3. Pick the village with the largest **ratio = g_v / dt** (gain per extra minute). Insert it. Repeat until nothing fits.
+
+The `dt` is **extra** minutes, not total distance, so a village on the way costs little.
+
+### 4.4 Executing the plan (`execute`) and the daily re-plan
+
+Officers then drive the **true** roads (some flooded, 8 times slower) and **turn back** when the next stop no longer fits in the day. Visits that were planned but not reached are **not done**. Next morning everything is recomputed with the new checks (a **daily re-plan**), which is why the loop `run_campaign` runs for 5 days.
+
+### 4.5 The five planners compared (all answer every village every day; only the visits differ)
+
+| Planner | What it does |
+|---|---|
+| **nearest** | each officer drives to the nearest unvisited village on the dry map (the usual practice) |
+| **gain_only** | highest gain first, travel ignored when choosing |
+| **gain_blind** | gain per minute, planned on the dry road map |
+| **gain_aware** | gain per minute, planned on the flood-aware graph (s_plan = 4, p_close = 0.7) |
+| **gain_aware_spine** | gain_aware plus the random spine villages of section 5, visited first |
+
+Try it: a toy with 8 villages on a line and one flooded road, to see the ratio rule choose.
+
+#%% code
+rng = np.random.default_rng(5)
+# Depot at index 0, villages 1..8. Pairwise travel minutes from coordinates; gains made up.
+xy = np.array([[0, 0], [2, 1], [4, 0], [6, 1], [8, 0], [1, 5], [3, 6], [7, 5], [9, 6]], float)
+D = np.sqrt(((xy[:, None] - xy[None]) ** 2).sum(2)) * 6            # 6 min per unit of distance
+U = 8; service = np.full(U, 18.0)
+gain = np.array([0.30, 0.05, 0.28, 0.02, 0.26, 0.04, 0.20, 0.03])   # expected drop in P(wrong) per village (made up)
+
+def insertion(gain, D, K, t_day, service):
+    U = D.shape[0] - 1; routes, tm = [[] for _ in range(K)], [0.0] * K; left = set(range(U))
+    def best_slot(v):
+        best = None
+        for r in range(K):
+            rt = routes[r]
+            for pos in range(len(rt) + 1):
+                a = 0 if pos == 0 else rt[pos - 1] + 1; b = 0 if pos == len(rt) else rt[pos] + 1
+                dt = D[a, v + 1] + D[v + 1, b] - D[a, b] + service[v]
+                if tm[r] + dt <= t_day and (best is None or dt < best[0]): best = (dt, r, pos)
+        return best
+    while left:
+        best = None
+        for v in left:
+            if gain[v] <= 0: continue
+            slot = best_slot(v)
+            if slot is not None:
+                ratio = gain[v] / max(slot[0], 1e-6)
+                if best is None or ratio > best[0]: best = (ratio, v) + slot
+        if best is None: break
+        _, v, dt, r, pos = best; routes[r].insert(pos, v); tm[r] += dt; left.discard(v)
+    return routes, tm
+
+routes, tm = insertion(gain, D, K=2, t_day=140.0, service=service)
+for r, (rt, t) in enumerate(zip(routes, tm), 1):
+    print(f"officer {r}: villages {[v + 1 for v in rt]} planned minutes {t:.0f} of 140 | total gain {gain[rt].sum():.2f}")
+print("total gain collected: %.2f | villages left out: %s" % (sum(gain[r].sum() for r in routes), sorted(v + 1 for v in set(range(U)) - {v for r in routes for v in r})))
+
+# compare with 'nearest first' (ignores gain)
+def nearest(D, K, t_day, service):
+    left = set(range(D.shape[0] - 1)); out = []
+    for _ in range(K):
+        pos, t, r = 0, 0.0, []
+        while left:
+            v = min(left, key=lambda x: D[pos, x + 1]); need = D[pos, v + 1] + service[v]
+            if t + need + D[v + 1, 0] > t_day: break
+            r.append(v); left.discard(v); t += need; pos = v + 1
+        out.append(r)
+    return out
+nr = nearest(D, 2, 140.0, service)
+print("nearest-first routes:", [[v + 1 for v in r] for r in nr], "| total gain %.2f" % sum(gain[r].sum() for r in nr))
+print("\nHonest note: in this tiny made-up example gain per minute does NOT beat nearest-first (greedy is a heuristic, not an optimum).")
+print("The real claim is an average over 60 simulated campaigns: about 3.6 points fewer wrong calls after 5 days (section 6).")
+
+#%% md
+**Say it to the guide (section 4):** "Each morning we compute every village's expected drop in wrong calls from a 12-check visit, then greedily insert the village with the best gain per extra minute into the cheapest slot of any of the three officers' routes that still fits the 4-hour day. Officers drive the true roads and turn back when the next stop no longer fits. We repeat each day with the updated checks. We compare with nearest-first, highest-gain-ignoring-travel, and gain per minute on the dry map."
+
+#%% md
+## 5. Randomised selection with known inclusion probabilities: the spine (notebook section 5, `selection.py`)
+
+### 5.1 The bias problem
+
+Gain-based routing visits villages that are **near the depot, on dry roads, with high gain**. The pile of checks it collects is **not a random sample** of the region. That is fine **inside a village for the village's own call** (plots within a village are still drawn randomly per stratum), but it **biases anything pooled across villages**: the calibration rate pi_h (how often mapped-dry or mapped-flooded plots are truly flooded) and the district flooded share. This is the same problem as notebook 1, section 5 and notebook 3, section 5 (selection bias fixed by inclusion probabilities).
+
+### 5.2 The fix: a probability spine
+
+* **Frame.** Villages whose expected round trip plus checks on the flood-aware graph fits within **60 percent of a day** (`FRAME_MARGIN = 0.6`). Villages outside the frame **cannot be drawn**. Design estimates are for the frame only. The frame's share of plots is reported: this is a **coverage gap that weighting cannot fix**.
+* **Draw.** Before day 1, each frame village v is drawn **independently** (Poisson sampling) with probability **q_v = clip(c * priority_v, 0.05, 1)**, where c is found by bisection so that **8 villages are expected** (`pps_floor`). The floor 0.05 keeps weights from exploding.
+* **Visit.** Drawn villages are **mandatory stops**, inserted first, and carried to the next day if not reached. Their first visit checks **6 plots per stratum** by simple random sampling (`design_split`).
+* **Inclusion probability of a checked plot:** **pi_i = q_v * c_vh / N_vh** (village probability times the chance the plot is among the c_vh checked out of N_vh). It is written next to the check for Layer 3. Adaptive checks (chosen by gain) carry `inclusion_prob: null` and **must not enter a design-weighted pooled estimate**.
+* **Estimators for the pooled rate in stratum h:**
+  * **Hajek**: `sum_v (N_vh / q_v) * kbar_vh / sum_v (N_vh / q_v)` (ratio form; small bias with few villages).
+  * **Horvitz-Thompson (HT)**: same numerator, but the denominator is the **known** number of stratum-h plots in the frame (design-unbiased, but noisier).
+* **Priority** (design choice, tuned on tuning seeds by RMSE of the Hajek estimates): visit gain (what the report used), village **size** (classic probability proportional to size), or size times sqrt(gain). **Size won** (RMSE 0.0642 against 0.0667 for gain and 0.0668 for size times sqrt gain).
+
+Try it: a toy region where a routed sample is biased and a spine is not.
+
+#%% code
+def pps_floor(priority, n_expected, floor=0.05):
+    g = np.maximum(np.asarray(priority, float), 0)
+    lo, hi = 0.0, 1.0
+    while np.clip(hi * g, floor, 1).sum() < n_expected: hi *= 2
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        if np.clip(mid * g, floor, 1).sum() < n_expected: lo = mid
+        else: hi = mid
+    return np.clip(hi * g, floor, 1)
+
+rng = np.random.default_rng(8)
+V = 40
+size = rng.integers(500, 2500, V).astype(float)                # plots per village
+dist = rng.uniform(5, 100, V)                                  # minutes from the depot
+# TRUE flooded rate in the village: villages far from the depot are more flooded (the depot is on high ground)
+rate = np.clip(0.05 + 0.5 * dist / 100 + rng.normal(0, 0.05, V), 0, 1)
+truth_district = (size * rate).sum() / size.sum()
+print("true district flooded share (size weighted): %.3f" % truth_district)
+
+def one_run():
+    # (a) ROUTED: the officers visit the nearest 8 villages only, each village checked with 12 plots
+    near = np.argsort(dist)[:8]
+    est_routed = (size[near] * rate[near]).sum() / size[near].sum()            # naive pooled, every checked village weighted by size
+    # (b) SPINE: Poisson draw with q proportional to size (floor 0.05), expected 8 villages
+    q = pps_floor(size, 8)
+    got = np.flatnonzero(rng.random(V) < q)
+    if len(got) == 0: return est_routed, np.nan, np.nan
+    kbar = rate[got]                                                           # (sampling noise inside a village ignored for clarity)
+    hajek = ((size[got] / q[got]) * kbar).sum() / (size[got] / q[got]).sum()
+    ht = ((size[got] / q[got]) * kbar).sum() / size.sum()
+    return est_routed, hajek, ht
+
+runs = np.array([one_run() for _ in range(4000)])
+for name, j in (("routed, pooled naively (nearest 8)", 0), ("spine, Hajek", 1), ("spine, Horvitz-Thompson", 2)):
+    x = runs[:, j]; x = x[np.isfinite(x)]
+    print(f"{name:36s} mean {x.mean():.3f}  bias {x.mean() - truth_district:+.3f}  rmse {np.sqrt(((x - truth_district) ** 2).mean()):.3f}")
+print("\n(This toy exaggerates the problem on purpose: flooding rises steeply with distance. In the real simulated world the routing bias is small, see 5.3.)")
+print("Routed: always the nearby, dry villages -> a biased low answer. Spine: random with KNOWN probabilities -> weighting removes the bias.")
+print("Horvitz-Thompson is unbiased but noisier (it depends on how many large villages happen to be drawn).")
+
+#%% md
+**Say it to the guide (section 5):** "Routes favour villages near the depot, so pooled quantities such as the calibration rate and the district flooded share become biased. We fix it with a spine: inside a reachable frame each village is drawn by Poisson sampling with probability proportional to size, floored at 0.05, about eight villages expected. Drawn villages are mandatory stops and six plots per stratum are checked by simple random sampling, so every plot has a known inclusion probability that is stored with the check. Layer 3 can then use Hajek or Horvitz-Thompson weights. The frame covers only about half the plots, which weighting cannot fix."
+
+#%% md
+### 5.3 The real bias check (`eval_bias.json`)
+
+160 held-out scenarios (seeds 2000 to 2159). The spine drew **7.7 villages** on average and **reached 7.7** (frame covers about **51 percent** of plots). **Signed error** of each estimator (mean over scenarios), targets pi_dry, pi_flooded and the district flooded share:
+
+| Estimator | pi_dry bias | pi_flooded bias | district share bias | RMSE (dry, flooded, share) |
+|---|---|---|---|---|
+| **Hajek (spine, known q)** | -0.0001 | -0.0022 | -0.0002 | 0.049, 0.077, 0.047 |
+| Horvitz-Thompson | -0.0021 | -0.0088 | -0.0029 | 0.056, **0.204**, 0.067 |
+| spine, no weights | +0.0003 | -0.0030 | -0.0001 | 0.051, 0.079, 0.048 |
+| **all routed checks pooled** | **+0.0154** | -0.0052 | +0.0032 | **0.030**, 0.048, 0.041 |
+| map only (calibration prior) | **+0.0182** | **+0.0409** | +0.0095 | 0.033, 0.067, 0.024 |
+
+How to read it honestly:
+
+* The Hajek estimates have **no detectable bias** (all within 0.3 points, intervals contain 0). Naively pooling all routed checks **over-states P(flooded | mapped dry) by 1.5 points** (interval [1.1, 2.0]); the calibration prior alone is off by up to **4.1 points**.
+* **Routing bias in this simulated world is small**, because the gain-aware routes reach most of the frame within 5 days. The naive pooled estimator even has a **lower RMSE** (0.030 against 0.049) because it uses about ten times more checks. **The spine buys a guarantee (no bias whatever the routes do), not a smaller error here.**
+* Horvitz-Thompson is unbiased but much noisier (0.20 for mapped flooded).
+* A **gain-proportional** spine, as the report suggested, gave a biased Hajek estimate in development (about -4 points for mapped flooded) because of uneven weights. That is why priority was tuned and **size won**.
+* Why "spine, no weights" is also unbiased here: size priority makes the weights nearly equal (floor 0.05 and the cap), so weighting matters little in this world. Do not claim weighting is the hero of this table. The claim is that the **random draw** is.
+
+#%% md
+## 6. Held-out evaluation of the planners (notebook sections 6 and 6b)
+
+**Setup:** 30 villages, 3 officers, 5 days, **60 held-out scenarios** (seeds 1000 to 1059), settings fixed (s_plan = 4, p_close = 0.7, spine priority = size). Every planner answers every village each day.
+
+### 6.1 Wrong calls (%) by day 0 to 5, mean over scenarios (`eval_routing.json`)
+
+| Planner | day 0 | 1 | 2 | 3 | 4 | 5 | visits | checks | drive minutes |
+|---|---|---|---|---|---|---|---|---|---|
+| nearest | 10.9 | 12.5 | 13.9 | 13.8 | 13.9 | **13.3** | 30.0 | 360 | 1430 |
+| gain_only | 10.9 | 11.8 | 12.6 | 13.4 | 11.6 | 11.1 | 33.6 | 403 | 2066 |
+| gain_blind | 10.9 | 12.4 | 12.7 | 11.8 | 10.7 | 10.6 | 43.8 | 526 | 2042 |
+| **gain_aware** | 10.9 | 12.6 | 12.8 | 11.1 | 10.2 | **9.7** | 41.4 | 496 | 1496 |
+| gain_aware_spine | 10.9 | 12.7 | 12.8 | 11.1 | 10.5 | **9.7** | 40.9 | 491 | 1508 |
+
+### 6.2 Paired differences on day 5 (negative = first planner better)
+
+| Comparison | Difference (points) | 95% interval |
+|---|---|---|
+| gain_aware minus nearest | **-3.56** | [-5.15, -1.96] |
+| gain_aware minus gain_only | -1.39 | [-2.74, -0.04] |
+| gain_aware minus gain_blind | -0.89 | [-1.91, +0.13] (**not significant**) |
+| gain_aware_spine minus gain_aware | -0.06 | [-0.60, +0.49] (the spine costs no measurable accuracy) |
+
+### 6.3 Things you must say honestly
+
+1. **Every planner is worse than the map alone on days 1 to 3** (map 10.9 percent, planners 11.8 to 13.9). Early checks are noisy, as in section 2.5. Only the flood-aware planners end below the map on day 5 (9.7 against 10.9).
+2. **Flood-aware against flood-blind on the synthetic lattice is not statistically significant** (-0.9 points, interval crosses 0). Its clearer benefit is **about 27 percent less driving** (1,496 against 2,042 minutes) for the same work.
+3. Nearest-first is the **worst** at 13.3 percent: it spends the day driving to the closest villages whether or not their calls are shaky.
+
+### 6.4 The same comparison on the real Layer 1 road network (`eval_routing_real_roads.json`)
+
+The real OpenStreetMap graph of the study block with a **semi-synthetic flood layer** and 30 truth draws (seeds 3000 to 3029). The block is small (most villages are under 20 minutes from the depot), so travel binds less. Gain-aware beats nearest-first by about **4.4 points** after 5 days and "highest gain, travel ignored" by **2.5 points**. On these roads it also beats the same planner on the **dry map by 3.1 points** [1.3, 4.8].
+
+#%% md
+## 7. The day-1 plan the tool shows (notebook section 7, `routes_day1.json`)
+
+The planner runs once on the Layer 1 road network in today's state (Layer 3 checks so far, or none) and writes:
+
+* **`routes_day1.json`**: per officer the villages in order, the road-node path, planned minutes. Real run: **3 officers**, 240 min day, 12 checks per visit, p_close 0.7, s_plan 4, true slow-down 8. Officer 1: **8 villages, 234 min planned**; officer 2: **7 villages, 210 min**; officer 3: **5 villages, 233 min**.
+* **`checks_day1.json`**: per village and stratum the planned checks and the **inclusion probability** of each checked plot. Each row says `kind: design` (spine, has an inclusion probability) or `kind: adaptive` (gain-chosen, `inclusion_prob: null`).
+* **`inclusion_probs.json`**: q_v for every village and the spine draw, `frame_margin 0.6`, 8 expected, floor 0.05, priority size, seed 4.
+* **`next_checks.json`**: ranked next checks by the decision rule (Layer 5 uses it when there is no travel limit).
+* **`eval_*.json`**, **`tuning.json`**, the figures, and **`MANIFEST.json`**.
+
+**What Layer 5 does with these:** shows the route view (`route_day1.png`) and the per-village planned checks. In the committed Layer 5 run, the roads and routes are a **fixture** and there are no Layer 4 checks, because Layer 5's real units came from Layer 3 only (see study notebook 5).
+
+#%% md
+## 8. The tuning discipline: no overfitting (the first paragraph of the notebook)
+
+Planner settings (pilot size, look-ahead batch, planning slow-down s_plan, closure cut-off p_close, spine priority) are few, but they are still tuned. The rules:
+
+| Seed set | Range | Used for |
+|---|---|---|
+| **Tuning** | 100 to 119 (20 scenarios) | choosing pilot, batch, s_plan, p_close, spine priority |
+| **Evaluation** | 1000 to 1059 (60 scenarios) | the allocation and routing comparisons, **touched once** with settings fixed |
+| **Bias** | 2000 to 2159 (160 scenarios) | the spine bias check |
+| **Real roads** | 3000 to 3029 | the Layer 1 network comparison |
+| truth seed | region seed + 50000 | each scenario's hidden truth |
+
+Chosen settings: allocation pilot 0 and batch 1 (both greedy rules); **s_plan 4**; **p_close 0.7**; **spine priority size**. Each was picked as the lowest-error option on tuning seeds only.
+
+**Limits you must state (from the notebook):** plots inside a village are independent in the synthetic world (Layer 3 shows that real checks cluster); the flood layer over the study block is semi-synthetic because Layer 2 has no map there; the routing truth (a flooded segment takes 8 times its dry time, independently per segment) is an assumption; the labelled-chip check uses water labels, not flooded paddy.
+
+#%% md
+## 9. The closing assertions (notebook section 9)
+
+Bounds stated in advance, on held-out scenarios:
+
+1. Decision is **not worse than uncertainty-only** at 16 or more checks per village (paired 95 percent upper bound below +1 point).
+2. At 32 checks per village the decision rule **beats the map alone**.
+3. Flood-aware gain-per-minute routing is **not worse than nearest-first** after the last day (paired upper bound below +1 point).
+4. The **Hajek spine estimate** of both pi_h and the district share has a 95 percent interval containing 0, or a bias below 1 point.
+5. The artifacts and manifest exist.
+
+All five pass in the committed run. Note that assertion 1 and 3 say "not worse", not "better": the bounds are conservative on purpose.
+
+#%% md
+## 10. The numbers to remember (mug this table)
+
+| Thing | Value |
+|---|---|
+| Loss line **tau** | **0.25** |
+| Chance a call is wrong | `Phi(-abs(theta - tau) / s)` |
+| Gauss-Hermite points | **15** |
+| Layer 3 prior strength **m** | **1.0** (read from `hyper.json`) |
+| Strata in Layer 4 | **2**: mapped dry, mapped flooded (split at 0.5) |
+| Estimator | `p_uh = (k + m pi_h) / (n + m)`, `theta = sum W p`, `s^2 = sum W^2 p(1-p)/(n + m + 1) * fpc` |
+| Officers **K** / day length / checks per visit / minutes per check | **3** / **240 min** / **12** / **1.5 min** (so 18 min service) |
+| Campaign length | **5 days** |
+| Flooded road slow-down (truth) | **8 times**; planner uses **s_plan = 4** (fitted) |
+| Road closure | **p_close = 0.7** |
+| Allocation budgets | 0, 2, 4, 8, 12, 16, 24, 32 checks per village |
+| Region sizes | allocation 80 villages, routing 30 villages |
+| Seeds | tuning 100 to 119, evaluation 1000 to 1059, bias 2000 to 2159, real roads 3000 to 3029, truth offset 50000, main seed 4 |
+| Spine | frame margin **0.6**, **8** expected villages, floor **0.05**, **6** plots per stratum, priority **size** |
+| Spine plot inclusion probability | `q_v * c_vh / N_vh` |
+| Allocation, synthetic, 16 checks | decision **8.6 %**, uncertainty 12.6, proportional 13.8, random 14.0 (map alone 11.4) |
+| Allocation, 2 and 4 checks | every rule worse than the map alone (decision 19.2 and 14.7 against 11.4) |
+| Allocation, real chips (91 units), 8 checks | decision 4.1 %, uncertainty 4.9, proportional 6.2, random 6.6 |
+| Real chips at 32 checks | decision 3.6 % loses to uncertainty-only 3.1 |
+| Travel-time error | dry map **29.5 %**, s_plan = 8 **52.1 %**, s_plan = 4 **21.0 %** |
+| Routing day 5 | nearest **13.3 %**, gain_only 11.1, gain_blind 10.6, gain_aware **9.7**, spine 9.7 (map 10.9) |
+| Flood-aware vs nearest | **-3.56 points** [-5.15, -1.96]; on real roads about **-4.4** |
+| Flood-aware vs blind | -0.89 [-1.91, +0.13], not significant; **27 %** less driving |
+| Spine bias | Hajek within 0.3 points; naive pooling +1.5 points for pi_dry |
+| Frame coverage | about **51 %** of plots (and in about a quarter of regions no village is in the frame) |
+| Day-1 plan | 3 officers: 8, 7 and 5 villages; 234, 210, 233 minutes |
+
+#%% md
+## 11. Glossary (alphabetical)
+
+* **Adaptive check**: a check chosen by gain; has no inclusion probability, so it cannot go into a design-weighted pooled estimate.
+* **Allocation**: deciding where checks go.
+* **Baseline**: a simple method every model is compared with.
+* **Depot**: where officers start and end the day.
+* **Design-unbiased**: unbiased because of how the sample was drawn, not because of a model.
+* **Dijkstra**: shortest-path algorithm; used with minutes as edge costs.
+* **Finite population correction (fpc)**: factor `1 - n/N` that shrinks the variance when a large share of the population is checked.
+* **Frame**: the set of villages the spine can draw from.
+* **Gain**: expected drop in the chance the call is wrong from a check or a visit.
+* **Gauss-Hermite quadrature**: fast averaging over a bell curve with a few fixed points.
+* **Greedy**: take the locally best action at each step.
+* **Hajek / Horvitz-Thompson**: weighted estimators using 1 over inclusion probability (see notebook 3).
+* **Look-ahead**: judging an action by the expected result of taking it.
+* **Orienteering problem**: collect the most reward within a time limit.
+* **p_close**: flood probability above which a road is treated as closed.
+* **P_wrong**: chance that the call is on the wrong side of the line.
+* **Pilot**: initial checks per stratum before the greedy phase (tuned to 0).
+* **Poisson sampling**: each unit is drawn independently with its own probability.
+* **Pi_h**: calibration prior, how often a plot in stratum h is truly flooded.
+* **s_plan**: planning slow-down factor for a flooded road, fitted to 4.
+* **Service time**: minutes spent checking in a village (12 x 1.5 = 18).
+* **Spine**: the random, probability-based set of villages that are always visited.
+* **Tuning seeds**: scenarios used only for choosing settings.
+* **Visit gain**: gain of a 12-check visit to a village.
+
+#%% md
+## 12. Questions an examiner may ask, and the one-line answers
+
+1. **What does Layer 4 do?** Decides which field checks to make and which roads to drive so that Layer 3's village calls are wrong as rarely as possible for the field time available, and keeps the sample unbiased.
+2. **How do you choose the next check?** The village and stratum with the largest expected drop in the chance the call is wrong, found by a 15-point look-ahead.
+3. **Why not simply check the most uncertain village?** A village far from the 25 percent line stays on its side however noisy it is. The variance-only rule wastes checks there; ours does not.
+4. **What is the chance a call is wrong?** Phi of minus the distance to the line over the standard error.
+5. **What is Gauss-Hermite quadrature?** A way to average over a bell curve using 15 fixed points and weights.
+6. **What baselines did you use?** Random, proportional to size, and variance-only (uncertainty) for allocation; nearest-first, highest-gain-ignoring-travel and flood-blind for routing.
+7. **How much better is it?** At 16 checks per village, 8.6 percent wrong against 12.6 to 14.0 for the baselines on synthetic regions. At about 12 checks it matches the baselines' 32-check level.
+8. **Where does it not win?** With 2 to 4 checks everything is worse than the map alone; at 32 checks on real chips it loses slightly to variance-only; flood-aware vs flood-blind is not significant on the synthetic lattice.
+9. **What is the flood-aware road graph?** Each segment costs its dry time times one plus s_plan minus one times its flood probability, and segments with flood probability over 0.7 are closed. Dijkstra gives travel times between the depot and villages.
+10. **Why is s_plan 4 and not 8?** Because on the day the officer takes whichever road is dry, so pricing each road at its average with the true 8 times over-states travel by about 50 percent. 4 was fitted on tuning seeds (error 21 percent against 30 percent for the dry map).
+11. **How are routes built?** Greedy insertion: repeatedly add the village with the best gain per extra minute into the cheapest slot of any officer's route that still fits the 4-hour day; re-plan each morning.
+12. **What is the spine and why have it?** A random Poisson-drawn set of about 8 villages with known inclusion probabilities, visited first. Routed checks are not a random sample and bias pooled quantities; the spine lets us weight.
+13. **What is the inclusion probability of a spine plot?** q_v times c_vh over N_vh.
+14. **Does the spine hurt accuracy?** No measurable loss: -0.06 points [-0.60, +0.49] on day 5.
+15. **Did the spine fix a big bias?** The bias to fix is small in this simulated world (1.5 points for P(flooded | mapped dry)). The spine buys a guarantee, not a lower RMSE.
+16. **What is the frame limit?** It covers about half the plots, and in about a quarter of regions no village is in it. Design estimates say nothing outside the frame.
+17. **How did you avoid overfitting?** Settings were chosen on separate tuning seeds, and evaluation seeds were never used for tuning.
+18. **Is any of it real?** The road network is real OpenStreetMap, the Layer 2 chip maps are real, but the flood layer over the study block, the field truth, the officers and the 8 times slow-down are simulated or assumed.
+19. **What would you do about the few-checks problem?** Use a stronger prior in Layer 3, or keep the map call until a village has enough checks.
+20. **What does Layer 5 use from Layer 4?** The day route view and planned checks. In our committed Layer 5 run the roads and routes are a fixture and no Layer 4 checks are used.
