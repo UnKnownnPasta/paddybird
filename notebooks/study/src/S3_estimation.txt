@@ -3,133 +3,242 @@
 
 **What this layer is, in one line:** it combines the Layer 2 map with a few field checks to give each unit one number (the flooded share), a yes/no call, and how sure we are.
 
-These notes explain the ideas. You do not need to know how the code is written.
+You do not need to know how the code is written. You need to be able to explain each idea, why it is needed and how it leads to the next.
+
+## The story of this layer in one paragraph
+
+For each unit we want to know whether its flooded share is above 25 percent (section 1). We have a map that covers everything but can be wrong in a steady direction, and field checks that are trustworthy but few (section 2). The central trick is to use the map as the main estimate and use the few checks only to measure and remove the map's average error (section 3). The map is wrong by different amounts in different situations, so we group fields first (section 4). Units with few checks borrow strength from the rest (section 5). Checks taken in convenient places must be weighted back to fairness (section 6). Neighbouring checks are not independent, which affects how sure we can claim to be (section 7). From all this we get a call and a probability, and we keep farmer reports out of the estimate (section 8). Then we test everything honestly (sections 9 and 10), including the story of how our first version failed.
 
 #%% md
 ## 1. The goal
 
-For every unit we want:
+*Where we are: Layer 2 gave a probability of flooded rice for every 20 m square. We now need an answer per unit.*
+
+For every unit we want three things:
 
 1. **theta**: the share of its rice fields that is flooded.
 2. **A call**: "above 25 percent" or "below" (the loss line **tau = 0.25**). Every unit always gets a call. There is no "cannot decide".
-3. **P_u**: the probability that the call is right about being above the line. A shaky call shows up as a probability near 50 percent, not as a refusal.
+3. **P_u**: the probability that the unit is really above the line. A shaky call shows up as a probability near 50 percent, not as a refusal.
+
+The naive route is to average the map over the unit. Section 2 shows why that is risky.
 
 #%% md
 ## 2. Two imperfect sources of information
 
+*Where we are: we have the map and we could have field checks. Neither is enough alone.*
+
 | Source | Good | Bad |
 |---|---|---|
-| **The map** (Layer 2) | covers every field | can be **biased**: consistently too high or too low, especially in a flood it has never seen |
-| **Field checks** (an officer visits a spot and sees if it is flooded) | trustworthy | **few**, so noisy, and may be taken from convenient places near roads |
+| **The map** (Layer 2) | covers every field, free | can be **biased**: wrong in a steady direction, especially in a flood it has never seen |
+| **Field checks** (an officer visits a spot and sees if it is flooded) | trustworthy | **few**, so noisy, and possibly taken from convenient places near roads |
+
+**Bias** means an error that leans the same way every time. A map that always over-reads flooding by 8 percentage points has a bias of +0.08, no matter how many times you look at it. More data of the same kind does not remove it.
+
+**Variance** means how much the answer jumps around by luck. A few checks give a high-variance answer. More checks reduce it.
+
+The map has bias but low variance. A few checks have little bias (if chosen fairly) but high variance. We would like the best of both.
 
 #%% md
 ## 3. The main idea: use the map, and let the checks correct it
 
-An analogy. You guess the weight of 100 sacks by eye. Then you weigh 5 properly and learn your eye guesses run 2 kg too high. You subtract 2 kg from all 100 guesses. Five weighings improved all 100 guesses. That beats weighing only 5 sacks and throwing away your guesses.
+*Where we are: we have a biased but complete map and a few good but noisy checks. How do we combine them?*
 
-Same here: the map gives a guess for every field, and the few checks tell us **how wrong the map is on average**. We subtract that error. The reason this works with few checks: the map's *error* varies much less from place to place than flooding itself does, and a steady quantity is easier to estimate from a few samples. This approach is called **prediction-powered inference**.
+An analogy. You guess the weight of 100 sacks by eye. Then you weigh 5 of them properly and find your eye guesses run 2 kg too high. You subtract 2 kg from all 100 guesses. Five weighings improved all 100 guesses. That beats weighing only 5 sacks and discarding your eye guesses.
 
-The map's error for one field is simply: **truth minus map probability**. It is called the **rectifier**. Negative means the map over-reads flooding.
+The same idea here:
+
+1. The map gives a guess for every field.
+2. The few checks tell us **how wrong the map is on average**.
+3. We subtract that average error from the map's guess.
+
+**Why does this need so few checks?** Flooding itself varies hugely from field to field: a field is either flooded or not. But the *map's error* is steadier: it is consistently a bit too high or too low in similar situations. Estimating a steady quantity from a few samples is much easier than estimating a swinging one.
+
+The map's error for one field is simply **truth minus map probability**. It is called the **rectifier**. If the map said 0.8 and the field was flooded (1), the rectifier is +0.2. If the map said 0.8 and the field was dry (0), it is -0.8. Averaged over many fields, negative means the map over-reads flooding.
+
+This approach is called **prediction-powered inference**: use a prediction everywhere, and use a few real measurements to correct it.
+
+*So next: the map's error is not the same everywhere, so we should work it out separately for different kinds of field.*
 
 #%% md
-## 4. Grouping fields before correcting
+## 4. Grouping fields, with a worked example
 
-The map's error is not the same everywhere, so fields are grouped by what the map says:
+*Where we are: we want the correction. But a single average error would be wrong, because the map is more wrong in some situations than others.*
+
+We group fields by what the map says, using three groups with cut points fixed in advance:
 
 * **Mapped dry**: map probability below 0.15.
 * **Uncertain**: 0.15 to 0.6.
 * **Mapped flooded**: 0.6 and above.
 
-These cut points were fixed in advance, not tuned. The correction is worked out separately for each group and then combined using how much of the unit each group makes up.
+On the training events the map over-reads flooding in every group. The average errors are about **-0.035** (mapped dry), **-0.207** (uncertain) and **-0.140** (mapped flooded). The uncertain group is the most wrong, which makes sense: that is where the map is least sure.
 
-On the training events the map over-reads flooding in every group (average errors of about -0.035, -0.207 and -0.140), mostly in the uncertain group.
+**Worked example (made-up numbers).** A unit has 20 percent of its fields in the mapped-dry group, 50 percent in uncertain and 30 percent in mapped-flooded. The map's average probability in those groups is 0.08, 0.40 and 0.85.
+
+* Plain map average: 0.2 x 0.08 + 0.5 x 0.40 + 0.3 x 0.85 = **0.471**.
+* Apply the corrections (-0.035, -0.207, -0.140): the group values become 0.045, 0.193 and 0.71. So the corrected share is 0.2 x 0.045 + 0.5 x 0.193 + 0.3 x 0.71 = **about 0.32**.
+
+The map said 47 percent, the corrected answer is 32 percent. Both are above 25 percent here, but the second is much less extreme, and for a unit nearer the line the correction could flip the call.
+
+*So next: the correction we just used came from training events. What if a unit has its own checks?*
 
 #%% md
-## 5. Not many checks? Borrow from neighbours
+## 5. Few checks: borrow from the rest
 
-With 0 or 1 checks in a unit, its own correction is unreliable. So we **shrink** it toward a shared correction, like a student with one test mark being judged partly by the class average. The more checks a unit has, the more we trust its own number and the less we lean on the shared one. The setting that controls how strongly we lean on the shared number was chosen using training events only.
+*Where we are: a unit with one or two checks of its own cannot give a trustworthy correction.*
+
+We **shrink** the unit's own correction toward a shared correction. It is like judging a student with a single test mark partly by the class average. The more checks the unit has, the more we trust its own number.
+
+A simple version of the rule: the weight on the unit's own correction is **n / (n + m)**, where n is its number of checks and m is a "strength of the shared value" setting. With m = 1:
+
+| Checks in the unit | Weight on its own number |
+|---|---|
+| 1 | 0.50 |
+| 4 | 0.80 |
+| 16 | 0.94 |
+
+The real method uses a slightly more careful count of checks (an "effective" count that allows for unequal weights, see section 6), but the idea is the same.
+
+The setting m was chosen using **training events only**, by trying several values (0.5 to 32) on random draws of checks; the choice, **m = 1**, was close to flat, meaning it did not matter much.
+
+The shared value itself is a careful blend of two sources: the correction learned on the training events, and what the checks from the current region say. If the current region's checks disagree strongly with the training correction, the region's own evidence wins. This is what fixed our first version (section 10).
 
 #%% md
 ## 6. Fair weighting of checks
 
-If officers check mostly near roads, those checks are not a fair sample. We know each check's chance of being picked (its **inclusion probability**, see Layer 1) and weight it by one divided by that chance. This undoes the unfairness. We tested it with a deliberately road-biased "route" style of checking: an unweighted version was biased by -0.030, a weighted version by -0.011, and the exact "Horvitz-Thompson" form by about +0.002 (very close to zero).
+*Where we are: the correction depends on the checks. But if officers check mostly near roads, the checks are a biased sample.*
+
+Recall Layer 1, section 8: we know each check's chance of being picked (its **inclusion probability**). We weight each check by **1 divided by that chance**, so rarely-reachable places that did get checked count for more.
+
+We tested this with a deliberately road-biased "route" style of checking, in which near-road plots turn out to be less flooded than the map thinks. Bias in the estimate with 32 checks per unit:
+
+| Version | Bias |
+|---|---|
+| Unweighted | **-0.030** |
+| Weighted (the version we use) | **-0.011** |
+| Exact "Horvitz-Thompson" form | **+0.002** (essentially zero) |
+
+The exact form is nearly unbiased but noisier, so it is used as a reference rather than the headline. We also tested what happens if far places are simply not reached while the stated chances stay the same; the exact form stayed close to zero (-0.006).
+
+*So next: even fair weights do not tell us how sure to be, because nearby checks are not independent.*
 
 #%% md
-## 7. Neighbouring fields are alike: clustering
+## 7. Neighbours are alike: clustering
 
-Fields in the same small area flood together and are mis-mapped together. So four checks in one spot are worth less than four checks in four different places. If we ignore this we claim more certainty than we have, and our 90 percent ranges end up covering the truth less than 90 percent of the time. We measure how alike neighbours are (the **intra-cluster correlation**, about 0.33 here), which makes four neighbouring checks worth about two independent ones, and compute uncertainty accordingly.
+*Where we are: we have an estimate. Now we need its uncertainty (how sure we are).*
+
+An officer who visits one spot typically checks several plots there. Plots in the same small area flood together and are mis-mapped together. So **four checks in one spot are worth less than four checks in four different spots.**
+
+We measure how alike neighbours are with the **intra-cluster correlation**: 0 means plots in a spot are no more alike than random plots, 1 means identical. Ours is about **0.33**. The rule of thumb is that the inflation in variance is 1 + (checks per spot minus 1) x correlation = 1 + 3 x 0.33, about **2.0**. So four neighbouring checks are worth about two independent ones.
+
+If we ignore this, we claim more certainty than we have. Our stated 90 percent ranges would cover the truth less than 90 percent of the time. To avoid this we compute uncertainty by treating each **visited spot** as one observation, rather than each check. When a unit has very few spots, we blend with a model-based value so that the answer is not wildly noisy.
+
+*So next: we have an estimate and an uncertainty. Now turn them into a call.*
 
 #%% md
-## 8. How sure are we? P_u, and farmer reports
+## 8. Turning it into a call, and the farmer reports
 
-**P_u** comes from the estimate and its uncertainty: the further the estimate is from the 25 percent line, relative to its uncertainty, the closer P_u is to 0 or 1.
+*Where we are: theta and its uncertainty s for every unit.*
 
-**Farmer reports** are never mixed into theta. Farmers who report are mostly the ones who were flooded, so reports lean toward flooding. Instead we compute a **flip value**: how biased the reports would have to be before trusting them changes the call. A large flip value means the call is safe. A small one means it depends on trusting the reports. The farmer reports in our runs are simulated.
+**The call and P_u.** The call is "above" if theta is above 0.25. **P_u** measures how far theta sits from the line in units of its uncertainty. Worked example: theta = 0.32, s = 0.05. The gap to the line is 0.07, which is 1.4 times s. A standard result from the bell curve says the probability of being above is then about **0.92**. If theta were 0.26 with the same s, the gap is only 0.2 times s, and P_u is about **0.58**: a call, but barely better than a coin flip. That is how a weak call shows itself without any "cannot decide" option.
+
+**Farmer reports** are never mixed into theta. Farmers who report are mostly the ones who were flooded, so reports lean toward "flooded". Instead we compute a **flip value**: how biased the reports would have to be before trusting them changes the call. A large flip value means the call is safe whatever the reports say. A small one means the call depends on trusting biased reports. The farmer reports in our runs are **simulated**.
+
+*So next: does all this work? We test it honestly.*
 
 #%% md
 ## 9. How we tested it, and what happened
 
-We repeated the "draw some random checks, compute estimates" experiment many times by computer on events not used for fitting, comparing against two baselines: **the map alone** and **the checks alone**. The field checks are simulated from the hand labels. No officer was involved.
+*Where we are: we have the full method. Time to score it, once, on events not used for fitting.*
 
-**Test events** (34 units), share of units given the wrong call:
+**Setup.** On the training, validation and test regions we repeated the experiment "draw some random field checks, compute estimates" many times by computer (120 repeats on validation, 200 on test) and compared three approaches: **the map alone**, **the checks alone**, and **our method**. The field checks are **simulated from the hand labels**. No officer was involved.
+
+**Test events (34 units): share of units given the wrong call.**
 
 | Checks per unit | Map alone | Checks alone | **Ours** |
 |---|---|---|---|
 | 0 | 0.147 | not possible | 0.206 |
+| 4 | 0.147 | 0.201 | 0.139 |
 | 16 | 0.147 | 0.131 | 0.098 |
 | 32 | 0.147 | 0.098 | **0.068** |
 
-* With **32 checks per unit** ours is clearly best: 6.8 percent wrong against 14.7 (map) and 9.8 (checks).
-* With **zero checks ours is worse than the raw map** (20.6 against 14.7 percent). The correction learned on training events does not carry over to new test events. We say so openly.
-* Our probabilities are honest enough (calibration error 0.041 at 16 checks), but our 90 percent ranges only cover the truth about 81 percent of the time at 16 checks. They are a bit too narrow on new events.
-* Test is harder than validation. The gap is real and we report it.
+**What it shows:**
+
+* With **32 checks per unit** ours is clearly best: **6.8 percent wrong** against 14.7 (map) and 9.8 (checks). Even with 4 checks it already beats the map (13.9 against 14.7).
+* With **zero checks ours is worse than the raw map** (20.6 against 14.7). The correction learned on training events does not carry over to the new test events. We say this plainly, and the unit-level output files keep the raw map number too for exactly this reason.
+* Our probabilities are fairly honest (calibration error **0.041** at 16 checks), but our 90 percent ranges only cover the truth about **81 percent** of the time at 16 checks. They are a little too narrow on new events.
+* Test is harder than validation. At 16 checks the wrong-call rate is 0.098 on test against 0.021 on validation. We report that gap.
+* A simpler older formula (kept as a comparison) gets similar wrong-call rates. Our method's advantage shows more in lower error, less bias under road-biased checking and better-calibrated probabilities than in wrong calls alone.
+
+*So next: the full honest history.*
 
 #%% md
 ## 10. The honest history
 
-Our **first version** shrank every unit toward the training correction and treated that correction as certain. On its first test run it failed its own coverage target: ranges covered only **74 percent** at 16 checks. Reason: in India the map under-reads flooding, while on the training events it over-reads, so correcting toward the training average pulled estimates the wrong way.
+*Where we are: this is the part to say before anyone asks.*
 
-The **second version** (the one we use) allows for how much the correction can differ between flood events, and learns part of it from the checks in hand. **It was written after we saw the first test result, so its test numbers are not a clean, untouched estimate.** The first version's result is kept on file and we always say this.
+Our **first version** shrank every unit toward the training correction and treated that correction as certain. On its first test run it **failed its own coverage target**: ranges covered only **74 percent** at 16 checks. The reason: in India the map under-reads flooding, while on the training events it over-reads. Correcting toward the training average therefore pushed the estimates the wrong way.
+
+The **second version** (the one we use) allows for how much the correction can differ between flood events, and learns part of it from the checks in hand (section 5). It was developed using only the validation events.
+
+**But it was written after we saw the first test result, so its test numbers are not a clean, untouched estimate.** The first version's result is kept on file, and the first version still appears in every comparison table.
 
 #%% md
-## 11. Key numbers
+## 11. How Layer 3 connects to the others
+
+| Layer 3 produces | Used by |
+|---|---|
+| theta, uncertainty, call and P_u for each unit (before any field check) | Layer 4 (to decide where to check) and Layer 5 (to show) |
+| the raw map share alongside | Layer 5 (fallback, since zero-check estimates are worse than the map) |
+| group shares and corrections per unit | Layer 4 (planning) |
+| settings such as the loss line and m | Layers 4 and 5 |
+
+#%% md
+## 12. Key numbers
 
 | Thing | Value |
 |---|---|
 | Loss line tau | **0.25** |
 | Groups by map probability | below 0.15, 0.15 to 0.6, 0.6 and above |
-| Units | 125 train, 27 validation, 34 test (made from 121 chip maps) |
+| Training corrections | -0.035, -0.207, -0.140 |
+| Units | 125 train, 27 validation, 34 test |
 | Neighbour similarity | about 0.33, so 4 nearby checks are worth about 2 |
+| Prior strength m | **1** |
 | Test, 32 checks, wrong calls | ours **0.068**, map **0.147**, checks **0.098** |
 | Test, 0 checks | ours **0.206**, map **0.147** (ours worse) |
-| Test, 16 checks | ranges cover truth **0.81** of the time; calibration error **0.041** |
+| Test, 16 checks | ranges cover truth **0.81**; calibration error **0.041**; wrong calls 0.098 (validation 0.021) |
 | First version | covered only **0.74** at 16 checks |
-| Road-biased checks, bias | unweighted **-0.030**, weighted **-0.011**, exact form **+0.002** |
+| Road-biased checking, bias | unweighted **-0.030**, weighted **-0.011**, exact form **+0.002** |
 
 #%% md
-## 12. Glossary
+## 13. Glossary
 
-* **Bias**: error that points the same way every time.
+* **Bias**: error that leans the same way every time.
+* **Variance**: how much the answer jumps around by luck.
 * **Rectifier**: truth minus map probability; how wrong the map is.
+* **Prediction-powered inference**: use a prediction everywhere and a few real measurements to correct it.
 * **Shrinkage**: leaning on a shared value when a unit has little data.
-* **Inclusion probability**: known chance that a place was picked for checking.
+* **Inclusion probability**: the known chance a place was picked for checking.
 * **Cluster**: neighbouring fields that behave alike.
 * **Coverage**: how often a stated range (say 90 percent) really contains the truth.
 * **P_u**: probability that the unit is above the loss line.
 * **Flip value**: how biased farmer reports must be to change a call.
-* **Prediction-powered inference**: use a prediction everywhere, and use a few real measurements to correct its error.
 
 #%% md
-## 13. Review questions
+## 14. Review questions
 
-1. **What does Layer 3 do?** Gives each unit a flooded share, a call, and a probability, by correcting the map with a few field checks.
-2. **Why not just use the map?** It can be biased in a new flood.
+1. **What does Layer 3 do?** Gives each unit a flooded share, a call and a probability, by correcting the map with a few field checks.
+2. **Why not just use the map?** It can be biased, especially in a new flood.
 3. **Why not just use the checks?** Too few and too noisy.
-4. **What is the rectifier?** The map's error: truth minus map probability.
-5. **Why does a few checks go a long way?** The map's error is steadier than flooding itself.
-6. **Why weight checks?** Checks near roads are not a fair sample; weighting by 1 over inclusion probability fixes that.
-7. **Why does clustering matter?** Neighbours are alike, so nearby checks are worth less, and ignoring it overstates our certainty.
-8. **Are farmer reports used?** Not in the estimate. They only feed a cross-check (flip value).
-9. **What is a weakness?** With zero checks it is worse than the raw map, and its ranges are a little narrow on new events.
-10. **What happened with the first version?** It missed its coverage target on test (0.74). The second version fixed it but was written after seeing the test result, so its test numbers are not clean.
-11. **Are the field checks real?** No, they are simulated from the hand labels.
+4. **What is the main idea?** Use the map everywhere and use the checks only to measure and remove the map's average error.
+5. **Why does it work with few checks?** The map's error is steadier than flooding itself.
+6. **What is the rectifier?** Truth minus the map probability.
+7. **Why group fields?** The map is wrong by different amounts in different situations.
+8. **What is shrinkage?** Leaning on a shared correction when a unit has few checks of its own.
+9. **Why weight checks?** Convenient places are over-checked; weighting by 1 over the inclusion probability restores fairness.
+10. **Why does clustering matter?** Neighbours are alike, so nearby checks are worth less, and ignoring it overstates certainty.
+11. **How do you read P_u?** It is the probability the unit is above the line. Near 0.5 means the call is shaky.
+12. **Are farmer reports used?** Not in the estimate; only in a cross-check called the flip value.
+13. **How did it do?** At 32 checks, 6.8 percent wrong calls against 14.7 for the map and 9.8 for checks alone.
+14. **What are the weaknesses?** Worse than the map with zero checks; ranges a bit too narrow on new events; test harder than validation.
+15. **What happened with the first version?** It missed its coverage target on test (0.74). The second version fixed it but was written after seeing the test result, so its test numbers are not clean.
+16. **Are the checks real?** No, they are simulated from hand labels.

@@ -1,151 +1,221 @@
 #%% md
 # Layer 1: Data and Platform (class notes)
 
-**What this layer is, in one line:** the stockroom. It collects and tidies everything the other four layers need, and it makes sure that later tests are fair. It predicts nothing.
+**What this layer is, in one line:** the stockroom. It gathers and tidies everything the other four layers need, and it makes sure later tests are fair. It predicts nothing.
 
-These notes explain the ideas. You do not need to know how the code is written. You need to be able to explain, in plain words, what each piece is and why we did it.
+You do not need to know how the code is written. You need to be able to explain, in plain words, what each piece is, why it exists and how it connects to the next.
+
+## The story of this layer in one paragraph
+
+We want to say, for each insured unit, whether more than 25 percent of its rice fields flooded (section 1). Satellites are the only way to look at everything, and only radar can see through monsoon cloud (section 2). To build and test a flood detector we need pictures where humans already marked the water (section 3), and we must split those pictures into practice and exam piles in a way that cannot cheat (section 4). The answers have to be given for something village-sized (section 5), and officers have to drive to those places, so we need roads (section 6). Everything must be traceable (section 7). Because field checks will be taken in convenient places, we set up the maths that corrects for that (section 8). And because satellites visit only every few days, we measure how that limits what we can say about flood duration (section 9).
 
 #%% md
-## 1. The whole project, in plain words
+## 1. The problem we are solving
 
-After a flood, crop insurance (the scheme is called PMFBY) does not pay farmer by farmer. It pays per **unit**, usually a village or a group of villages. Our rule: **if more than 25 percent of a unit's rice (paddy) fields were flooded, the unit is paid.** That 25 percent is called the **loss line**, written **tau = 0.25**.
+*Where we are: the start. Why it matters: everything else exists to answer this one question.*
 
-The problem: nobody can walk every field after a flood, and the roads are flooded too. So for every unit we need a quick answer, "above 25 percent" or "below", plus an honest idea of how sure we are.
+After a flood, crop insurance (the scheme is called PMFBY) does not pay farmer by farmer. It pays per **unit**, usually a village or a group of villages. The rule we work with: **if more than 25 percent of a unit's rice (paddy) fields were flooded, the unit counts as above the loss line and is paid.** The 25 percent is written **tau = 0.25**.
 
-Our answer is five layers, like five stages on a factory line:
+The difficulty: nobody can walk every field after a flood, and the roads are flooded too. So for each unit we need a quick answer, "above 25 percent" or "below", plus an honest idea of how sure we are.
 
-| Layer | Job |
-|---|---|
-| **1 Data and platform** | collect and prepare everything, split it fairly (this one) |
-| 2 Mapping | turn each satellite pixel into "probability this is flooded rice field" |
-| 3 Estimation | combine the map with a few field visits to give each unit a number and a call |
-| 4 Field planning | decide which villages to visit and which roads to drive |
-| 5 Tool | the screen the officer uses |
+Our answer is five layers, like five stages on a factory line, each handing its output to the next:
 
-Two rules apply to everything we do:
+| Layer | Job | Hands on |
+|---|---|---|
+| **1 Data and platform** | collect and prepare everything, split it fairly | data to Layer 2, units and roads to Layers 3 and 4 |
+| 2 Mapping | turn each satellite pixel into "probability this is a flooded rice field" | a map to Layer 3 |
+| 3 Estimation | combine the map with a few field visits into a number and a call per unit | calls to Layers 4 and 5 |
+| 4 Field planning | choose which villages to visit and which roads to drive | plans to Layer 5 |
+| 5 Tool | the screen the officer uses | |
+
+Two rules hold everywhere:
 
 * **Every unit always gets a call.** We never say "cannot decide". If we are unsure, the probability attached to the call says so.
-* **We say what is simulated.** The field checks and some other parts are simulated by computer, and we always label them.
+* **We say what is simulated.** Field checks and some other parts are simulated by computer, and we label them every time.
+
+*So next: to look at floods from space, we need the right kind of satellite.*
 
 #%% md
-## 2. Why radar? (what VV and VH are)
+## 2. Why radar, and what VV, VH and dB mean
 
-Normal satellite photos need sunlight and clear sky. During the monsoon there are clouds for weeks. So we use **radar** satellites (here **Sentinel-1**, from the European Space Agency). A radar satellite sends down its own signal and measures how much bounces back. It works day and night and sees through cloud.
+*Where we are: we need to see flooded fields from space. The monsoon is the flood season, and it is also the cloudy season.*
 
-**How water shows up.** Calm flood water acts like a mirror: the signal bounces away from the satellite instead of back to it. So very little comes back, and flooded ground looks **dark** in the radar picture. Land, crops and buildings scatter the signal in all directions, so more comes back and they look brighter.
+Normal satellite photos need sunlight and clear sky, which we do not have during a monsoon flood. **Radar** satellites (we use **Sentinel-1**, from the European Space Agency) carry their own signal. They send a pulse down and measure how much bounces back. This works day and night and goes through cloud.
 
-**What VV and VH mean.** The radar signal has a direction of vibration, called its **polarisation**, either vertical (V) or horizontal (H). The satellite sends a signal and listens for the reply:
+**Why water looks dark.** Calm flood water acts like a mirror. The pulse hits it and bounces away from the satellite instead of back to it, so very little returns and the picture is **dark** there. Land, crops and buildings scatter the pulse in all directions, so more returns and they look brighter. A simple rule follows: **dark in radar means probably water.**
 
-* **VV**: sent vertical, received vertical. This is the strongest reading and the best one for spotting open water.
-* **VH**: sent vertical, received horizontal. This is weaker. It responds to vegetation and rough surfaces, so it helps tell crops from bare ground.
+**What VV and VH mean.** A radar pulse vibrates in a direction, called its **polarisation**: vertical (V) or horizontal (H). The satellite sends a pulse and listens for the echo:
 
-Think of them as two different "colours" of the same radar picture.
+* **VV**: sent vertical, received vertical. The strongest reading and the best for spotting open water.
+* **VH**: sent vertical, received horizontal. Weaker. It reacts to plants and rough surfaces, so it helps tell crops from bare ground.
 
-**What dB means.** Radar values are on a log scale called **decibels (dB)**. You only need to know: **lower (more negative) means darker**. Open water is typically below about **-15 dB**.
+Think of VV and VH as two different "colours" of the same picture, each telling us something different.
+
+**What dB means.** Radar brightness is stored on a log scale called **decibels (dB)**. All you need: **more negative means darker**. Open water is usually below about **-15 dB**.
+
+**One technical detail.** There are small corrections for the angle at which the satellite looks at the ground (the numbers called sigma-0 and gamma-0). We only need to know that they exist so that pictures taken at different angles can be compared fairly.
+
+**Averaging subtlety.** When we shrink a picture by averaging neighbouring pixels, we average the raw signal strength first and convert to dB afterwards. Averaging dB directly would give a wrong, too-dark answer, because dB is a log scale.
+
+*So next: a flood detector has to be built and tested on pictures where we already know the right answer.*
 
 #%% md
 ## 3. The practice material: labelled chips
 
-To test or teach a flood detector you need pictures where a person has already marked "this is water". Those marks are **labels**. We use a public dataset called **Sen1Floods11**: small radar pictures called **chips** (128 by 128 pixels, each pixel 20 m across, so a chip covers about 2.5 km by 2.5 km), with water drawn in by hand. It covers **11 real flood events** around the world.
+*Where we are: we know radar picks out water. To build and test a detector we need pictures with the answers written in.*
 
-Not every chip is usable. After removing chips where too little ground could be judged, Layer 2 works with **121 chips**.
+A **label** is the right answer written by a person. We use a public dataset, **Sen1Floods11**, made of small radar pictures called **chips**, each 128 by 128 pixels with each pixel 20 m across (so a chip covers about 2.5 km by 2.5 km). People drew in where the water is. The dataset covers **11 real flood events** around the world (an **event** means one real flood somewhere).
+
+Not every chip is usable: some have too little ground that could be judged. After filtering, Layer 2 works with **121 chips**.
+
+An honest limit: the labels mark **water**, not "flooded rice field". Rice fields are a subset of what is marked.
+
+*So next: we have labelled chips. The most important decision is how to split them into practice and exam piles.*
 
 #%% md
 ## 4. The most important idea: split by flood event, never by tile
 
-When you build a method, you keep some data aside to test it, like keeping exam questions secret. The split is the piece most people get wrong.
+*Where we are: we have 11 events of labelled chips. Every method will be scored on some of them, so how we split decides whether our scores are honest.*
+
+A method is built using three piles of data:
 
 * **Train**: the method learns from this (the textbook).
 * **Validation**: we tune settings and check progress (practice tests).
 * **Test**: scored **once**, at the very end (the final exam).
 
-**The trap.** Chips from the same flood event look alike: same weather, same soil wetness, same satellite angle. If we randomly put some chips of an event in training and others in test, the method can score well just by recognising that event's "look". That is cheating without meaning to, and it is called **leakage**.
+**The trap.** Chips from the same flood share a hidden "look": same weather, same soil wetness, same satellite angle, same season. If we randomly put some chips of an event in train and others in test, the method can score well just by recognising that look. It is like a student who has seen the exam questions in advance. This is called **leakage**.
 
-**Our fix.** We split by whole flood events. Everything from one event goes to one pile.
+**A small demonstration we ran** on made-up data: when chips were split randomly by tile, a simple method scored about **99 percent**. When the same method was tested on a whole event it had never seen, it scored about **68 percent**. Same method, same data, very different story. The random split was flattering the method.
 
-| Pile | Events |
-|---|---|
-| **Test** | India (our target region) and Bolivia |
-| **Validation** | Sri-Lanka and Ghana |
-| **Train** | the other seven events |
+**Our fix.** Split by whole events. Everything from one event goes into one pile.
 
-So when we report a score on test, the method has never seen anything from those floods. That is why we say "events not used for fitting". A method that does well here has really generalised.
+| Pile | Events | Why |
+|---|---|---|
+| **Test** | India, Bolivia | India is our target region. Bolivia is the dataset's own test event |
+| **Validation** | Sri-Lanka, Ghana | South Asian and nearby conditions, used for tuning |
+| **Train** | the other seven | the rest |
+
+So when we report a test score, the method has never seen anything from those floods. This is why we say **"events not used for fitting"**. A method that does well there has genuinely generalised.
+
+*So next: the piles are ready. We still need something village-sized to give answers for.*
 
 #%% md
-## 5. Units: what we actually answer for
+## 5. Units: what we answer for
 
-We have no real village boundaries, so we make two kinds of stand-in:
+*Where we are: we have data and a fair split. The final answer is per insured unit, but we have no real village boundaries.*
+
+We build two kinds of stand-in:
 
 * **Grid units**: the study block cut into **36** equal squares.
-* **Chip units** (pseudo-villages): each chip cut into 4 pieces, giving **528** units (336 train, 96 validation, 96 test).
+* **Chip units** ("pseudo-villages"): each chip cut into 4, giving **528** units (336 train, 96 validation, 96 test, following the event split).
 
-They are not real villages. They give us something village-sized to practise the whole pipeline on.
+They are not real villages. They let us practise and test the whole pipeline on village-sized pieces. Layer 3 later turns these into calls, and 125 / 27 / 34 of the chip units survive its filters.
+
+*So next: an officer has to reach the units, so we need roads.*
 
 #%% md
 ## 6. Roads and travel time
 
-Layer 4 needs to know how long it takes to drive between places, so Layer 1 builds a **road graph** from OpenStreetMap: junctions are points (**nodes**), road pieces between them are lines (**edges**), each with a travel time. Our study block has **2,096 nodes and 2,567 edges**. A standard method called **Dijkstra's algorithm** finds the fastest route from one place to every other.
+*Where we are: we have units. Layer 4 will plan drives to them, so it needs to know how long each drive takes.*
 
-Note it minimises **minutes, not kilometres**. A longer road that is faster can win. Layer 4 later makes roads slower where they are probably flooded.
+Layer 1 builds a **road graph** from OpenStreetMap. Junctions are points (**nodes**), road pieces between them are lines (**edges**), and each edge has a travel time. Our study block has **2,096 nodes and 2,567 edges**. A standard method, **Dijkstra's algorithm**, finds the fastest route from one place to all others by always extending the cheapest path found so far.
+
+**Worked example.** From the depot to a village there are two roads. One is 3 km but slow, taking 9.0 minutes. The other is 5 km but fast, taking 7.75 minutes. The method picks the longer road, because it minimises **minutes, not kilometres**.
+
+Later, Layer 4 makes a road slower where it is probably flooded, and re-runs the same method.
+
+*So next: all of this data must be traceable, otherwise nobody can trust what the tool finally shows.*
 
 #%% md
 ## 7. Receipts: proving nothing was changed
 
-Every file Layer 1 writes gets a **fingerprint**, a short code computed from the file's contents (SHA-256). Change one number in the file and the fingerprint changes completely. Fingerprints are stored in a small file called a **receipt**. Later layers and the tool can check the receipt and so show that the data they display is exactly what was produced.
+*Where we are: Layer 1 has produced many files that later layers depend on. If one were quietly altered, every later result would be suspect.*
+
+Every file gets a **fingerprint**: a short code computed from its contents (the method is called **SHA-256**). Change even one digit in the file and the fingerprint becomes completely different. The fingerprints are collected in a small file called a **receipt**. Later layers, and the tool, can recompute the fingerprint and compare it with the receipt. If they match, the file is exactly what Layer 1 produced.
+
+The receipt is written in a fixed, standard layout (called canonical JSON), so the same content always gives the same fingerprint.
+
+*So next: now think about how checks will be taken in the field, which leads to the most useful piece of statistics in the project.*
 
 #%% md
 ## 8. Fair sampling: giving each place its true weight
 
-Suppose officers only check fields near roads, because those are easy to reach. Then the checks are not a fair picture of all fields, and a plain average will be wrong.
+*Where we are: later layers will use field checks. Officers cannot check every place, and they will favour places they can reach.*
 
-The fix is an old, simple idea. For every place that could be checked, we record the **inclusion probability**: the known chance that it was picked. A place that was unlikely to be picked but was picked stands in for many similar places, so it counts for more. A place that was very likely to be picked counts for less. Weighting each check by **1 divided by its inclusion probability** (the **Horvitz-Thompson** method) removes the bias.
+If officers check mostly near roads, the checks are not a fair picture of all fields, and a plain average of what they find is biased.
 
-Small example: if easy places are picked far more often, a plain average of checks over-represents easy places. The weighted average comes back to the true answer.
+The fix is simple and old. For every place that could be checked we keep its **inclusion probability**, the known chance that it was picked. A place that was unlikely to be picked but was picked stands in for many similar places, so it should count for more. A place that was very likely to be picked counts for less. So each check is weighted by **1 divided by its inclusion probability**. This is called the **Horvitz-Thompson** method.
 
-Layer 1 sets up this machinery, and Layers 3 and 4 use it.
+**A small demonstration we ran** on made-up data: the true flooded share was 0.245. Because easy-to-reach places were picked much more often, the plain average of the checks came out at **0.466**, almost double. The weighted average came out at **0.247**, essentially the truth.
+
+For this to work, the chances must be **known**, which means the selection must be genuinely random with recorded probabilities, not "wherever the officer felt like going". Layers 3 and 4 depend on this.
+
+*So next: one more limit, this time from the satellite itself.*
 
 #%% md
-## 9. Revisit gaps: how long was it flooded?
+## 9. Revisit gaps: why duration is only a range
 
-The satellite does not take a picture every day. It passes every few days. If a field is flooded in one picture and dry in the next, all we know is that the flood ended **somewhere in between**, not exactly when. So flood duration is known only as a **range**, called a **censored interval**. Layer 1 measures how long the gaps between passes really are, and Layer 2 uses that to reason about duration.
+*Where we are: crops survive short floods and die in long ones, so insurers care about how many days a field was under water. Radar gives snapshots.*
+
+The satellite passes over a place only every few days. Suppose a field is seen flooded on one pass and dry on the next. All we know is that the flood ended **somewhere in between**, not exactly when. So duration is known only as a **range**, called a **censored interval**. How wide the range is depends on the gap between passes: with 12 days between passes, the uncertainty is roughly two gaps, about 24 days.
+
+Layer 1 measures the real gaps in the study area's data. In our data, **about 85 percent of gaps were 12 days or longer**. That is a short list of facts but it matters: it tells us duration estimates will always be coarse, and Layer 2 is built to be honest about that.
+
+*So next: this is the end of Layer 1. Its outputs (data, splits, units, roads, receipts, sampling rules) are what Layer 2 starts from.*
 
 #%% md
-## 10. Key numbers
+## 10. How Layer 1 connects to the others
+
+| Layer 1 produces | Used by |
+|---|---|
+| labelled chips and the event split | Layer 2 (training and scoring the map) |
+| units | Layers 3, 4, 5 |
+| road graph | Layer 4 (routes), Layer 5 (route view) |
+| receipts | Layer 5 (evidence card) |
+| inclusion-probability idea | Layers 3 and 4 (correcting for convenient sampling) |
+| revisit gaps | Layer 2 (duration) |
+
+#%% md
+## 11. Key numbers
 
 | Thing | Value |
 |---|---|
-| Loss line **tau** | **0.25** (25 percent of paddy area flooded) |
-| Sentinel-1 | radar, sees through cloud; water is dark, below about **-15 dB** |
-| Dataset | Sen1Floods11, **11** flood events, chips of 128 x 128 pixels at 20 m |
+| Loss line **tau** | **0.25** |
+| Water in radar | dark, below about **-15 dB** |
+| Dataset | Sen1Floods11, **11** events, chips of 128 x 128 pixels at 20 m |
 | Chips used after filtering | **121** |
 | Split by event | test: India, Bolivia; validation: Sri-Lanka, Ghana; train: the other 7 |
 | Units | 36 grid units; 528 chip units (336 / 96 / 96) |
 | Road graph | **2,096** nodes, **2,567** edges |
 | Fingerprint | SHA-256 |
+| Revisit gaps | about 85 percent are 12 days or longer |
 | Random seed | 20261118 |
 
 #%% md
-## 11. Glossary
+## 12. Glossary
 
 * **Chip**: a small radar picture with hand-marked water.
 * **dB (decibel)**: log scale for radar brightness. Lower is darker.
-* **Event**: one real flood,.
-* **Inclusion probability**: known chance a place is selected for checking.
+* **Censored interval**: when we only know something lies between two times.
+* **Event**: one real flood.
+* **Horvitz-Thompson**: weighting each check by 1 over its inclusion probability.
+* **Inclusion probability**: the known chance a place is picked for checking.
 * **Leakage**: test data secretly resembling training data, making scores look better than they are.
 * **Loss line (tau)**: the 25 percent threshold.
 * **Polarisation (VV, VH)**: direction of the radar signal sent and received.
 * **Receipt**: a small file of fingerprints proving data was not altered.
-* **Unit**: the thing we give a call for (village or stand-in).
+* **Unit**: the thing we give a call for.
 
 #%% md
-## 12. Review questions
+## 13. Review questions
 
-1. **What does Layer 1 do?** It gathers and prepares the data, builds the road graph and units, splits the data fairly and records fingerprints. It predicts nothing.
-2. **Why radar and not normal photos?** Radar works through cloud and at night, which matters in the monsoon.
-3. **What are VV and VH?** Two readings from the same radar: sent vertical and received vertical or horizontal. VV is best for open water.
-4. **Why does water look dark?** Calm water reflects the signal away from the satellite.
-5. **Why split by event, not by tile?** Chips from one event look alike. Mixing them across piles lets a method score well by recognising the event.
-6. **What are the test events?** India and Bolivia.
-7. **Why record inclusion probabilities?** So checks taken in convenient places can be weighted back to a fair answer.
-8. **Why do we only know duration as a range?** The satellite visits every few days, so we only know the flood ended between two passes.
-9. **What does a receipt do?** It lets anyone check that a file is exactly what Layer 1 produced.
+1. **What does Layer 1 do?** It gathers and prepares data, builds units and the road graph, splits data fairly and records fingerprints. It predicts nothing.
+2. **Why radar and not normal photos?** Radar brings its own signal, so it works through cloud and at night, which matters in the monsoon.
+3. **What are VV and VH?** Two readings from the same radar: sent vertical and received vertical or horizontal. VV is best for open water, VH responds to plants.
+4. **Why does water look dark?** Calm water reflects the pulse away from the satellite, so little returns.
+5. **Why split by event, not by tile?** Chips from one event look alike; mixing them lets a method score well by recognising the event. In our demonstration that gave about 99 percent where the true figure was about 68.
+6. **What are the test events and why?** India (our target region) and Bolivia (the dataset's test event).
+7. **What does Dijkstra do?** Finds the fastest route; it minimises minutes, not distance.
+8. **Why record inclusion probabilities?** Checks taken in convenient places can then be weighted back to a fair answer. In our demonstration the plain average was 0.466 against a truth of 0.245, and the weighted one 0.247.
+9. **What does a receipt do?** Lets anyone verify a file is exactly what Layer 1 produced.
+10. **Why is duration only a range?** The satellite visits every few days, so a flood's end is known only between two passes.

@@ -3,56 +3,93 @@
 
 **What this layer is, in one line:** the screen officers actually use. It shows the answers from the earlier layers and lets officers act on them. It learns nothing and predicts nothing new.
 
-These notes explain the ideas. You do not need to know how the code is written.
+You do not need to know how the code is written. You need to be able to explain what the tool shows, why each piece is there and where its numbers come from.
+
+## The story of this layer in one paragraph
+
+The earlier layers produce numbers. An officer needs a screen. So the tool shows a list of villages ordered by how shaky their calls are (section 2), lets the officer open one to see the evidence behind its call and prove the data is untouched (section 3), shows the day's route (section 4), lets the officer record checks even without internet (section 5) and updates the call (section 6), and lets the officer see what farmer reports would imply, without letting them contaminate the estimate (section 7). It must cope with bad or missing input (section 8) and be honest about what is real and what is a stand-in (section 9).
 
 #%% md
 ## 1. The goal
 
-The earlier layers produce numbers. An officer needs something usable. The tool turns the numbers into a few simple screens.
+*Where we are: Layers 1 to 4 are done. Their results are files.*
 
-Because the tool learns nothing, there is **no training and no testing split** here. The only question is whether it shows the right numbers and copes with bad input safely.
-
-#%% md
-## 2. What the officer sees
-
-1. **A table of villages (units)**, sorted so the **shakiest calls come first**. For each: the estimated flooded share, the call (above or below the 25 percent line), the probability behind the call, and how many checks have been done.
-2. **An evidence card** for one village: the numbers behind its call, where they came from, and a **fingerprint** (the receipt from Layer 1) showing the data was not altered.
-3. **A route view**: the day plan from Layer 4 on a road map.
-4. **A field-check form**: the officer records what they saw at a plot.
-5. **A cross-check against farmer reports.**
+Officers are not statisticians. The tool turns files into a few simple screens. Because it learns nothing, there is **no training and no testing split** here. The question is only: does it show the right numbers, and does it cope with bad input safely?
 
 #%% md
-## 3. The numbers behind each call
+## 2. The table of villages
 
-Three quantities, all coming from Layer 3:
+*Where we are: the first screen the officer sees.*
 
-* **theta**: the estimated flooded share of the village.
+One row per village (unit): the estimated flooded share, the call (above or below the 25 percent line), the probability behind the call, and how many checks have been done. Rows are **sorted by how likely the call is to be wrong**, so the shakiest villages are at the top.
+
+The three numbers come from Layer 3:
+* **theta**: the estimated flooded share.
 * **s**: how uncertain that estimate is.
-* **P_u**: the probability the village is really above the 25 percent line. The further theta is from the line, compared with s, the closer P_u is to 0 or 1.
+* **P_u**: the probability the village is above the line.
 
-A call is simply "above" if theta is above 0.25. **No unit is ever left unanswered.** A weak call shows up as P_u close to 50 percent, and the table sorts by how likely the call is to be wrong.
+Worked example: theta = 0.32 with s = 0.05 is 1.4 uncertainties above the line, so P_u is about 0.92: a confident "above". theta = 0.26 with the same s gives P_u of about 0.58: a call, but close to a coin flip, so it would be near the top of the list. **No unit is ever left unanswered.** Weakness shows up as P_u near 0.5.
 
-A clarification: Layer 3's main method is the more advanced "correct the map with checks" method (see Layer 3 notes). The tool also contains a simpler formula for updating a village when new checks arrive. In the committed run the tool reads Layer 3's numbers for the **34 real test units** directly.
-
-#%% md
-## 4. Recording field checks, even offline
-
-Officers are often out of mobile coverage. So the form works with no internet: each check is saved on the device as one line in a simple file, and each line carries a **hash** (a fingerprint of that entry). If the same entry is uploaded twice, the hash shows it is a duplicate and it is only counted once.
-
-When a new check comes in, the village's estimate is updated so that it **moves toward what the checks found**. The more checks, the more the estimate follows the field result and the less it follows the original map.
+*So next: the officer taps a village to see why it got its call.*
 
 #%% md
-## 5. Farmer reports: shown, never mixed in
+## 3. The evidence card and the receipt
 
-Farmers can report flooding, but only some do, and mostly the ones who were flooded. So reports lean toward "flooded". We **never blend them into the estimate**. Instead the tool shows a cross-check: how biased the reports would have to be before trusting them flips the call (the "flip value" from Layer 3). If the call would flip only under extreme bias, the call is safe. The farmer reports in our runs are simulated.
+*Where we are: the officer wants to know whether to trust a number.*
+
+The **evidence card** shows the numbers behind one village's call: its estimate, uncertainty, the map's raw share, how many checks have been done and where the data came from. It also shows the **receipt fingerprint** from Layer 1: a short code proving the data file is exactly what Layer 1 produced. If anyone changed the data, the fingerprint would not match.
+
+A clarification about numbers: Layer 3's main method is the "correct the map with checks" method (see the Layer 3 notes). The tool also contains a simpler formula for updating a village when new checks arrive. In the committed run the tool reads Layer 3's numbers for the **34 real test units** directly.
+
+*So next: the officer needs to get there.*
 
 #%% md
-## 6. Safe on bad input
+## 4. The route view
 
-The tool is built to cope with mess: a missing file, a wrong format, or a synthetic stand-in file masquerading as real data. A **wizard** guides the officer through loading data, and if something is missing it falls back to a built-in static example rather than crashing. Farmer identifiers are stored only as hashes (not readable names).
+*Where we are: the officer has picked villages. Layer 4 planned the day.*
+
+The route view draws the day plan from Layer 4 on a road map: for each officer, the villages in order and the road path. In the committed run the roads and routes are a **stand-in fixture** (not Layer 4's actual output), and the layout is schematic. The tool labels this.
+
+*So next: at the village, the officer records what they see.*
 
 #%% md
-## 7. What is real and what is stand-in
+## 5. Recording field checks, even offline
+
+*Where we are: out in the field, mobile coverage is poor.*
+
+The form works with no internet. Each check is saved on the device as **one line in a simple file**. Each line carries a **hash**, a short fingerprint of that entry. If the same entry is uploaded twice, the hash matches and the duplicate is dropped, so nothing is double counted.
+
+*So next: what does a new check change?*
+
+#%% md
+## 6. How a new check updates a village
+
+*Where we are: a check has just been recorded.*
+
+The village's estimate **moves toward what the checks found**. A simple way to picture it is a tally. The village starts with a prior belief worth a few imaginary checks. Each real check adds to the tally.
+
+**Worked example (made-up numbers).** Suppose the prior is worth 10 imaginary checks at a flooded rate of 0.30, which is a tally of 3 flooded out of 10. An officer then checks 5 plots and finds 4 flooded. The tally becomes 7 flooded out of 15, so the new estimate is about 0.47. With only 5 real checks the estimate has already moved a long way, because the prior was only worth 10. A prior worth 100 would barely have moved.
+
+This kind of update (called a **Beta update**) is why more checks mean the estimate follows the field result more and the original map less. The uncertainty shrinks as the tally grows, so P_u moves toward 0 or 1.
+
+#%% md
+## 7. Farmer reports: shown, never mixed in
+
+*Where we are: farmers can also report flooding, from their phones.*
+
+Only some farmers report, and mostly the ones who were flooded. So reports lean toward "flooded" and are not a fair sample. We **never blend them into the estimate**.
+
+Instead the tool shows a **cross-check**: it asks how biased the reports would have to be, before trusting them changed the call (the **flip value**, from Layer 3). A large flip value means the call stands whatever the reports say. A small one means the call hangs on trusting biased reports. Farmer identifiers are stored only as hashes, not readable names. The farmer reports in our runs are **simulated**.
+
+#%% md
+## 8. Safe on bad input
+
+*Where we are: real data is messy.*
+
+The tool is built to cope with a missing file, a wrong format, or a stand-in file mistaken for real data (stand-in files are detected and flagged). A **wizard** guides the officer through loading data. If something is missing, the tool falls back to a built-in static example rather than crashing, and says it is doing so.
+
+#%% md
+## 9. What is real and what is stand-in
 
 In the committed run:
 
@@ -64,10 +101,20 @@ In the committed run:
 | Layer 4 checks | none |
 | Layout of the map | schematic |
 
-We say this on the screen and in the report.
+We say this on screen and in the report.
 
 #%% md
-## 8. Key numbers
+## 10. How Layer 5 connects to the others
+
+| Layer 5 shows | Comes from |
+|---|---|
+| calls, probabilities, uncertainty | Layer 3 |
+| fingerprints and receipts | Layer 1 |
+| routes and planned checks | Layer 4 (in our run a stand-in) |
+| flip value for farmer reports | Layer 3 |
+
+#%% md
+## 11. Key numbers
 
 | Thing | Value |
 |---|---|
@@ -78,20 +125,24 @@ We say this on the screen and in the report.
 | Check storage | one line per check, with a hash for duplicates |
 
 #%% md
-## 9. Glossary
+## 12. Glossary
 
 * **Evidence card**: the page showing why a village got its call.
 * **Hash**: a short fingerprint of some data.
 * **P_u**: probability a village is above the loss line.
 * **Receipt**: a small file of fingerprints for data.
 * **Fixture**: a built-in stand-in example used for testing or fallback.
+* **Beta update**: updating an estimate by adding real checks to a tally that started with a prior.
 
 #%% md
-## 10. Review questions
+## 13. Review questions
 
 1. **What does Layer 5 do?** Shows the earlier layers' answers to officers and lets them record checks.
 2. **Does it learn anything?** No, so it has no train and test split.
 3. **How are villages ordered?** By how likely their call is to be wrong.
-4. **How does offline use work?** Checks are saved on the device with a hash, and duplicates are dropped.
-5. **Why are farmer reports not in the estimate?** Reporters lean toward flooded, so they are only used as a cross-check.
-6. **What is real in the committed run?** The 34 units and their numbers; the roads and routes are a stand-in.
+4. **What does P_u near 0.5 mean?** A shaky call; the unit still gets a call.
+5. **What does the receipt show?** That the data is exactly what Layer 1 produced.
+6. **How does offline use work?** Checks are saved on the device with a hash, and duplicates are dropped.
+7. **What does a new check do?** Moves the estimate toward the field result and shrinks its uncertainty.
+8. **Why are farmer reports not in the estimate?** Reporters lean toward flooded, so they are only a cross-check.
+9. **What is real in the committed run?** The 34 units and their numbers; the roads and routes are a stand-in.
