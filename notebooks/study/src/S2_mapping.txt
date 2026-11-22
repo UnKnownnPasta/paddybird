@@ -1,770 +1,147 @@
 #%% md
 # Layer 2: Mapping (class notes)
 
-**What you need before you start:** basic Python, basic stats (average, probability), and a rough idea of "train a classifier, test it". Everything about radar, thresholds, boosting, calibration and censoring is taught here from zero.
+**What this layer is, in one line:** it turns a radar picture into a map showing, for every small square of ground, how likely it is to be a flooded rice field.
 
-**How these notes are organised.** Sections follow the real notebook for this layer, in the same order. The code cells are small demos on toy data, so each idea can be run and seen. Every section ends with a **Summary** of the section in a few sentences. At the end there are the key numbers, a glossary and some review questions. Read the real notebook alongside these notes.
-
-> **bold** = a key term. `code font` = a name that exists in the real code.
+These notes explain the ideas. You do not need to know how the code is written.
 
 #%% md
-## 0. What Layer 2 does, in plain words
+## 1. The goal
 
-**Layer 1 gave us:** small radar images (chips) where humans marked the water, split by flood event.
+Layer 1 gave us radar pictures where flooded ground looks dark, and hand-marked examples. Layer 2 turns each picture into a map. For every **20 m by 20 m square (a pixel)** the map holds a number from 0 to 1: **the probability that this square is a flooded rice field.**
 
-**Layer 2's job:** for every 20 m pixel, output a number between 0 and 1 that is an **honest probability that the pixel is flooded paddy**. "Honest" has a precise meaning, called **calibrated**: among all pixels where the map says 0.7, about 70 percent really are flooded. (Calibration is section 7.)
+The key requirement is that the number must be **honest**. If the map says 0.7 for a hundred squares, about 70 of them should really be flooded. Honest numbers are called **calibrated**. This matters because Layer 3 uses these numbers to say how sure it is.
 
-Two outputs:
+Remember two radar words from Layer 1: **VV** and **VH** are two readings the satellite takes of the same ground (VV is the best for spotting water, VH responds to vegetation), measured in **dB**, where lower means darker. Water is dark.
 
-1. **A calibrated map** `p_flooded_paddy` (per pixel).
-2. **A semi-synthetic submergence-duration map** `P(submerged for at least d days)` for d = 3, 7, 10, 14. ("Semi-synthetic" = partly simulated. It is always labelled so.)
-
-**The pipeline in one picture:**
+#%% md
+## 2. The recipe, as a picture
 
 ![Layer 2 pipeline: radar chip, baseline and two predictors, fusion, calibration, paddy mask, final map](attachment:s2_pipeline.png)
 
-**Project rules that apply here (quote them):**
+Read it top to bottom. In words:
 
-* Splits are by **flood event**, never by tile or pixel. Fit on **train and validation events only**; **score test events once**, in one clearly marked cell.
-* A **baseline** (plain Otsu on VV) is reported beside every model.
-* Report the **val-test gap** (how much worse or better test is than validation).
-* Say when something is **simulated** (the duration part is).
-* Say "events not used for fitting", not "held out".
-* No abstain state: every pixel gets a probability.
+1. Start with the radar chip.
+2. A **baseline** (a very simple guess) is run on the side. We keep it only so we can show our real methods do better.
+3. **Two predictors** each make their own guess.
+4. **Fusion** blends their two guesses into one number.
+5. **Calibration** checks the number is honest and fixes it if not.
+6. **Paddy mask**: keep only rice-field squares.
+7. The result is `p_flooded_paddy`.
 
-#%% md
-## 1. Primer: the ideas you need before touching the maths
-
-### 1.1 Classification, probability, label
-
-* A **label** is the right answer written by a human: here 1 = water, 0 = not water (the hand-drawn Sen1Floods11 label).
-* A **classifier** guesses the label for new pixels. A **hard** classifier answers 0 or 1. A **probabilistic** classifier answers a number in [0, 1], for example 0.83.
-* Our rule: give probabilities, not just yes/no, because Layer 3 needs to know how sure each pixel is.
-
-### 1.2 Features
-
-A **feature** is a number we compute for each pixel to help decide. The raw features are VV and VH backscatter in dB (see notebook 1: water is dark). Extra features: how bright the neighbours are (local means), how bumpy the neighbourhood is (texture), and so on.
-
-### 1.3 The domain: where do we make a call?
-
-The **domain** of a chip is the set of pixels where a flood call makes sense:
-
-`domain = labelled (label is not -1) AND valid numbers (VV, VH finite) AND NOT permanent water`
-
-* **Permanent water** (rivers, lakes, from the JRC map) is removed. A river is always water, but it is not a *flood*. Keeping it would make every model look better than it is.
-* Chips where the domain is under **30 percent** of the pixels are dropped.
-* Result in our committed run: **121 chips = 80 train + 18 val + 23 test**, from the 11 events.
-
-### 1.4 Land cover and the paddy proxy
-
-**ESA WorldCover 2021** gives each pixel a land-cover class code: 10 tree, 20 shrub, 30 grass, **40 cropland**, 50 built-up, 60 bare, 80 open water, 90/95 wetland, and so on. **There is no paddy class.** So our "paddy mask" is **WorldCover cropland (class 40)**. That is a **proxy**. Outside rice regions it counts all cropland. The notebook reports results both for all land and inside the mask so you can see the effect.
-
-### 1.5 The test data are untouchable until the end
-
-The roles: **train** events teach predictor 2. **Validation** events are used to choose settings, fit the fusion and choose the calibrator. **Test** events are scored **once** at the very end.
+Each step is explained next.
 
 #%% md
-## 2. The baseline: Otsu on VV
+## 3. The baseline: Otsu's method
 
-A **baseline** is the simplest sensible method. It exists so we can say, with numbers, "our model beats the simple thing". If our model did not, the extra complexity would be pointless.
+**Otsu's method** (named after its inventor, Nobuyuki Otsu; pronounced "oh-tsoo", nothing to do with the game osu) is a classic way to pick **one brightness cut-off** for a picture. Imagine the brightness of all pixels drawn as a histogram. If a picture has water and land, you usually see two humps, a dark one (water) and a bright one (land). Otsu's method picks the cut-off that best separates the two humps. Pixels darker than the cut-off are called water, the rest are called land.
 
-### 2.1 The idea of a threshold
+It is quick and a standard thing to try, which is why it is our **baseline**: the plain method we must beat.
 
-If water is dark and land is bright, pick a cut-off in dB: **darker than the cut-off = water, brighter = land.** The only question is where to put the cut-off.
+Its weaknesses:
 
-### 2.2 Histogram and bimodal
+* It answers only **yes or no**, never "maybe", so there is no probability.
+* It assumes every picture has two clear humps. A picture with almost no flood has only one hump, and Otsu still draws a cut-off through it, wrongly calling lots of land "water".
 
-A **histogram** counts how many pixels fall in each dB range. A chip with both water and land has two humps: a dark hump (water) and a bright hump (land). That is called **bimodal** (two modes).
-
-### 2.3 Otsu's method
-
-**Otsu** (1979) picks the cut-off that best separates the two humps. For every possible cut-off t it splits the pixels into "below t" and "at or above t", and measures the **between-class variance**: `w0 * w1 * (mean0 - mean1)^2`, where w0 and w1 are the fractions of pixels on each side. The best t is the one with the **largest** value. Intuition: a good cut-off makes the two groups as different from each other as possible.
-
-### 2.4 The baseline in our code (`baseline_otsu`)
-
-One global Otsu split of **VV per chip**; water = below the cut-off, valid, and **not permanent water**. Output is **hard 0 or 1**. It is fitted **per chip** with no training at all (so it has no train/test leakage by construction).
-
-Why it is weak: it assumes every chip has two clear humps. If a chip has almost no water, Otsu still forces a cut through the land hump, calling lots of land "water". That is exactly what you will see in the numbers (section 9).
-
-Try it: Otsu on a fake chip, and on a chip with no flood.
-
-#%% code
-import numpy as np, pandas as pd, matplotlib.pyplot as plt, math, json
-np.set_printoptions(precision=3, suppress=True)
-rng = np.random.default_rng(0)
-
-def otsu(values, bins=256):                      # same maths as water.otsu
-    v = values[np.isfinite(values)]
-    hist, edges = np.histogram(v, bins=bins)
-    c = (edges[:-1] + edges[1:]) / 2
-    w0 = np.cumsum(hist); w1 = w0[-1] - w0
-    m = np.cumsum(hist * c)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        between = w0 * w1 * (m / w0 - (m[-1] - m) / w1) ** 2
-    between[~np.isfinite(between)] = -1
-    return float(c[int(np.argmax(between))])
-
-def fake_chip(water_frac, n=20000):
-    n_w = int(n * water_frac)
-    land  = rng.normal(-9, 1.6, n - n_w)         # land around -9 dB
-    water = rng.normal(-20, 1.8, n_w)            # water around -20 dB
-    vv = np.r_[land, water]; y = np.r_[np.zeros(n - n_w), np.ones(n_w)]
-    return vv, y
-
-vv, y = fake_chip(0.25)
-t = otsu(vv)
-pred = vv < t
-print("chip with 25 percent water: Otsu threshold %.1f dB, accuracy %.3f" % (t, (pred == y).mean()))
-
-vv0, y0 = fake_chip(0.0)                         # NO flood at all
-t0 = otsu(vv0); pred0 = vv0 < t0
-print("chip with NO water:        Otsu threshold %.1f dB, pixels wrongly called water: %.1f percent" % (t0, 100 * pred0.mean()))
-print("Otsu always cuts somewhere, even when there is nothing to cut. That is the baseline's weakness.")
-
-fig, ax = plt.subplots(1, 2, figsize=(9, 2.8))
-for a, v, tt, ttl in ((ax[0], vv, t, "25% water"), (ax[1], vv0, t0, "no water")):
-    a.hist(v, 80); a.axvline(tt, c="r"); a.set_title(f"{ttl}: Otsu cut at {tt:.1f} dB"); a.set_xlabel("VV dB")
-plt.tight_layout(); plt.show()
+On the test events it gives a calibration error of **0.338** (very dishonest numbers) and an overlap score of only **0.190** (explained in section 7).
 
 #%% md
-**Summary (section 2):** Our baseline is the simplest method that a reviewer would try: Otsu thresholding on VV, fitted separately on every chip, hard zero or one, permanent water removed. It needs no training, and it is reported beside every model so we can show how much the extra layers add.
+## 4. Predictor 1: the rule stack
+
+This predictor is a set of hand-written rules, like a checklist an expert would use. The main one: pick a brightness threshold for each picture, and call pixels darker than it water. Several safeguards stop it going wrong, for example using sensible default thresholds when a picture does not clearly separate into two humps, and working in small blocks of the picture so one dark corner does not distort the rest.
+
+Instead of a hard yes or no, it produces a **soft score** between 0 and 1: the further below the threshold a pixel is, the closer to 1.
+
+An honest note: on the validation events this rule-based predictor actually did better than our final blend on one score (overlap 0.491 against 0.356), so we report that openly.
 
 #%% md
-## 3. Predictor 1: the transparent rule stack
+## 5. Predictor 2: the boosted pixel model
 
-**"Transparent"** means every step is a human-readable rule with named numbers, not a black box. It was adapted from two earlier instruments of the project (`sar_water_otsu`, `sar_logratio_change`).
+This is a **machine-learning** model. It learns from the hand-marked chips which pixel patterns mean water. "Boosted" means it is built from many small **decision trees**, each a tiny set of yes/no questions. Trees are added one by one and each new tree is trained to correct the mistakes of the ones before. Together they vote, giving a probability.
 
-### 3.1 Step 1: find a good threshold for each chip, carefully (`fit_sar_threshold`)
-
-Plain Otsu fails on chips with little water. So Predictor 1 only trusts **blocks that clearly show two humps**:
-
-1. Cut the chip into overlapping **blocks of 50 x 50 pixels** (1 km at 20 m), stepping 25 pixels. Skip blocks with under 80 percent valid pixels.
-2. For each block compute an Otsu cut and the **split statistics**:
-   * **Ashman's D** = `sqrt(2) * |mean_low - mean_high| / sqrt(var_low + var_high)`. It measures how well separated the two humps are. D of about 2 is the border of clean separation. The rule here needs **D >= 3** (`MIN_D`).
-   * **minority share** = the fraction of pixels in the smaller group. Needs **>= 0.10** (at least 10 percent of the block is the smaller class).
-   * the **dark mean must be below the water limit minus 1 dB** (VV limit **-14 dB** `MAX_WATER_DB`, so dark mean below -15 dB), and the gap between the two means must be **>= 3 dB** (`MIN_GAP_DB`).
-3. Blocks that pass are called **bimodal blocks**. **Pool** all their pixels together.
-4. On the pooled pixels fit the **Kittler-Illingworth (KI)** threshold, a minimum-error method like Otsu but allowing the two humps to have different widths. (It assumes each hump is a normal bell curve and picks the cut that minimises the expected number of wrong pixels.)
-5. **Sanity check:** if the fitted threshold is above the water limit (-14 dB for VV, **-18 dB for VH**), reject it. If no block qualifies or the fit is rejected, use the **default**: **-17 dB for VV**, **-22 dB for VH** (`DEFAULT_DB`, `VH_DEFAULT_DB`).
-
-The output records whether the threshold was `fitted` or `default`. **In our committed run only 19.8 percent of chips got a fitted VV threshold; the other 80 percent used the default.** Say that if asked; do not oversell.
-
-### 3.2 Step 2: the margin and the soft score
-
-* **VV margin** = `VV - t_vv` (how far above the cut each pixel is; negative = darker than the cut = water-like).
-* **Joint margin** = `min(VV margin, VH margin)` (use the more pessimistic of the two bands, so both must agree to be water-like).
-* **Soft score** = `sigmoid(-margin / 1.0 * 1.7)`. The **sigmoid** is the S-shaped function `1 / (1 + exp(-x))` that squashes any number into (0, 1). Dividing by `THRESH_SIGMA_DB = 1.0` dB builds in the idea that the threshold itself is uncertain by about 1 dB. The factor **1.7** makes the sigmoid close to a normal curve with a standard deviation of 1 dB. Result: a pixel exactly at the cut scores 0.5, one 1 dB darker scores about 0.85, one 3 dB darker about 0.99.
-
-### 3.3 Step 3: optional extras (idle in our run)
-
-* **MNDWI** (a water index from optical bands: `(green - SWIR) / (green + SWIR)`) averages in with the radar score **only on clear (cloud-free) optical pixels**. Our public sample has no Sentinel-2, so this is **unused**.
-* **Log-ratio change gate:** if a "before flood" image exists, require a drop of at least **3 dB** (`DROP_DB = -3`) between before and after. The public sample is **single-date**, so this is also **idle**.
-* In our run, `components used = ['sar_threshold']` only.
-
-### 3.4 Step 4: permanent water set to 0, and a hard version
-
-Permanent water pixels get score 0 (and are outside the domain). Predictor 1 also yields a **hard** map: valid, not permanent, margin below 0, with blobs smaller than **10 pixels** removed (`MIN_BLOB_PX`) to drop speckle noise. The old rule was exactly this hard map; the soft score is the improvement.
-
-Try it: a mini Predictor 1 on a fake chip.
-
-#%% code
-def kittler_illingworth(values, bins=256):       # same maths as water.kittler_illingworth
-    v = values[np.isfinite(values)]
-    hist, edges = np.histogram(v, bins=bins)
-    c = (edges[:-1] + edges[1:]) / 2
-    p = hist / max(hist.sum(), 1)
-    P1 = np.cumsum(p); P2 = 1 - P1
-    m1c = np.cumsum(p * c); m2c = m1c[-1] - m1c
-    s1c = np.cumsum(p * c * c); s2c = s1c[-1] - s1c
-    with np.errstate(divide="ignore", invalid="ignore"):
-        mu1, mu2 = m1c / P1, m2c / P2
-        var1, var2 = s1c / P1 - mu1 ** 2, s2c / P2 - mu2 ** 2
-        J = 1 + 2 * (P1 * np.log(np.sqrt(var1)) + P2 * np.log(np.sqrt(var2))) - 2 * (P1 * np.log(P1) + P2 * np.log(P2))
-    ok = (P1 > 0.02) & (P2 > 0.02) & (var1 > 1e-6) & (var2 > 1e-6) & np.isfinite(J)
-    if not ok.any(): return otsu(values, bins)
-    J[~ok] = np.inf
-    return float(c[int(np.argmin(J))])
-
-def split_stats(values, t):
-    lo, hi = values[values < t], values[values >= t]
-    d = np.sqrt(2) * abs(lo.mean() - hi.mean()) / np.sqrt(lo.var() + hi.var() + 1e-9)
-    return dict(ashman_d=d, minority=min(lo.size, hi.size) / values.size, mean_low=lo.mean(), mean_high=hi.mean())
-
-sig = lambda x: 0.5 * (1 + np.tanh(0.5 * np.asarray(x, float)))     # the sigmoid
-
-# 1. check whether a block is 'bimodal' by the rule
-for name, frac in (("block with 30% water", 0.30), ("block with 2% water", 0.02), ("block with no water", 0.0)):
-    v, _ = fake_chip(frac, 2500); t = otsu(v); st = split_stats(v, t)
-    passes = st["ashman_d"] >= 3 and st["minority"] >= 0.10 and st["mean_low"] < -14 - 1 and st["mean_high"] - st["mean_low"] >= 3
-    print(f"{name:22s} D={st['ashman_d']:.1f} minority={st['minority']:.2f} low={st['mean_low']:.1f} -> counts as a bimodal block: {passes}")
-
-# 2. KI on the pooled bimodal blocks gives the chip threshold
-vv, y = fake_chip(0.25)
-t_ki = kittler_illingworth(vv)
-print("\nKI threshold on the chip: %.2f dB   (Otsu: %.2f dB; true classes meet near -14 dB)" % (t_ki, otsu(vv)))
-
-# 3. margin -> soft score
-margin = vv - t_ki
-p1 = sig(-margin / 1.0 * 1.7)
-for m in (-6, -3, -1, 0, 1, 3):
-    print(f"margin {m:+d} dB  -> soft score {float(sig(-m / 1.0 * 1.7)):.3f}")
-print("\nhard accuracy: %.3f | mean soft score on true water: %.3f | on true land: %.3f" % (((vv < t_ki) == y).mean(), p1[y == 1].mean(), p1[y == 0].mean()))
+It looks at features of each pixel such as the VV and VH values, how bright the neighbours are, and how bumpy the neighbourhood is. It is trained only on the **train** events.
 
 #%% md
-**Summary (section 3):** Predictor 1 is a transparent rule stack. It trusts only 1 km blocks with clearly two humps, pools them, fits a Kittler-Illingworth threshold on VV and on VH, falls back to defaults of minus 17 and minus 22 dB when the fit is implausible, takes the smaller margin of the two bands, and turns it into a soft score through a sigmoid that assumes the threshold is uncertain by about 1 dB. Permanent water is set to zero. The optical and before-after parts exist but are idle on our single-date radar-only sample.
+## 6. Fusion and calibration
+
+**Fusion.** The two predictors make different mistakes, so we blend them. The blend uses **logistic regression**, a standard method that combines numbers into a probability. We use separate blending settings for each kind of land (trees, crops, towns, and so on), because a predictor may be more trustworthy on one kind than another. The blend is fitted on the **validation** events, which neither predictor was trained on, so the weights are fair.
+
+**Calibration.** After blending, we check whether the numbers are honest. We tried three fixes: leave the numbers alone ("identity"), stretch or squash them with one number ("temperature"), or reshape them with a flexible curve ("isotonic"). We chose by testing on validation events. **Leaving them alone won**, meaning the blend was already honest enough.
+
+**How we measure honesty: ECE.** Sort pixels into bands by their stated probability. In each band compare the stated probability with how often pixels really were flooded. ECE (expected calibration error) is the average gap. **Smaller is better**, and 0 would be perfectly honest.
 
 #%% md
-## 4. Predictor 2: a gradient-boosted pixel model
+## 7. Scores in plain words
 
-### 4.1 Decision tree (the building block)
-
-A **decision tree** is a flowchart of yes/no questions on the features: "Is VV below -16? If yes, is the local mean below -15? ..." Each leaf gives a probability. One tree is weak.
-
-### 4.2 Boosting
-
-**Gradient boosting** builds many small trees **one after another**, each one trying to **fix the mistakes of all the previous trees**, and adds them up. Like a team where each new member studies the errors of the earlier ones. Our model is scikit-learn's `HistGradientBoostingClassifier` ("histogram" = it bins feature values first, which makes it fast on a CPU). It handles **missing values (NaN) natively**, which matters because the optical features are missing.
-
-### 4.3 Why not a deep neural network (U-Net)?
-
-A **U-Net** (an image-segmentation neural network) was the other option in the plan. On a **CPU with about a hundred chips** a boosted pixel model is the **cheaper, honest** choice, and the comparison against the baseline says whether it earns its place. Say exactly that.
-
-### 4.4 Features (`water.FEATURES`, 14 listed, 11 actually used)
-
-`vv`, `vh`, `vv_minus_vh`, `vv_m5` (5 x 5 local mean of VV), `vh_m5`, `vv_s5` (5 x 5 **texture** = local standard deviation), `vv_m15`, `vh_m15` (15 x 15 local means), `margin` (from Predictor 1), `vv_rel_t` (VV minus the chip threshold), `ndwi`, `mndwi`, `ndvi` (optical indices: **NaN here, so dropped**), and `lc` (WorldCover class as a **categorical** feature). Columns that are all missing or constant in the training sample are dropped automatically (`usable_columns`). In our run **11 features were used** (the three optical indices dropped).
-
-**Why local means and texture?** A single dark pixel may be a shadow or noise; a dark pixel inside a dark neighbourhood is more likely real water. Neighbourhood information adds context.
-
-### 4.5 Training protocol (this is where leakage would creep in, so notice each rule)
-
-* **4,000 random domain pixels per train chip**, only from **train** events. In our run: **320,000 train pixels** (80 chips) and **72,000 validation pixels** (18 chips x 4,000).
-* **Three fixed hyperparameter settings** (`GBM_GRID`) are fitted. A **hyperparameter** is a setting chosen by the human (number of trees `max_iter`, `learning_rate`, `max_leaf_nodes`, `min_samples_leaf`, `l2_regularization`), not learned from data.
-* The setting with the lowest **validation log loss** is chosen. In our run config **1** won (300 trees, learning rate 0.05, 15 leaves, at least 500 pixels per leaf, L2 = 1). **Test is never used.**
-* Honest caveat: because the setting was chosen on validation, **validation numbers are slightly optimistic for Predictor 2**. Say it.
-
-**Log loss** (a score for probabilities): `-mean( y*log(p) + (1-y)*log(1-p) )`. Lower is better. It punishes confident wrong answers very hard.
-
-Try it with scikit-learn on toy pixels: two features, a non-linear rule that a single threshold cannot capture.
-
-#%% code
-try:
-    from sklearn.ensemble import HistGradientBoostingClassifier
-    from sklearn.metrics import log_loss
-    n = 6000
-    vv = np.r_[rng.normal(-9, 2.0, n * 3 // 4), rng.normal(-18, 2.5, n // 4)]
-    texture = np.abs(rng.normal(0, 1, n)) * np.r_[np.ones(n * 3 // 4) * 1.5, np.ones(n // 4) * 0.6]    # water is smoother
-    y = np.r_[np.zeros(n * 3 // 4), np.ones(n // 4)]
-    X = np.c_[vv, texture]
-    X[rng.random(n) < 0.3, 1] = np.nan                                  # some feature values are missing: the model copes
-    idx = rng.permutation(n); tr, va = idx[:4000], idx[4000:]
-
-    best = None
-    for prm in ({"max_iter": 200, "learning_rate": 0.1, "max_leaf_nodes": 31, "min_samples_leaf": 100},
-                {"max_iter": 300, "learning_rate": 0.05, "max_leaf_nodes": 15, "min_samples_leaf": 200},
-                {"max_iter": 150, "learning_rate": 0.1, "max_leaf_nodes": 63, "min_samples_leaf": 50}):
-        m = HistGradientBoostingClassifier(early_stopping=False, random_state=0, **prm).fit(X[tr], y[tr])
-        ll = log_loss(y[va], np.clip(m.predict_proba(X[va])[:, 1], 1e-6, 1 - 1e-6))
-        print("config", prm, "-> validation log loss %.4f" % ll)
-        if best is None or ll < best[0]: best = (ll, m)
-    p2 = best[1].predict_proba(X[va])[:, 1]
-    print("\nchosen by validation log loss; mean probability on true water %.3f, on true land %.3f" % (p2[y[va] == 1].mean(), p2[y[va] == 0].mean()))
-except ImportError:
-    print("scikit-learn is not installed in this environment; skip this cell (it is in notebooks/requirements.txt)")
+* **ECE**: how dishonest the probabilities are (above). Lower is better.
+* **Brier score**: the average squared gap between the probability and the truth (0 or 1). Lower is better.
+* **AUC**: how well the map ranks flooded squares above dry ones. 1 is perfect, 0.5 is guessing.
+* **IoU (overlap score)**: draw the true flooded area and the predicted flooded area. IoU is the area where both agree divided by the area covered by either. 1 is perfect, 0 means no overlap.
 
 #%% md
-**Summary (section 4):** Predictor 2 is a histogram gradient-boosted tree classifier on pixel features: VV, VH, their difference, local means and texture, Predictor 1's margin and the land-cover class. It handles missing optical data natively. It is trained on 4,000 pixels per train chip, three fixed settings are compared by validation log loss, and test is never touched. We chose it over a U-Net because on a CPU with about a hundred chips it is cheaper and the comparison with the baseline tells us whether it earns its place.
+## 8. The paddy mask, and an honest limit
+
+The insurance question is about **rice fields**, but the land-cover map we use (ESA WorldCover) has no rice class. So we use **cropland** as a stand-in. This overcounts a little, because cropland includes crops other than rice. And the hand labels mark **water**, not "flooded rice", so some of what we score is flooded land that is not rice. We say this whenever we quote results.
 
 #%% md
-## 5. Fusion: combining the predictors, with weights per land cover
+## 9. Results on test events (events not used for fitting)
 
-### 5.1 Why combine
+| Measure | Our final map | Otsu baseline |
+|---|---|---|
+| ECE (honesty, lower is better) | **0.0387** | 0.338 |
+| IoU (overlap, higher is better) | **0.419** | 0.190 |
+| AUC | **0.934** | not applicable (yes or no only) |
+| Brier | **0.0627** | not reported |
 
-Predictor 1 (rules) and Predictor 2 (learned) make different kinds of mistakes. A sensible combination is usually better than either. This is called **stacking** or **fusion**.
+Flooded area inside the paddy mask on the test events: the hand labels say **8.56 km2**, our calibrated map says **5.11 km2** (it under-counts), and Otsu says **16.01 km2** (it over-counts badly).
 
-### 5.2 Logit and sigmoid (you need these)
-
-* **logit(p) = log( p / (1 - p) )**. It turns a probability in (0, 1) into any real number. p = 0.5 gives 0; p = 0.9 gives +2.2; p = 0.1 gives -2.2.
-* **sigmoid** is the inverse. `sigmoid(logit(p)) = p`.
-
-Combining on the logit scale is natural: logits can be added and weighted freely, then converted back.
-
-### 5.3 The fusion formula
-
-For each land-cover group g:
-
-**logit P(flooded) = a_g + w_g1 * logit(p1) + w_g2 * logit(p2)**
-
-* **a_g** is an intercept (a baseline shift), **w_g1** and **w_g2** are weights saying how much to trust each predictor in that land cover. These are fitted by **logistic regression** (L2-regularised, `C = 1.0`). **L2 regularisation** is a penalty that keeps the weights from growing wild when data are limited.
-* The land-cover groups come from `LC_GROUPS`: tree, shrub_grass, cropland, built, bare, wetland, open_water, other.
-* **Why per land cover?** Radar behaves differently over forest, crops and towns. A tall crop hides water differently from bare ground. One set of weights per group lets the map trust each predictor where it is best.
-* **A group with fewer than 500 validation pixels of either class (`min_class_px = 500`) borrows the pooled weights** (fitted on all validation pixels), because there is not enough data to fit its own.
-
-### 5.4 The key honesty rule: fit the fusion on VALIDATION events only
-
-Predictor 1 has no fitted parameters per se and Predictor 2 was fitted on train events. So on **validation events** both predictors are making predictions on data they have not been fitted to. That is clean data for learning how to combine them. Fitting the weights on train would reward whichever predictor memorised train.
-
-### 5.5 Cross-fitting (leave-one-validation-event-out)
-
-We need a validation score for the fused model that the fusion itself has not seen. So `fit_fusion_crossfit` fits the fusion on all validation events except one, predicts the left-out event, repeats for each event, and stitches these **out-of-fold (OOF)** predictions together. The calibrator (next section) is fitted on these OOF scores, so it is not fooled by an over-fitted fusion. The **final** fusion is then refitted on all validation events for use on test.
-
-### 5.6 Actual fitted weights in our run
-
-| Group | intercept a | w on p1 (rules) | w on p2 (boosted) | source |
-|---|---|---|---|---|
-| **cropland** | 1.65 | 0.10 | **0.97** | own |
-| shrub_grass | 1.71 | 0.19 | 0.89 | own |
-| tree | 0.34 | 0.31 | 0.40 | own |
-| pooled (all other groups) | 1.40 | 0.16 | 0.83 | borrowed for bare, built, open_water, wetland |
-
-Reading: in cropland the fusion almost ignores the rule stack and trusts the boosted model. (Weights are on the logit scale, and both inputs are strongly correlated, so single weights are not "importance percentages". Do not over-interpret them.)
-
-**Predictor 3** (an external flood product) has a slot but is **not available offline, so it is not used.**
-
-Try it: fusion by logistic regression on two toy predictors in two land covers.
-
-#%% code
-def logit(p, eps=1e-4):
-    p = np.clip(np.asarray(p, float), eps, 1 - eps); return np.log(p / (1 - p))
-print("logit(0.5)=%.2f logit(0.9)=%.2f logit(0.1)=%.2f | sigmoid(logit(0.9))=%.2f" % (logit(.5), logit(.9), logit(.1), float(sig(logit(.9)))))
-
-try:
-    from sklearn.linear_model import LogisticRegression
-    n = 4000
-    group = rng.choice(["cropland", "tree"], n)
-    y = (rng.random(n) < 0.25).astype(int)
-    # predictor 1 is good over cropland, predictor 2 is good over trees (we make it so on purpose)
-    noise1 = np.where(group == "cropland", 0.8, 2.2); noise2 = np.where(group == "cropland", 2.2, 0.8)
-    z1 = (2 * y - 1) * 1.5 + rng.normal(0, 1, n) * noise1
-    z2 = (2 * y - 1) * 1.5 + rng.normal(0, 1, n) * noise2
-    p1, p2 = sig(z1), sig(z2)
-    Z = np.c_[logit(p1), logit(p2)]
-    for g in ("cropland", "tree"):
-        m = group == g
-        lr = LogisticRegression(C=1.0, max_iter=500).fit(Z[m], y[m])
-        print(f"{g:9s} intercept {lr.intercept_[0]:+.2f} | weight on p1 {lr.coef_[0][0]:.2f} | weight on p2 {lr.coef_[0][1]:.2f}")
-    print("-> the fusion learns to lean on whichever predictor is better in each land cover.")
-
-    # cross-fitting in miniature: leave one 'event' out
-    event = rng.integers(0, 3, n)
-    oof = np.empty(n)
-    for e in range(3):
-        ho = event == e
-        oof[ho] = LogisticRegression(C=1.0, max_iter=500).fit(Z[~ho], y[~ho]).predict_proba(Z[ho])[:, 1]
-    print("out-of-fold predictions made for every event, each by a model that never saw that event:", oof[:5].round(3))
-except ImportError:
-    print("scikit-learn not installed; skip")
+Two honest points. Inside the paddy mask alone, calibration is worse (ECE 0.0992), so the map is less trustworthy there than overall. And on validation the simple rule predictor scored better overlap than our final blend, as mentioned.
 
 #%% md
-**Summary (section 5):** We fuse the two predictors on the logit scale with logistic regression, with separate weights for each WorldCover land-cover group, because radar behaves differently over different surfaces. Groups with fewer than 500 validation pixels of either class borrow pooled weights. The fusion is fitted on validation events only, because on them both predictors are making predictions on events not used for fitting them, and it is cross-fitted leave-one-validation-event-out so that the calibrator sees scores the fusion has not memorised.
+## 10. Duration of flooding (partly simulated)
+
+Crops survive short floods and die in long ones, so insurance cares about **how many days** a field stayed under water. A radar chip is a single snapshot, so we cannot see duration directly. We build a **semi-synthetic** duration map. That means partly simulated, and we always label it so.
+
+* We know from Layer 1 that the satellite passes only every few days, so a flood's end is known only as a range between two passes. The map estimates the chance a field stayed flooded at least d days, for d = 3, 7, 10 and 14, using a standard method for range-type data (the **Turnbull** estimator).
+* To turn duration into crop damage we use **survival curves** for rice: intolerant rice survives about 7 days of full submergence (half die), flood-tolerant "SUB1" varieties about 14 days. **These curves are assumptions, not fitted to data.** We say so.
+* On the test events the duration step shows a sensitivity of 0.468 and a specificity of 0.979.
 
 #%% md
-## 6. How we measure a probability map (the scores used)
-
-Let `p` be the stated probability for a pixel and `y` the truth (1 flood, 0 not). Let a **hard call** be `p >= 0.5`. Count over all pixels: **TP** (called flood, was flood), **FP** (called flood, was not), **FN** (missed flood).
-
-| Score | Formula | Meaning | Better is |
-|---|---|---|---|
-| **Brier score** | mean of (p - y)^2 | squared error of the probability | lower |
-| **Log loss** | -mean( y log p + (1-y) log(1-p) ) | punishes confident mistakes harshly | lower |
-| **AUC** | probability a random flood pixel gets a higher p than a random dry pixel | ranking quality, ignores calibration | higher (0.5 = coin flip, 1 = perfect) |
-| **IoU** (intersection over union) | TP / (TP + FP + FN) | overlap of the called flood with true flood | higher |
-| **F1** | 2TP / (2TP + FP + FN) | balance of precision and recall | higher |
-| **ECE** (expected calibration error) | explained below | how far stated probabilities are from observed frequencies | **lower** |
-
-**Reliability diagram and ECE.**
-
-1. Cut [0, 1] into **15 equal-width bins**.
-2. In each bin, compute the **average stated probability** (confidence) and the **actual fraction of flooded pixels** (frequency).
-3. A calibrated map has frequency equal to confidence in every bin (points on the diagonal of the diagram).
-4. **ECE = sum over bins of (fraction of pixels in the bin) x |confidence - frequency|.** Zero is perfect.
-
-Also reported: **`ece_p_ge_0.05`** (ECE using only pixels called at least 5 percent wet, because pixel-level ECE is dominated by the huge number of easy dry pixels), and **`area_ratio_expected`** = (sum of probabilities) / (true flooded pixel count), where 1.0 means the expected flooded area matches the truth.
-
-**Two traps to know:**
-
-* A **hard** 0/1 map has ECE equal to its Brier score equal to its error rate. It is not "calibrated", it is just a yes/no map. That is why the baseline shows ECE 0.44 on validation: it simply makes lots of wrong hard calls.
-* **Prevalence** (the share of flood pixels) is low (6 percent val, 12 percent test), so accuracy alone is meaningless. A map that says "dry everywhere" is 94 percent right on validation. That is why IoU, F1, AUC and ECE are used.
-
-Try it: compute every score on a toy map.
-
-#%% code
-def reliability(p, y, bins=15):
-    p, y = np.asarray(p, float), np.asarray(y, float)
-    edges = np.linspace(0, 1, bins + 1)
-    k = np.clip(np.digitize(p, edges[1:-1]), 0, bins - 1)
-    n = np.bincount(k, minlength=bins).astype(float)
-    with np.errstate(invalid="ignore", divide="ignore"):
-        return dict(n=n, conf=np.bincount(k, weights=p, minlength=bins) / n, freq=np.bincount(k, weights=y, minlength=bins) / n)
-
-def ece(p, y, bins=15):
-    r = reliability(p, y, bins); m = r["n"] > 0
-    return float(np.sum(r["n"][m] / r["n"].sum() * np.abs(r["conf"][m] - r["freq"][m])))
-
-def scores(p, y):
-    p, y = np.asarray(p, float), np.asarray(y).astype(bool)
-    hard = p >= 0.5
-    tp, fp, fn = (hard & y).sum(), (hard & ~y).sum(), (~hard & y).sum()
-    pc = np.clip(p, 1e-6, 1 - 1e-6)
-    return dict(prevalence=y.mean(), ece=ece(p, y), brier=np.mean((p - y) ** 2),
-                log_loss=-np.mean(y * np.log(pc) + (~y) * np.log(1 - pc)), iou=tp / max(tp + fp + fn, 1), f1=2 * tp / max(2 * tp + fp + fn, 1),
-                area_ratio_expected=p.sum() / max(y.sum(), 1))
-
-# Toy world: true probability of flood depends on a hidden score; 'overconfident' model exaggerates, 'good' model is honest
-n = 60000
-hidden = rng.normal(-2.4, 1.6, n); p_true = sig(hidden)
-y = (rng.random(n) < p_true).astype(int)
-good = p_true                                                    # perfectly calibrated
-overconf = sig(hidden * 2.2)                                     # same ranking, too extreme
-hard = (p_true >= 0.5).astype(float)                              # a yes/no map
-print(pd.DataFrame({"honest": scores(good, y), "overconfident": scores(overconf, y), "hard 0/1": scores(hard, y)}).round(4))
-print("\nSame ranking for honest and overconfident, but only the honest one has low ECE. That is what calibration repairs.")
-print("The hard map has ECE == Brier:", round(scores(hard, y)["ece"], 4), "==", round(scores(hard, y)["brier"], 4))
-
-r = reliability(overconf, y); r2 = reliability(good, y)
-plt.figure(figsize=(3.8, 3.6)); plt.plot([0, 1], [0, 1], "k:"); plt.plot(r["conf"], r["freq"], "o-", label="overconfident"); plt.plot(r2["conf"], r2["freq"], "s-", label="honest")
-plt.xlabel("stated P(flood)"); plt.ylabel("observed flood share"); plt.legend(fontsize=8); plt.title("reliability diagram"); plt.tight_layout(); plt.show()
-
-#%% md
-**Summary (section 6):** We report ECE with 15 bins, Brier score, log loss, AUC, IoU and F1, plus expected-area ratio. Because floods are rare, accuracy is meaningless, so we use measures that respect rarity and calibration. A hard yes/no map has ECE equal to Brier equal to its error rate, which is why the Otsu baseline shows a large ECE.
-
-#%% md
-## 7. Calibration (fitted on validation only)
-
-### 7.1 What and why
-
-A model can rank pixels well (high AUC) but state probabilities that are too extreme or too timid. **Calibration** is a small correction function applied to the output so that the stated probabilities match real frequencies. Layer 3 treats these probabilities as probabilities, so they must be honest.
-
-### 7.2 The three candidates
-
-1. **Identity**: leave the fused probability as it is.
-2. **Temperature scaling** (Guo et al. 2017): `p_new = sigmoid( logit(p) / T )`. One parameter **T**. T > 1 softens overconfident outputs, T < 1 sharpens timid ones. It keeps the ranking and the 0.5 point unchanged. T is found by minimising log loss.
-3. **Isotonic regression** (Zadrozny and Elkan 2002): fits a **monotone step function** from raw score to observed frequency using the **pool-adjacent-violators (PAV)** algorithm: sort by score, then whenever a block's flood rate is lower than the block before it, merge them. Our version also merges tiny blocks (under **200 pixels**, `min_block`) into neighbours so a few pixels cannot create a cliff. It can fit any monotone shape, but it can also over-fit.
-
-### 7.3 How the winner is chosen: leave-one-event-out
-
-`choose_by_event` takes the OOF fused scores on the validation events. For each validation event: fit each candidate on the **other** validation events, compute ECE on the **left-out** event. Average the ECEs. The candidate with the **lowest mean left-out ECE** wins and is then refitted on all validation events.
-
-### 7.4 What actually happened in our run (be honest about this)
-
-Mean left-out ECE: **identity 0.0469, temperature 0.0554, isotonic 0.0990. Identity won**, which means **the calibrator is the identity function (T = 1)**: the fused output was already as calibrated as the alternatives could make it on unseen events, so no correction is applied. The "fused" and "fused + calibrated" rows in the tables are therefore identical. Do not claim that "calibration improved the map". Say "calibration was evaluated honestly and the fused output needed no correction on the validation events".
-
-Try it: temperature scaling and isotonic on the overconfident toy model.
-
-#%% code
-from scipy.optimize import minimize_scalar
-
-def fit_temperature(z, y):
-    z, y = np.asarray(z, float), np.asarray(y, float)
-    def nll(logT):
-        p = np.clip(sig(z / np.exp(logT)), 1e-7, 1 - 1e-7)
-        return -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))
-    return float(np.exp(minimize_scalar(nll, bounds=(-3, 3), method="bounded").x))
-
-def fit_isotonic(p, y, min_block=200):                    # pool adjacent violators, then pool tiny blocks
-    o = np.argsort(p, kind="mergesort"); xs, ys = p[o], y[o]
-    sx, sy, w = [], [], []
-    for xi, yi in zip(xs, ys):
-        sx.append(xi); sy.append(yi); w.append(1.0)
-        while len(w) > 1 and sy[-2] / w[-2] > sy[-1] / w[-1]:
-            sx[-2] += sx[-1]; sy[-2] += sy[-1]; w[-2] += w[-1]; sx.pop(); sy.pop(); w.pop()
-    blocks = [[a / c, b / c, c] for a, b, c in zip(sx, sy, w)]
-    i = 0
-    while len(blocks) > 1 and i < len(blocks):
-        if blocks[i][2] >= min_block: i += 1; continue
-        j = i - 1 if (i == len(blocks) - 1 or (i > 0 and blocks[i + 1][2] > blocks[i - 1][2])) else i
-        x0, y0, w0 = blocks[j]; x1, y1, w1 = blocks[j + 1]
-        blocks[j] = [(x0 * w0 + x1 * w1) / (w0 + w1), (y0 * w0 + y1 * w1) / (w0 + w1), w0 + w1]; del blocks[j + 1]
-        i = max(j - 1, 0) if j < i else i
-    xs_, ys_ = np.array([[b[0], b[1]] for b in blocks]).T
-    return xs_, ys_
-
-# fit on half the toy data ('validation'), judge on the other half ('events not used for fitting')
-half = n // 2
-Tfit = fit_temperature(logit(overconf[:half]), y[:half])
-cal_T = sig(logit(overconf[half:]) / Tfit)
-xs_, ys_ = fit_isotonic(overconf[:half], y[:half].astype(float)); cal_I = np.interp(overconf[half:], xs_, ys_)
-print("temperature T = %.2f (we made the model 2.2x too extreme, so we expect about 2.2)" % Tfit)
-print("ECE on the unseen half: raw %.4f | temperature %.4f | isotonic %.4f | identity-on-honest %.4f" %
-      (ece(overconf[half:], y[half:]), ece(cal_T, y[half:]), ece(cal_I, y[half:]), ece(good[half:], y[half:])))
-print("Both calibrators repair the overconfident model. On an already-honest model neither beats identity: that is what happened to us.")
-
-#%% md
-**Summary (section 7):** We compare identity, temperature scaling and isotonic regression, each fitted on all validation events but one and scored by ECE on the left-out event. The lowest mean ECE wins. In our run identity won, with a mean left-out ECE of 0.047 against 0.055 for temperature and 0.099 for isotonic, so no correction was applied. We report that plainly.
-
-#%% md
-## 8. The paddy mask and P(flooded paddy)
-
-**P(flooded paddy) = P(flooded, not permanent water) x paddy**
-
-* `paddy` is Layer 1's paddy layer if one exists; otherwise WorldCover cropland (class 40) as a 0/1 mask. **In our run it is the WorldCover cropland proxy.**
-* Multiplying by 0/1 simply zeroes out non-cropland pixels. (If a paddy **probability** were available the product would be a joint probability, assuming independence.)
-* The notebook reports calibration **both over all land and inside the paddy mask** so you can see what the mask does. Inside the mask, flood prevalence is much higher on test (24.7 percent against 11.9 percent), and the calibration is worse (see section 9).
-
-#%% md
-## 9. The TEST cell: scored once, reported as it comes out
-
-Everything before this was fitted on train and validation events. **One cell** scores the test events (**India and Bolivia**). Nothing is refitted afterwards. The numbers are reported even where they are worse than validation. The cell is marked with a banner comment `TEST CELL: run once, nothing is fitted below this line`.
-
-### 9.1 The real numbers from our committed run (all land, domain pixels)
-
-| Model | val ECE | **test ECE** | val IoU | **test IoU** | test Brier | test AUC |
-|---|---|---|---|---|---|---|
-| **Baseline: Otsu on VV (hard)** | 0.439 | **0.338** | 0.076 | **0.190** | 0.338 | 0.665 |
-| Predictor 1 hard (earlier rule) | 0.034 | 0.087 | 0.498 | 0.351 | 0.087 | 0.690 |
-| Predictor 1 soft | 0.028 | 0.074 | 0.491 | 0.380 | 0.078 | 0.899 |
-| Predictor 2 boosted | 0.025 | 0.061 | 0.411 | 0.293 | 0.073 | 0.928 |
-| **Fused + calibrated** | **0.021** | **0.039** | 0.356 | **0.419** | **0.063** | **0.934** |
-
-Test prevalence 0.119 (323,795 pixels); validation prevalence 0.063 (264,821 pixels).
-
-**How to read this table:**
-
-1. **The fused map has the lowest test ECE (0.039) and the lowest test Brier (0.063), and beats the Otsu baseline on every score**, so the extra layers earn their place.
-2. **Val-test gaps** (test minus val): fused ECE +0.018, i.e. somewhat worse on new events but still small. Fused IoU is **+0.063 (better on test)**. Note that IoU on validation (0.356) is lower than Predictor 1's (0.491). IoU uses a hard 0.5 cut, whereas the fusion is fitted for honest probabilities, not for overlap at 0.5, and we did not investigate this further. So **do not claim fusion improves IoU everywhere**; claim it improves calibration, Brier score and test overlap.
-3. **Baseline ECE falls from val to test (0.439 to 0.338)** only because test has more flood pixels, so a hard map is wrong less often. It is still about nine times worse than the fused map.
-4. **The map under-estimates the area on test.** Inside the paddy mask on the test chips: the hand label has **8.56 km2** flooded; the calibrated expected area is **5.11 km2**; the Otsu baseline gives **16.01 km2**. The mean absolute chip error is **0.159 km2 (calibrated) against 0.492 km2 (baseline)**. So it is much closer than Otsu, but it errs low.
-5. **Inside the paddy mask (test):** fused ECE **0.099**, Brier **0.129**, IoU **0.341**; baseline ECE 0.402. The ECE is just inside the 0.10 limit set in advance for all-land test; calibration is clearly weaker over cropland. A plausible reason (not tested here) is that crop stems above the water scatter radar back and hide the flood.
-6. **Per event (test):** Bolivia ECE 0.030, IoU 0.527; India ECE 0.052, IoU 0.356. India, our target region, is the harder event.
-
-**Why the honesty matters:** the project does not hide weak numbers. A flagged weakness (under-estimated area, weaker paddy calibration) is what Layers 3 and 4 exist to correct: the field checks correct the map's bias in Layer 3.
-
-### 9.2 The assertions (bounds written before the test cell was run)
-
-1. fused + calibrated **test ECE (all land) <= 0.10**;
-2. fused + calibrated **test Brier <= the Otsu baseline's**;
-3. every output probability lies in **[0, 1]**;
-4. the MANIFEST lists **every chip map** (number of map files = number of chips).
-
-Our run: test ECE 0.0387, Brier 0.0627 against 0.3380 for the baseline.
-
-#%% md
-## 10. Submergence duration (semi-synthetic) and crop survival
-
-**Label: semi-synthetic.** Say it every time. Here is why.
-
-### 10.1 The problem and why it is simulated
-
-How long a crop is under water matters: rice tolerates a few days but dies from a long flood. We want **P(submerged for at least d days)**. We have only **one radar date per chip** in the public data, so we cannot see durations. The part that is real: the flood footprint at the observed pass (hand label for truth; the map's own call for the observation). The part that is simulated: when the flood started, how long it lasted, and the other passes.
-
-### 10.2 The simulation (`SimConfig`, seed 20261118)
-
-* revisit **12 days**; **2 passes before** and **4 after** the observed pass;
-* flood onset **0 to 6 days before** the observed pass;
-* per-event median duration drawn between **4 and 14 days**; pixel durations **log-normal** with spread **0.5**; **darker (deeper) pixels last longer** (`depth_beta = 0.25`);
-* the extra passes are "observed" with the map's own **validation sensitivity 0.468** (fraction of true flood pixels the map calls flooded) and **specificity 0.979** (fraction of dry pixels called dry). These are real, measured on validation.
-
-### 10.3 Interval censoring (recap from notebook 1)
-
-From each pixel's wet/dry sequence over the passes we get an **interval [lo, hi]**: `lo` = time from first wet pass to last wet pass, `hi` = time from the last dry pass before to the first dry pass after (infinite if still wet at the end: **right-censored**). The truth lies somewhere in between.
-
-### 10.4 Turnbull NPMLE: learning a distribution from intervals
-
-We want the probability distribution of the duration D, but each pixel gives only an interval. The **Turnbull NPMLE** (non-parametric maximum likelihood estimator) does this with the **EM algorithm**. In plain words:
-
-1. Put a day grid (0.5-day bins up to 60 days). Start with equal probability on every bin.
-2. **E-step:** for each pixel's interval, share the pixel's "one unit of evidence" among the bins inside its interval, in proportion to the current probabilities.
-3. **M-step:** the new probability of each bin is the average evidence it received.
-4. Repeat (up to 500 times) until nothing changes.
-
-It is fitted on **train events only** (`fit_turnbull`). **Non-parametric** means we assume no formula for the shape.
-
-**Per pixel:** `P(submerged >= d) = P(flooded) * P(D >= d | interval)`, where the second factor is the fitted distribution **restricted to the pixel's interval** and renormalised. `d` in **3, 7, 10, 14** days.
-
-**Naive baseline:** `wet passes x 12 days` (a single point estimate, ignores censoring).
-
-### 10.5 Crop survival curves (assumptions, not fitted)
-
-`S(d) = 1 / (1 + exp((d - d50) / s))`: intolerant rice **d50 = 7 days, s = 1.5**; flood-tolerant **SUB1** varieties **d50 = 14 days, s = 2**. These are **literature-shaped assumptions** (Xu et al. 2006; Septiningsih et al. 2009), not fitted. `crop_loss_intolerant` = P(flooded paddy) x expected (1 - survival).
-
-### 10.6 Real results on test events (semi-synthetic truth)
-
-| d (days) | true share | Turnbull ECE | naive ECE |
-|---|---|---|---|
-| 3 | 0.118 | 0.038 | 0.174 |
-| 7 | 0.093 | 0.031 | 0.169 |
-| 10 | 0.065 | 0.035 | 0.169 |
-| 14 | 0.038 | 0.047 | 0.038 |
-
-Turnbull beats the naive count for d = 3, 7, 10 and **is not better at d = 14** (the naive count is already good for the rare long floods). Because the truth itself is simulated, this proves the method is **self-consistent**, not that it is right about real floods. **Never claim a duration accuracy on real events.**
-
-**What limits duration estimates:** the width of each interval is about **twice the revisit time**. With 12-day passes the intervals are about 24 days wide, so any duration estimate is coarse. The toy experiment below shows the same EM becoming accurate as passes get denser.
-
-Try it: simulate, build intervals, run Turnbull EM and compare with the truth, for different revisit times (perfect radar observation in this toy, to isolate the effect of the revisit).
-
-#%% code
-def fit_turnbull(lo, hi, step=0.5, d_max=60.0, iters=500, tol=1e-8):     # same maths as duration.fit_turnbull
-    grid = np.arange(step / 2, d_max, step); hi = np.minimum(hi, d_max)
-    pairs, counts = np.unique(np.stack([lo, hi], 1), axis=0, return_counts=True)
-    A = ((grid[None, :] >= np.maximum(pairs[:, :1], 1e-9) - 1e-9) & (grid[None, :] <= pairs[:, 1:] + 1e-9)).astype(float)
-    empty = A.sum(1) == 0
-    for i in np.where(empty)[0]:
-        A[i, np.argmin(np.abs(grid - pairs[i].mean()))] = 1.0
-    p = np.full(grid.size, 1.0 / grid.size); w = counts / counts.sum()
-    for _ in range(iters):
-        new = p * (A.T @ (w / (A @ p))); new /= new.sum()
-        if np.abs(new - p).max() < tol: p = new; break
-        p = new
-    return grid, p
-
-def toy_duration_experiment(revisit, n=6000, seed=5):
-    """Perfect observation (no radar errors), only the revisit interval changes."""
-    r = np.random.default_rng(seed)
-    D = r.lognormal(np.log(9.0), 0.5, n)                  # true durations (log-normal, median 9 days)
-    onset = -r.uniform(0, 6, n)                           # flood began 0-6 days before the observed pass at t = 0
-    n_before = int(np.ceil(24 / revisit)); times = revisit * np.arange(-n_before, int(np.ceil(60 / revisit)) + 1)
-    wet = (times[:, None] >= onset[None, :]) & (times[:, None] < (onset + D)[None, :])
-    k0 = int(np.flatnonzero(times == 0)[0]); keep = wet[k0]       # pixels wet at the observed pass
-    W = wet[:, keep]; P = W.shape[0]
-    first = W.argmax(0); last = P - 1 - W[::-1].argmax(0)
-    lo = times[last] - times[first]                                  # first wet to last wet
-    tb = np.where(first - 1 >= 0, times[np.clip(first - 1, 0, P - 1)], -np.inf)   # last dry pass before
-    ta = np.where(last + 1 < P, times[np.clip(last + 1, 0, P - 1)], np.inf)       # first dry pass after
-    hi = ta - tb
-    grid, pmf = fit_turnbull(lo, hi)
-    return dict(width=float(np.mean(hi - lo)), est={d: float(pmf[grid >= d].sum()) for d in (3, 7, 10, 14)},
-                truth={d: float(np.mean(D[keep] >= d)) for d in (3, 7, 10, 14)})
-
-rows = []
-for rev in (12, 6, 3, 1):
-    res = toy_duration_experiment(rev)
-    rows.append({"revisit (days)": rev, "interval width": round(res["width"], 1),
-                 **{f"P(D>={d}) est/true": f"{res['est'][d]:.2f} / {res['truth'][d]:.2f}" for d in (7, 10, 14)}})
-print(pd.DataFrame(rows).to_string(index=False))
-print("Interval width = 2 x revisit. With a 12-day revisit the intervals are 24 days wide and the estimate is coarse;")
-print("with dense passes the same EM recovers the truth. Fewer satellite passes = less information about duration.")
-
-# survival curves for rice: assumed, not fitted
-dd = np.linspace(0, 30, 200)
-S = lambda d, d50, s: 1 / (1 + np.exp((d - d50) / s))
-plt.figure(figsize=(5, 2.8)); plt.plot(dd, S(dd, 7, 1.5), label="intolerant rice (d50=7)"); plt.plot(dd, S(dd, 14, 2), "--", label="SUB1 rice (d50=14)")
-plt.xlabel("days of complete submergence"); plt.ylabel("plant survival"); plt.legend(fontsize=8); plt.tight_layout(); plt.show()
-
-#%% md
-**Summary (section 10):** The duration part is semi-synthetic: the public chips have a single radar date, so the footprint at that pass is real but onset, duration and the other passes are simulated, with the map's measured sensitivity of 0.47 and specificity of 0.98. Each pixel's wet and dry passes give an interval for its duration. The Turnbull NPMLE, an EM algorithm fitted on train events, estimates the duration distribution, and P of submerged at least d days is P of flooded times P of D at least d given the interval. It beats the naive wet-passes-times-12 baseline at 3, 7 and 10 days, but because the truth is simulated this shows self-consistency only, not accuracy on real floods. Crop survival curves are literature-shaped assumptions.
-
-#%% md
-## 11. What Layer 2 writes (the contract with Layer 3)
-
-In `artifacts/layer2/`:
-
-| File | Content |
-|---|---|
-| `maps/<chip>.npz` | per chip, arrays as **uint8 where value / 250 = probability and 255 = no call (outside the domain)**: `p_flooded_paddy`, `p_flooded`, `paddy`, `p_sub_ge_3d`, `p_sub_ge_7d`, `p_sub_ge_10d`, `p_sub_ge_14d` (semi-synthetic), `crop_loss_intolerant` (semi-synthetic); plus `label`, `domain`, `chip`, `event`, `split` passed through so Layer 3 can simulate field checks |
-| `chips.parquet`, `chips.csv` | one row per chip: split, domain pixels, paddy pixels, expected / label / baseline flooded-paddy pixels, bounds |
-| `models.json` | fusion weights, calibrator, pixel-model choice and features, duration model |
-| `metrics.json` | every table above (val, test, test inside paddy, gaps, per-event, area check, duration) |
-| `MANIFEST.json` | schema, shapes, seed, source hashes, which parts are semi-synthetic |
-
-**Why uint8 scaled by 250:** it stores a probability in one byte per pixel (about 0.4 percent resolution) to keep files small, with 255 reserved as "not in the domain".
-
-**The assumed chip schema** (what Layer 1 must provide): `s1_vv`, `s1_vh` (dB, 20 m), `label` (1/0/-1), `event`; optional `chip`, `split`, `s2`, `perm_water`, `landcover`, `paddy`, `s1_pre_vv`, `s1_pre_vh`. If Layer 1 has no chips yet, the notebook builds the same schema from public Sen1Floods11 plus WorldCover into `notebooks/data/layer2_public_sample/`. In our run the source was **layer1**, and the split came from Layer 1 (`split_source = layer1`).
-
-#%% code
-# The uint8 encoding in miniature
-def q8(p, dom):
-    out = np.full(p.shape, 255, "uint8"); out[dom] = np.round(np.clip(p[dom], 0, 1) * 250).astype("uint8"); return out
-p = np.array([[0.0, 0.123, 0.5], [0.999, 1.0, 0.7]]); dom = np.array([[True, True, True], [True, True, False]])
-enc = q8(p, dom)
-print("encoded:\n", enc)
-dec = np.where(enc == 255, np.nan, enc / 250)
-print("decoded:\n", dec, "\n(255 means no call, and the decoding error is at most 0.002)")
-
-#%% md
-## 12. Key numbers
+## 11. Key numbers
 
 | Thing | Value |
 |---|---|
-| Output | calibrated **P(flooded paddy)** per 20 m pixel + semi-synthetic duration maps |
-| Domain | labelled, valid, **not permanent water**; chips with domain under **30 percent** dropped |
-| Chips used | **121** = **80** train + **18** val + **23** test |
-| Splits (events) | test **India, Bolivia**; val **Sri-Lanka, Ghana**; train the other 7 |
-| Baseline | per-chip **Otsu on VV**, hard 0/1, no training |
-| Predictor 1 | blocks **50 x 50 px**, **Ashman D >= 3**, minority **>= 0.10**, mean gap **>= 3 dB**, **KI threshold**; defaults **-17 dB (VV)**, **-22 dB (VH)**; limits **-14 / -18 dB** |
-| Soft score | `sigmoid(-margin / 1.0 * 1.7)`; margin = min of VV and VH margins |
-| Other P1 parts | log-ratio gate **-3 dB**; blobs under **10 px** removed; MNDWI on clear S2. **Idle** in our run |
-| Fitted VV threshold share | **19.8 percent** of chips (the rest use the default) |
-| Predictor 2 | `HistGradientBoostingClassifier`; **4,000** px per train chip; **320,000** train and **72,000** val px; **3** settings, chosen by val log loss (config **1**); **11** features used of 14 |
-| Fusion | `logit P = a_g + w_g1 logit(p1) + w_g2 logit(p2)` per land cover; L2 with C = 1; **500** px per class minimum else pooled; fitted on **val only**; **cross-fit leave-one-val-event-out** |
-| Calibration candidates | identity, temperature, isotonic (min block **200**); chosen by leave-one-event-out ECE |
-| Calibration outcome | **identity** won: mean left-out ECE **0.0469 / 0.0554 / 0.0990** |
-| ECE | **15** equal-width bins |
-| Test (all land), fused | **ECE 0.0387**, **Brier 0.0627**, **AUC 0.934**, **IoU 0.419** |
-| Test (all land), baseline | **ECE 0.338**, **IoU 0.190**, **Brier 0.338** |
-| Val fused | ECE 0.0212, IoU 0.356 |
-| Test inside paddy mask, fused | ECE **0.0992**, IoU 0.341; baseline ECE 0.402 |
-| Test area inside paddy (km2) | label **8.56**; calibrated **5.11**; baseline **16.01** |
-| Mean abs chip error | calibrated **0.159 km2**; baseline **0.492 km2** |
-| Per event test | Bolivia ECE 0.030, IoU 0.527; India ECE 0.052, IoU 0.356 |
-| Prevalence | val **0.063**, test **0.119** |
-| Assertion bounds | test ECE <= **0.10**; test Brier <= baseline; probabilities in [0, 1]; manifest lists every chip map |
-| Duration sim | revisit **12 d**; **2** passes before, **4** after; onset **0-6 d** before; median **4-14 d**; sigma **0.5**; map sensitivity **0.468**, specificity **0.979** |
-| Duration model | Turnbull NPMLE, 0.5-day grid to 60 d, 500 EM iterations, fitted on train; d in **3, 7, 10, 14** |
-| Crop survival | intolerant **d50 7, s 1.5**; SUB1 **d50 14, s 2** (assumptions) |
-| Paddy | WorldCover class **40 cropland** proxy (no paddy class exists) |
-| Map encoding | uint8, **value / 250**, **255** = no call |
-| Seed | **20261118** |
+| Chips used | **121** (80 train, 18 validation, 23 test) |
+| Pixel size | 20 m |
+| Test results, final map | ECE **0.0387**, IoU **0.419**, AUC **0.934**, Brier **0.0627** |
+| Test results, Otsu baseline | ECE **0.338**, IoU **0.190** |
+| Calibration choice | identity (left unchanged) won |
+| Paddy proxy | WorldCover cropland (class 40) |
+| Duration levels | d = 3, 7, 10, 14 days |
 
 #%% md
-## 13. Glossary (alphabetical)
+## 12. Glossary
 
-* **Ashman's D**: how well separated two humps are, `sqrt(2) |m1 - m2| / sqrt(v1 + v2)`.
-* **AUC**: area under the ROC curve; the chance a random flood pixel is ranked above a random dry pixel.
-* **Baseline**: the simplest sensible method, reported beside every model.
-* **Bimodal**: a histogram with two humps.
-* **Boosting**: adding many small trees, each correcting the previous ones' errors.
-* **Brier score**: mean squared error of the probabilities.
-* **Calibration**: making stated probabilities match observed frequencies.
-* **Censoring (interval, right)**: knowing a value only within an interval; right-censored = no upper end.
-* **Cross-fitting / out-of-fold (OOF)**: predicting each group with a model that never saw it.
-* **Domain**: pixels where a flood call makes sense (labelled, valid, not permanent water).
-* **ECE**: expected calibration error.
-* **EM algorithm**: expectation-maximisation, an iterative way to fit models with hidden information.
-* **F1**: 2TP / (2TP + FP + FN).
-* **Feature**: a number computed per pixel to help the model decide.
-* **Fusion / stacking**: combining several predictors' outputs with fitted weights.
-* **Hyperparameter**: a setting chosen by a human, not learned.
-* **Identity (calibrator)**: no correction.
-* **IoU**: TP / (TP + FP + FN).
-* **Isotonic regression**: monotone step-function calibration (PAV).
-* **Kittler-Illingworth**: minimum-error threshold allowing unequal hump widths.
-* **L2 regularisation**: a penalty keeping weights small.
-* **Log loss**: score that punishes confident wrong probabilities.
-* **Logit / sigmoid**: `log(p/(1-p))` and its inverse.
-* **Margin**: how far a pixel's dB is from the threshold.
-* **MNDWI**: modified normalised difference water index (optical).
-* **NPMLE**: non-parametric maximum likelihood estimator.
-* **Otsu**: threshold that maximises between-class variance.
-* **Permanent water**: always-water bodies (JRC), excluded from flood calls.
-* **Prevalence**: the share of positive (flood) pixels.
-* **Reliability diagram**: observed frequency plotted against stated probability.
-* **Semi-synthetic**: real footprint, simulated timing. Always labelled.
-* **Sensitivity / specificity**: fraction of true flood called flood / fraction of dry called dry.
-* **Temperature scaling**: `sigmoid(logit(p)/T)`.
-* **Texture**: local standard deviation of the image.
-* **Turnbull**: the NPMLE for interval-censored data.
-* **WorldCover**: ESA's 10 m land-cover map; class 40 is cropland.
+* **Baseline**: a simple method we must beat.
+* **Calibrated**: probabilities that match reality (70 percent means about 70 percent).
+* **Decision tree**: a tiny set of yes/no questions that ends in a guess.
+* **ECE**: average gap between stated probability and actual frequency.
+* **Fusion**: blending several predictors into one.
+* **IoU**: overlap between predicted and true flooded area.
+* **Pixel**: one 20 m by 20 m square.
+* **Semi-synthetic**: partly simulated, and labelled so.
+* **VV, VH**: two radar readings; water is dark in VV.
 
 #%% md
-## 14. Review questions and short answers
+## 13. Review questions
 
-1. **What does Layer 2 produce?** A calibrated probability per pixel that it is flooded paddy, plus semi-synthetic submergence-duration maps.
-2. **What is calibrated?** Among pixels given probability p, about a fraction p are truly flooded.
-3. **What is your baseline and why?** Per-chip Otsu on VV: the simplest method; it shows what our layers add.
-4. **Why does Otsu fail?** It forces a cut even when a chip has almost no water, so it calls a lot of land water.
-5. **What is Predictor 1?** A transparent rule stack: bimodal-block selection, Kittler-Illingworth thresholds on VV and VH with defaults, soft score with 1 dB threshold uncertainty.
-6. **What is Predictor 2?** A gradient-boosted tree classifier on pixel features, trained on train events only.
-7. **Why boosting and not a U-Net?** On a CPU with about a hundred chips it is cheaper and honest. The baseline comparison says whether it earns its place.
-8. **How is fusion done?** Logistic regression on the logits of both predictors, separate weights per land-cover group, fitted on validation events only.
-9. **Why fit the fusion on validation, not train?** On validation both predictors are predicting events not used for fitting them, so the weights reflect real, not memorised, performance.
-10. **What is cross-fitting?** Each validation event is predicted by a fusion fitted on the other events. It gives out-of-fold scores for the calibrator.
-11. **What calibration did you choose?** Identity won on leave-one-event-out ECE, so no correction was applied.
-12. **What is ECE?** The weighted average gap between stated probability and observed frequency over 15 bins.
-13. **Why is baseline ECE equal to its Brier score?** A hard 0/1 map's ECE and Brier both equal its error rate.
-14. **How did you do on test?** Fused ECE 0.039 and Brier 0.063 against 0.338 for the baseline; IoU 0.419 against 0.190.
-15. **Where are the weak spots?** The expected flooded area is under-estimated (5.1 against 8.6 km2), calibration is weaker inside the cropland mask (ECE 0.099), India is harder than Bolivia, and only 20 percent of chips get a fitted threshold.
-16. **Why not claim fusion improves IoU?** On validation, fused IoU (0.356) is below Predictor 1's (0.491). Fusion improves calibration and test IoU, not IoU everywhere.
-17. **Is paddy detected?** No. It is a WorldCover cropland proxy.
-18. **Why remove permanent water?** A river is not a flood, and keeping it would inflate every score.
-19. **Is the duration result real?** No, it is semi-synthetic: one real radar date, everything else simulated. It shows self-consistency, not accuracy.
-20. **What is the Turnbull estimator?** A non-parametric, EM-based estimate of the duration distribution from interval-censored observations.
-21. **What are the stated assertions?** Test ECE at most 0.10, test Brier no worse than the baseline, probabilities in [0, 1], manifest lists every chip map.
-22. **How do you prevent leakage?** Event-level splits, fitting only on train and validation events, test scored once in a marked cell, and a baseline and val-test gap beside every model.
+1. **What does Layer 2 do?** Turns a radar picture into a calibrated probability, per pixel, of flooded rice field.
+2. **What is Otsu's method and why is it here?** A classic way to choose one brightness cut-off. It is our baseline.
+3. **Why two predictors?** They make different mistakes, so blending helps.
+4. **What does "boosted" mean?** Many small decision trees, each correcting the previous ones.
+5. **What is calibration?** Making stated probabilities match real frequencies.
+6. **Which calibration won?** None needed; leaving it unchanged was best.
+7. **What is ECE?** The average gap between stated probability and actual frequency. Lower is better.
+8. **How much better than the baseline?** On test events honesty improved from 0.338 to 0.0387 and overlap from 0.190 to 0.419.
+9. **What is a weakness?** The paddy mask is a stand-in (cropland), the labels are water, and on validation a simple rule predictor beat the blend on overlap.
+10. **Is the duration part real?** No. It is semi-synthetic and the crop survival curves are assumptions.
