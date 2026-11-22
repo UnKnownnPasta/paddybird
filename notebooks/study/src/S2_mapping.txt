@@ -1,18 +1,11 @@
 #%% md
-# STUDY NOTEBOOK 2: Layer 2, Mapping
-
-**Who this is for:** a team member who needs to know Layer 2 and explain it to the guide, answer questions on it, and read `02_mapping.ipynb` and its helper files (`water.py`, `fusion.py`, `calibrate.py`, `duration.py`) without fear.
+# Layer 2: Mapping (class notes)
 
 **What you need before you start:** basic Python, basic stats (average, probability), and a rough idea of "train a classifier, test it". Everything about radar, thresholds, boosting, calibration and censoring is taught here from zero.
 
-**How to study this notebook**
+**How these notes are organised.** Sections follow the real notebook for this layer, in the same order. The code cells are small demos on toy data, so each idea can be run and seen. Every section ends with a **Summary** of the section in a few sentences. At the end there are the key numbers, a glossary and some review questions. Read the real notebook alongside these notes.
 
-1. Read top to bottom once and run every code cell (Shift+Enter). The cells use small toy data so you can watch each idea work.
-2. After each section, cover the page and say the **Say it to the guide** box in your own words.
-3. At the end: the **numbers to remember** table, the **glossary** and the **question list**. Mug those.
-4. Then open the real `02_mapping.ipynb`. Section numbers here match its sections 1 to 9.
-
-> **bold** = a term you must know. `code font` = a name that exists in the real code.
+> **bold** = a key term. `code font` = a name that exists in the real code.
 
 #%% md
 ## 0. What Layer 2 does, in plain words
@@ -26,7 +19,7 @@ Two outputs:
 1. **A calibrated map** `p_flooded_paddy` (per pixel).
 2. **A semi-synthetic submergence-duration map** `P(submerged for at least d days)` for d = 3, 7, 10, 14. ("Semi-synthetic" = partly simulated. It is always labelled so.)
 
-**The pipeline in one picture (learn this chain by heart):**
+**The pipeline in one picture:**
 
 ![Layer 2 pipeline: radar chip, baseline and two predictors, fusion, calibration, paddy mask, final map](attachment:s2_pipeline.png)
 
@@ -68,7 +61,7 @@ The **domain** of a chip is the set of pixels where a flood call makes sense:
 
 ### 1.5 The test data are untouchable until the end
 
-Memorise the roles: **train** events teach predictor 2. **Validation** events are used to choose settings, fit the fusion and choose the calibrator. **Test** events are scored **once** at the very end.
+The roles: **train** events teach predictor 2. **Validation** events are used to choose settings, fit the fusion and choose the calibrator. **Test** events are scored **once** at the very end.
 
 #%% md
 ## 2. The baseline: Otsu on VV
@@ -134,7 +127,7 @@ for a, v, tt, ttl in ((ax[0], vv, t, "25% water"), (ax[1], vv0, t0, "no water"))
 plt.tight_layout(); plt.show()
 
 #%% md
-**Say it to the guide (section 2):** "Our baseline is the simplest method that a reviewer would try: Otsu thresholding on VV, fitted separately on every chip, hard zero or one, permanent water removed. It needs no training, and it is reported beside every model so we can show how much the extra layers add."
+**Summary (section 2):** Our baseline is the simplest method that a reviewer would try: Otsu thresholding on VV, fitted separately on every chip, hard zero or one, permanent water removed. It needs no training, and it is reported beside every model so we can show how much the extra layers add.
 
 #%% md
 ## 3. Predictor 1: the transparent rule stack
@@ -218,7 +211,7 @@ for m in (-6, -3, -1, 0, 1, 3):
 print("\nhard accuracy: %.3f | mean soft score on true water: %.3f | on true land: %.3f" % (((vv < t_ki) == y).mean(), p1[y == 1].mean(), p1[y == 0].mean()))
 
 #%% md
-**Say it to the guide (section 3):** "Predictor 1 is a transparent rule stack. It trusts only 1 km blocks with clearly two humps, pools them, fits a Kittler-Illingworth threshold on VV and on VH, falls back to defaults of minus 17 and minus 22 dB when the fit is implausible, takes the smaller margin of the two bands, and turns it into a soft score through a sigmoid that assumes the threshold is uncertain by about 1 dB. Permanent water is set to zero. The optical and before-after parts exist but are idle on our single-date radar-only sample."
+**Summary (section 3):** Predictor 1 is a transparent rule stack. It trusts only 1 km blocks with clearly two humps, pools them, fits a Kittler-Illingworth threshold on VV and on VH, falls back to defaults of minus 17 and minus 22 dB when the fit is implausible, takes the smaller margin of the two bands, and turns it into a soft score through a sigmoid that assumes the threshold is uncertain by about 1 dB. Permanent water is set to zero. The optical and before-after parts exist but are idle on our single-date radar-only sample.
 
 #%% md
 ## 4. Predictor 2: a gradient-boosted pixel model
@@ -278,7 +271,7 @@ except ImportError:
     print("scikit-learn is not installed in this environment; skip this cell (it is in notebooks/requirements.txt)")
 
 #%% md
-**Say it to the guide (section 4):** "Predictor 2 is a histogram gradient-boosted tree classifier on pixel features: VV, VH, their difference, local means and texture, Predictor 1's margin and the land-cover class. It handles missing optical data natively. It is trained on 4,000 pixels per train chip, three fixed settings are compared by validation log loss, and test is never touched. We chose it over a U-Net because on a CPU with about a hundred chips it is cheaper and the comparison with the baseline tells us whether it earns its place."
+**Summary (section 4):** Predictor 2 is a histogram gradient-boosted tree classifier on pixel features: VV, VH, their difference, local means and texture, Predictor 1's margin and the land-cover class. It handles missing optical data natively. It is trained on 4,000 pixels per train chip, three fixed settings are compared by validation log loss, and test is never touched. We chose it over a U-Net because on a CPU with about a hundred chips it is cheaper and the comparison with the baseline tells us whether it earns its place.
 
 #%% md
 ## 5. Fusion: combining the predictors, with weights per land cover
@@ -361,10 +354,10 @@ except ImportError:
     print("scikit-learn not installed; skip")
 
 #%% md
-**Say it to the guide (section 5):** "We fuse the two predictors on the logit scale with logistic regression, with separate weights for each WorldCover land-cover group, because radar behaves differently over different surfaces. Groups with fewer than 500 validation pixels of either class borrow pooled weights. The fusion is fitted on validation events only, because on them both predictors are making predictions on events not used for fitting them, and it is cross-fitted leave-one-validation-event-out so that the calibrator sees scores the fusion has not memorised."
+**Summary (section 5):** We fuse the two predictors on the logit scale with logistic regression, with separate weights for each WorldCover land-cover group, because radar behaves differently over different surfaces. Groups with fewer than 500 validation pixels of either class borrow pooled weights. The fusion is fitted on validation events only, because on them both predictors are making predictions on events not used for fitting them, and it is cross-fitted leave-one-validation-event-out so that the calibrator sees scores the fusion has not memorised.
 
 #%% md
-## 6. How we measure a probability map (the scores you must know)
+## 6. How we measure a probability map (the scores used)
 
 Let `p` be the stated probability for a pixel and `y` the truth (1 flood, 0 not). Let a **hard call** be `p >= 0.5`. Count over all pixels: **TP** (called flood, was flood), **FP** (called flood, was not), **FN** (missed flood).
 
@@ -431,7 +424,7 @@ plt.figure(figsize=(3.8, 3.6)); plt.plot([0, 1], [0, 1], "k:"); plt.plot(r["conf
 plt.xlabel("stated P(flood)"); plt.ylabel("observed flood share"); plt.legend(fontsize=8); plt.title("reliability diagram"); plt.tight_layout(); plt.show()
 
 #%% md
-**Say it to the guide (section 6):** "We report ECE with 15 bins, Brier score, log loss, AUC, IoU and F1, plus expected-area ratio. Because floods are rare, accuracy is meaningless, so we use measures that respect rarity and calibration. A hard yes/no map has ECE equal to Brier equal to its error rate, which is why the Otsu baseline shows a large ECE."
+**Summary (section 6):** We report ECE with 15 bins, Brier score, log loss, AUC, IoU and F1, plus expected-area ratio. Because floods are rare, accuracy is meaningless, so we use measures that respect rarity and calibration. A hard yes/no map has ECE equal to Brier equal to its error rate, which is why the Otsu baseline shows a large ECE.
 
 #%% md
 ## 7. Calibration (fitted on validation only)
@@ -495,7 +488,7 @@ print("ECE on the unseen half: raw %.4f | temperature %.4f | isotonic %.4f | ide
 print("Both calibrators repair the overconfident model. On an already-honest model neither beats identity: that is what happened to us.")
 
 #%% md
-**Say it to the guide (section 7):** "We compare identity, temperature scaling and isotonic regression, each fitted on all validation events but one and scored by ECE on the left-out event. The lowest mean ECE wins. In our run identity won, with a mean left-out ECE of 0.047 against 0.055 for temperature and 0.099 for isotonic, so no correction was applied. We report that plainly."
+**Summary (section 7):** We compare identity, temperature scaling and isotonic regression, each fitted on all validation events but one and scored by ECE on the left-out event. The lowest mean ECE wins. In our run identity won, with a mean left-out ECE of 0.047 against 0.055 for temperature and 0.099 for isotonic, so no correction was applied. We report that plainly.
 
 #%% md
 ## 8. The paddy mask and P(flooded paddy)
@@ -523,7 +516,7 @@ Everything before this was fitted on train and validation events. **One cell** s
 
 Test prevalence 0.119 (323,795 pixels); validation prevalence 0.063 (264,821 pixels).
 
-**How to read this table (this is what you must be able to say):**
+**How to read this table:**
 
 1. **The fused map has the lowest test ECE (0.039) and the lowest test Brier (0.063), and beats the Otsu baseline on every score**, so the extra layers earn their place.
 2. **Val-test gaps** (test minus val): fused ECE +0.018, i.e. somewhat worse on new events but still small. Fused IoU is **+0.063 (better on test)**. Note that IoU on validation (0.356) is lower than Predictor 1's (0.491). IoU uses a hard 0.5 cut, whereas the fusion is fitted for honest probabilities, not for overlap at 0.5, and we did not investigate this further. So **do not claim fusion improves IoU everywhere**; claim it improves calibration, Brier score and test overlap.
@@ -646,7 +639,7 @@ plt.figure(figsize=(5, 2.8)); plt.plot(dd, S(dd, 7, 1.5), label="intolerant rice
 plt.xlabel("days of complete submergence"); plt.ylabel("plant survival"); plt.legend(fontsize=8); plt.tight_layout(); plt.show()
 
 #%% md
-**Say it to the guide (section 10):** "The duration part is semi-synthetic: the public chips have a single radar date, so the footprint at that pass is real but onset, duration and the other passes are simulated, with the map's measured sensitivity of 0.47 and specificity of 0.98. Each pixel's wet and dry passes give an interval for its duration. The Turnbull NPMLE, an EM algorithm fitted on train events, estimates the duration distribution, and P of submerged at least d days is P of flooded times P of D at least d given the interval. It beats the naive wet-passes-times-12 baseline at 3, 7 and 10 days, but because the truth is simulated this shows self-consistency only, not accuracy on real floods. Crop survival curves are literature-shaped assumptions."
+**Summary (section 10):** The duration part is semi-synthetic: the public chips have a single radar date, so the footprint at that pass is real but onset, duration and the other passes are simulated, with the map's measured sensitivity of 0.47 and specificity of 0.98. Each pixel's wet and dry passes give an interval for its duration. The Turnbull NPMLE, an EM algorithm fitted on train events, estimates the duration distribution, and P of submerged at least d days is P of flooded times P of D at least d given the interval. It beats the naive wet-passes-times-12 baseline at 3, 7 and 10 days, but because the truth is simulated this shows self-consistency only, not accuracy on real floods. Crop survival curves are literature-shaped assumptions.
 
 #%% md
 ## 11. What Layer 2 writes (the contract with Layer 3)
@@ -676,7 +669,7 @@ dec = np.where(enc == 255, np.nan, enc / 250)
 print("decoded:\n", dec, "\n(255 means no call, and the decoding error is at most 0.002)")
 
 #%% md
-## 12. The numbers to remember (mug this table)
+## 12. Key numbers
 
 | Thing | Value |
 |---|---|
@@ -751,7 +744,7 @@ print("decoded:\n", dec, "\n(255 means no call, and the decoding error is at mos
 * **WorldCover**: ESA's 10 m land-cover map; class 40 is cropland.
 
 #%% md
-## 14. Questions an examiner may ask, and the one-line answers
+## 14. Review questions and short answers
 
 1. **What does Layer 2 produce?** A calibrated probability per pixel that it is flooded paddy, plus semi-synthetic submergence-duration maps.
 2. **What is calibrated?** Among pixels given probability p, about a fraction p are truly flooded.

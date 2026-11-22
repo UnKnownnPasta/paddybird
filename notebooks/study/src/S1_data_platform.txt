@@ -1,18 +1,11 @@
 #%% md
-# STUDY NOTEBOOK 1: Layer 1, Data and Platform
-
-**Who this is for:** a team member who needs to know Layer 1 and has to explain it to the guide, answer questions on it, and read its code without fear.
+# Layer 1: Data and Platform (class notes)
 
 **What you need before you start:** nothing about satellites, nothing about statistics beyond "what is an average". Basic Python is enough. Every new word is explained the first time it appears and is collected again in the glossary at the end.
 
-**How to study this notebook (do it in this order)**
+**How these notes are organised.** Sections follow the real notebook for this layer, in the same order. The code cells are small demos on toy data, so each idea can be run and seen. Every section ends with a **Summary** of the section in a few sentences. At the end there are the key numbers, a glossary and some review questions. Read the real notebook alongside these notes.
 
-1. Read top to bottom once, running every code cell (Shift+Enter). The code cells are tiny on purpose. They use toy numbers so you can see the idea with your own eyes.
-2. After each section there is a box called **Say it to the guide**. Cover the section and say that box out loud in your own words. If you can, move on. If you cannot, re-read.
-3. At the end there is a **numbers to remember** table and a **glossary**. Mug those. They are what examiners ask.
-4. Only after that, open the real notebook `01_data_platform.ipynb` next to this one. Section numbers here match its steps (a) to (e).
-
-> Notation used everywhere: **bold** = a term you must know. `code font` = a name that exists in the real code.
+> Notation used everywhere: **bold** = a key term. `code font` = a name that exists in the real code.
 
 #%% md
 ## 0. The whole project in one page (so you know where Layer 1 sits)
@@ -33,12 +26,12 @@
 
 **Layer 1 is the foundation.** If Layer 1 is wrong (for example, test data leaks into training data), every later number is dishonest, even if the maths later is perfect.
 
-**Two project rules you must be able to quote**
+**Two project rules**
 
 * **No abstain state.** Every unit always gets a call ("above" or "below"). The uncertainty is carried by a number called **P_u** (explained in the Layer 5 notebook), not by saying "I don't know".
 * **Split by flood event, not by tile.** You will understand fully why in section 2.
 
-**Honesty rules for this project (say these before the guide asks):** the field checks are *simulated* from hand labels (no officer was actually followed); "paddy" is a *proxy* (we use cropland, because the dataset has no paddy label); the Godavari demo region has *no ground truth*, so we make no accuracy claim on it.
+**Honesty rules for this project (state these up front):** the field checks are *simulated* from hand labels (no officer was actually followed); "paddy" is a *proxy* (we use cropland, because the dataset has no paddy label); the Godavari demo region has *no ground truth*, so we make no accuracy claim on it.
 
 #%% md
 ## 1. Zero-knowledge primer: satellites, radar, pixels
@@ -111,7 +104,7 @@ water = img < -15
 print("fraction called water:", water.mean(), "(truth: the river is 10 of 40 columns = 0.25)")
 
 #%% md
-**Say it to the guide (section 1):** "We use Sentinel-1 radar because floods come with clouds and radar sees through clouds. Calm water reflects the radar pulse away, so flooded land looks dark, below about -15 dB. The pixel size is 10 m in the raw data and 20 m in our working grid."
+**Summary (section 1):** We use Sentinel-1 radar because floods come with clouds and radar sees through clouds. Calm water reflects the radar pulse away, so flooded land looks dark, below about -15 dB. The pixel size is 10 m in the raw data and 20 m in our working grid.
 
 #%% md
 ## 2. Step (a): labelled chips and the event-level split
@@ -288,7 +281,7 @@ else:
     print("chips per event in the sample:", dict(Counter(events.tolist())))
 
 #%% md
-**Say it to the guide (section 2):** "Our labelled data is Sen1Floods11: 446 hand-labelled chips from 11 flood events. We cut a small sample of 12 chips per event, 128 by 128 pixels at 20 m. We split by whole event because chips from one flood look alike, so a tile split leaks. India and Bolivia are test, Sri-Lanka and Ghana are validation, the other seven are train. The split was fixed before any model was fitted, and an assertion in the code stops the run if any event appears in two splits."
+**Summary (section 2):** Our labelled data is Sen1Floods11: 446 hand-labelled chips from 11 flood events. We cut a small sample of 12 chips per event, 128 by 128 pixels at 20 m. We split by whole event because chips from one flood look alike, so a tile split leaks. India and Bolivia are test, Sri-Lanka and Ghana are validation, the other seven are train. The split was fixed before any model was fitted, and an assertion in the code stops the run if any event appears in two splits.
 
 #%% md
 ## 3. Step (b): STAC search and COG window reads
@@ -352,7 +345,7 @@ kx, ky = 111.32 * np.cos(np.radians(lat0)), 110.57     # km per degree of lon, l
 print(f"study block: {(e_-w_)*kx:.1f} km (E-W) x {(n_-s_)*ky:.1f} km (N-S)")
 
 #%% md
-**Say it to the guide (section 3):** "We search the STAC catalogue for scenes by place, date and cloud cover. The files are Cloud Optimized GeoTIFFs, so we fetch only the small window we need with HTTP range requests instead of downloading a whole scene. We read a Sentinel-2 NIR band, its scene classification, and a 30 m elevation model. All of it is cached, can run offline, and is only a demo with no ground truth."
+**Summary (section 3):** We search the STAC catalogue for scenes by place, date and cloud cover. The files are Cloud Optimized GeoTIFFs, so we fetch only the small window we need with HTTP range requests instead of downloading a whole scene. We read a Sentinel-2 NIR band, its scene classification, and a 30 m elevation model. All of it is cached, can run offline, and is only a demo with no ground truth.
 
 #%% md
 ## 4. Step (c): insurance units and the road graph
@@ -459,7 +452,7 @@ d = np.hypot(*(nodes_xy - unit_centre).T)
 print("unit snaps to node", d.argmin(), "at distance %.2f km" % d.min())
 
 #%% md
-**Say it to the guide (section 4):** "Insurance settles per unit, but we do not have open village polygons, so we use grid units over the Godavari block (36 cells of about 472 ha) and chip units on the labelled chips (528 units of 164 ha) where we know the true flooded share. Chip units inherit their chip's event, so they cannot leak. Roads come from OpenStreetMap, simplified to intersections, largest connected piece, with assumed class speeds giving dry travel minutes. Each unit is snapped to the nearest node and the depot is the node nearest Amalapuram. Dijkstra gives travel times."
+**Summary (section 4):** Insurance settles per unit, but we do not have open village polygons, so we use grid units over the Godavari block (36 cells of about 472 ha) and chip units on the labelled chips (528 units of 164 ha) where we know the true flooded share. Chip units inherit their chip's event, so they cannot leak. Roads come from OpenStreetMap, simplified to intersections, largest connected piece, with assumed class speeds giving dry travel minutes. Each unit is snapped to the nearest node and the depot is the node nearest Amalapuram. Dijkstra gives travel times.
 
 #%% md
 ## 5. Step (d): receipts and survey inclusion probabilities
@@ -571,7 +564,7 @@ plt.axvline(truth, c="k", ls="--", label="truth"); plt.legend(); plt.title("why 
 
 **Numbers for the demo:** 16 candidate check points per chip unit (4 x 4 lattice), design stratified SRSWOR, 2 checks per stratum, seed 20261118.
 
-**Say it to the guide (section 5):** "A receipt is canonical JSON containing SHA-256 hashes of every input and output, the parameters and a survey block, so anyone can re-derive and verify a number. The survey block stores each field check's inclusion probability pi, the chance it had of being picked. We weight checks by 1 over pi, which is the Horvitz-Thompson estimator. This removes the bias you would otherwise get from visiting wet-looking places more often. Our demo draws 300 times and shows HT is unbiased while the plain average is not."
+**Summary (section 5):** A receipt is canonical JSON containing SHA-256 hashes of every input and output, the parameters and a survey block, so anyone can re-derive and verify a number. The survey block stores each field check's inclusion probability pi, the chance it had of being picked. We weight checks by 1 over pi, which is the Horvitz-Thompson estimator. This removes the bias you would otherwise get from visiting wet-looking places more often. Our demo draws 300 times and shows HT is unbiased while the plain average is not.
 
 #%% md
 ## 6. Step (e): the revisit-gap model
@@ -671,7 +664,7 @@ print("In the toy, a missed pass makes a 24-day gap. That is why real data are c
 #%% md
 **Important: the wet/dry sequence in the real notebook is made up.** Cell 20 of `01_data_platform.ipynb` uses `[False, False, True, True, True, False, ...]` only to show the censoring logic. It is **illustrative, not an observation**. Say so if asked.
 
-**Say it to the guide (section 6):** "Sentinel-1 revisits every 12 days, so we never see the exact start or end of a flood. Submergence duration is interval-censored: onset lies between the last dry and first wet pass, recession between the last wet and next dry pass. We build the real pass dates from STAC for each grid unit, the distribution of gaps P(gap at least d), and the days-since-last-pass curve. Layer 2 turns those brackets into the probability of being submerged for at least d days."
+**Summary (section 6):** Sentinel-1 revisits every 12 days, so we never see the exact start or end of a flood. Submergence duration is interval-censored: onset lies between the last dry and first wet pass, recession between the last wet and next dry pass. We build the real pass dates from STAC for each grid unit, the distribution of gaps P(gap at least d), and the days-since-last-pass curve. Layer 2 turns those brackets into the probability of being submerged for at least d days.
 
 #%% md
 ## 7. Writing the artifacts, the manifest, and the final checks
@@ -699,7 +692,7 @@ Layers do **not** import each other's code. They pass **files**, stored in `note
 
 `MANIFEST.json` lists, for each file: description, byte size, SHA-256, rows or array shapes, columns, and the **source flags** (`chips: sen1floods11`, `roads: osm-overpass`, `revisit: stac:earth-search`, ...).
 
-### 7.2 The final checks (memorise the list; each is an `assert`)
+### 7.2 The final checks (each is an `assert`)
 
 The "metric" of a data layer is not accuracy. It is **nothing leaks and everything reproduces**. Each line below is checked by the real notebook, and if any fails the notebook stops.
 
@@ -717,10 +710,10 @@ The "metric" of a data layer is not accuracy. It is **nothing leaks and everythi
 
 Our run produced 6.6 MB of chips plus small files, comfortably under 20 MB.
 
-**Say it to the guide (section 7):** "Layers talk through files with a MANIFEST that records schemas, hashes and the source of each artifact, so real and synthetic can never be confused. A data layer's check is not accuracy but integrity: no leakage, reachable roads, probabilities in range, receipts that re-verify, and a size budget."
+**Summary (section 7):** Layers talk through files with a MANIFEST that records schemas, hashes and the source of each artifact, so real and synthetic can never be confused. A data layer's check is not accuracy but integrity: no leakage, reachable roads, probabilities in range, receipts that re-verify, and a size budget.
 
 #%% md
-## 8. The numbers to remember (mug this table)
+## 8. Key numbers
 
 | Thing | Value |
 |---|---|
@@ -795,7 +788,7 @@ Our run produced 6.6 MB of chips plus small files, comfortably under 20 MB.
 * **Window read**: fetching only a small box of a big image.
 
 #%% md
-## 10. Questions an examiner may ask, and the one-line answers
+## 10. Review questions and short answers
 
 1. **Why radar and not ordinary satellite photos?** Floods come with cloud. Radar sees through cloud and does not need sunlight.
 2. **Why is water dark in radar?** Calm water is a flat mirror for the pulse, which bounces away, so little returns.

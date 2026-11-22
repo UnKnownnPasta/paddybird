@@ -1,18 +1,11 @@
 #%% md
-# STUDY NOTEBOOK 3: Layer 3, Estimation
-
-**Who this is for:** a team member who needs to know Layer 3, the statistical heart of the project. You must be able to explain it to the guide, answer questions, and read `03_estimation.ipynb` and its helper files (`estimator.py`, `calls.py`, `variance.py`) without fear.
+# Layer 3: Estimation (class notes)
 
 **What you need before you start:** basic Python and basic stats (average, probability, the bell curve). Everything else (bias, variance, weighting, clustering, prediction-powered inference, Monte Carlo) is taught here from zero, with toy code you can run.
 
-**How to study this notebook**
+**How these notes are organised.** Sections follow the real notebook for this layer, in the same order. The code cells are small demos on toy data, so each idea can be run and seen. Every section ends with a **Summary** of the section in a few sentences. At the end there are the key numbers, a glossary and some review questions. Read the real notebook alongside these notes.
 
-1. Read top to bottom once and run every code cell (Shift+Enter).
-2. After each section, cover the page and say the **Say it to the guide** box in your own words.
-3. At the end: the **numbers to remember** table, the **glossary** and the **question list**. Mug those.
-4. Then open the real `03_estimation.ipynb`. Section numbers here match its sections 1 to 10.
-
-> **bold** = a term you must know. `code font` = a name that exists in the real code.
+> **bold** = a key term. `code font` = a name that exists in the real code.
 
 This is the hardest layer. Go slowly through sections 1 to 4. Everything after them is applications of those ideas.
 
@@ -97,7 +90,7 @@ Why this works (the key insight): the flooded share varies hugely from plot to p
 
 **Analogy:** you estimate the weight of 100 sacks by eye (the map). Weighing 5 sacks on a trusted scale tells you that your eye over-reads by 2 kg on average. You subtract 2 kg from all your eye estimates. Five weighings fix all 100 estimates, much better than weighing 5 and ignoring the rest.
 
-**Say it to the guide (section 1):** "The map covers every plot but can be biased on a new event. Field checks are trustworthy but few and possibly convenient-biased. We use the map as a prediction for every plot and use the checks only to estimate the map's average error per stratum, the rectifier, and correct for it. That is prediction-powered inference."
+**Summary (section 1):** The map covers every plot but can be biased on a new event. Field checks are trustworthy but few and possibly convenient-biased. We use the map as a prediction for every plot and use the checks only to estimate the map's average error per stratum, the rectifier, and correct for it. That is prediction-powered inference.
 
 #%% md
 ## 2. The population frame and the unit formulas (section 1 of the notebook)
@@ -171,7 +164,7 @@ print("negative = the map over-reads flooding in that stratum, most of all in th
 print("(Real run: Rpool = [-0.035, -0.207, -0.140], so the real map over-reads on training events as well.)")
 
 #%% md
-**Say it to the guide (section 2):** "We aggregate Layer 2 pixels into 80 m plots and 320 m visit sites inside each unit. For each unit and stratum we store the area share W and the mean map probability Fbar. The three regions are split by event: seven training events with 125 units, two validation events with 27 units, two test events with 34 units. The field checks are simulated from the hand labels."
+**Summary (section 2):** We aggregate Layer 2 pixels into 80 m plots and 320 m visit sites inside each unit. For each unit and stratum we store the area share W and the mean map probability Fbar. The three regions are split by event: seven training events with 125 units, two validation events with 27 units, two test events with 34 units. The field checks are simulated from the hand labels.
 
 #%% md
 ## 3. What is fitted on the training region (and only there)
@@ -314,7 +307,7 @@ print("\nLook: the map-only error never improves (it is biased); checks-only is 
 print("the corrected map is best across the board. With 0 checks it is still the map plus the training correction.")
 
 #%% md
-**Say it to the guide (section 4):** "For each unit and stratum the checks give a Hajek-weighted average of the map's error. It is shrunk toward a pooled prior by lam equal to the effective sample size over itself plus m. The unit's theta is the sum over strata of area share times the map's mean plus the corrected error. The pooled prior combines the training correction, with its between-event uncertainty, and the region's own checks. The standard error has a cluster-robust sampling part and a shrinkage part. We always compare with map-only, checks-only, the old report formula, the first version, an unweighted version and an unshrunk Horvitz-Thompson reference."
+**Summary (section 4):** For each unit and stratum the checks give a Hajek-weighted average of the map's error. It is shrunk toward a pooled prior by lam equal to the effective sample size over itself plus m. The unit's theta is the sum over strata of area share times the map's mean plus the corrected error. The pooled prior combines the training correction, with its between-event uncertainty, and the region's own checks. The standard error has a cluster-robust sampling part and a shrinkage part. We always compare with map-only, checks-only, the old report formula, the first version, an unweighted version and an unshrunk Horvitz-Thompson reference.
 
 #%% md
 ## 5. How checks are drawn, and the route-style stress test (sections 3 and 6)
@@ -348,7 +341,7 @@ print("Weighting by 1/pi (ppi_ipw) cuts the bias to a fraction of that. The real
 print("  real TEST, route design, 32 checks per unit: bias  naive -0.030 | Hajek -0.011 | HT +0.002")
 
 #%% md
-**Say it to the guide (section 5):** "Checks are drawn in two stages: Poisson sampling of 320 m visit sites with an expected budget over four sites per unit, then four plots per selected site. The inclusion probability is the site probability times the plot fraction, and is known. Under a route-style design near-road sites are visited much more often, and since near-road plots flood less than the map says, an unweighted estimator is biased low. Weighting by one over pi removes most of that. We also test the case where far sites are dropped but the nominal probabilities are used."
+**Summary (section 5):** Checks are drawn in two stages: Poisson sampling of 320 m visit sites with an expected budget over four sites per unit, then four plots per selected site. The inclusion probability is the site probability times the plot fraction, and is known. Under a route-style design near-road sites are visited much more often, and since near-road plots flood less than the map says, an unweighted estimator is biased low. Weighting by one over pi removes most of that. We also test the case where far sites are dropped but the nominal probabilities are used.
 
 #%% md
 ## 6. Why clustering matters: cluster-robust variance (section 3, `variance.py`)
@@ -398,12 +391,12 @@ print(f"average cluster-robust std error:  {np.mean(se_cl_all):.4f}   -> 90% int
 print("The iid version is over-confident (too narrow). The real run shows the same: TEST, 16 checks, coverage ppi_ipw 0.806 vs ppi_ipw_iid 0.760.")
 
 #%% md
-**Say it to the guide (section 6):** "Plots in the same 320 m site flood together and are mismapped together, with an intra-site correlation of 0.33 in our data, so a design effect of 2: four neighbouring plots are worth about two independent ones. We therefore compute the variance treating each visit site as one observation, the ultimate-cluster variance, and blend it with a model variance when a unit has very few sites. Pretending plots are independent gives intervals that are too narrow."
+**Summary (section 6):** Plots in the same 320 m site flood together and are mismapped together, with an intra-site correlation of 0.33 in our data, so a design effect of 2: four neighbouring plots are worth about two independent ones. We therefore compute the variance treating each visit site as one observation, the ultimate-cluster variance, and blend it with a model variance when a unit has very few sites. Pretending plots are independent gives intervals that are too narrow.
 
 #%% md
 ## 7. Version history: the honest record (section 3 of the notebook)
 
-**Always say this in the viva, before the guide asks.**
+**Worth stating up front.**
 
 * **v1** shrank every unit toward the **training pool** `Rpool_h` and treated that pool as **exact**. On its **first and only clean test run** (real Layer 2 maps, events Bolivia and India) v1 **missed its coverage bound**: the **India map under-reads** flooding while the training events' maps **over-read** it, so shrinking toward the training pool pulled every estimate down. Frozen record (`test_first_run_v1.json`): 90 percent interval **coverage 0.74 at 16 checks per unit**.
 * **v2** (used now) adds the **between-event spread T_ev** and lets the pool be **learnt from the region's own checks** (section 4.2b).
@@ -473,7 +466,7 @@ vF = max(rb * (1 - rb), 0.05) / nf; bs = float(flip_value(th, s, rb, nf)["b_star
 print("\ncheck for A: combined estimate with bias b* removed = %.4f (should be 0.25)" % ((th / s**2 + (rb - bs) / vF) / (1 / s**2 + 1 / vF)))
 
 #%% md
-**Say it to the guide (section 8):** "Every unit gets a call and P_u, the normal-curve probability that its true share is above 25 percent. Farmer reports are self-selected, so they are never mixed into theta. Instead we give a flip value: the bias in the reports at which trusting them would put the combined estimate exactly on the line. A large flip value means the call is robust to biased reports, a small one means the call depends on trusting them. The reports in the notebook are synthetic."
+**Summary (section 8):** Every unit gets a call and P_u, the normal-curve probability that its true share is above 25 percent. Farmer reports are self-selected, so they are never mixed into theta. Instead we give a flip value: the bias in the reports at which trusting them would put the combined estimate exactly on the line. A large flip value means the call is robust to biased reports, a small one means the call depends on trusting them. The reports in the notebook are synthetic.
 
 #%% md
 ## 9. How the estimators are scored: Monte Carlo on events not used for fitting (sections 5 and 7)
@@ -524,7 +517,7 @@ Source: `artifacts/layer3/validation.json` and `test.json`. Real Layer 2 maps; u
 
 `map_only` has RMSE 0.160, bias -0.077, coverage 0.824, ECE 0.071 at every budget.
 
-### 10.3 How to read the test table (what you must be able to say)
+### 10.3 How to read the test table
 
 1. **Checks help a lot.** At 32 checks per unit our wrong-call rate is **0.068, against 0.147 for the map alone and 0.098 for checks alone**. That is the claim in the closing assertion (a).
 2. **With zero checks, ours is WORSE than the raw map** (0.206 against 0.147; RMSE 0.222 against 0.160). On the new test events the training-region correction does not transfer. The notebook says so: that is why `unit_calls.csv` also stores the raw map share and its P (`theta_map_raw`, `P_map_raw`). **Our method starts to beat the map from about 4 checks per unit** (0.139 against 0.147).
@@ -535,7 +528,7 @@ Source: `artifacts/layer3/validation.json` and `test.json`. Real Layer 2 maps; u
 
 ### 10.4 Validation region, random design (for the val-test gap)
 
-Wrong calls for `ppi_ipw`: **0.074, 0.061, 0.042, 0.021, 0.006, 0.000** for budgets 0 to 64 (`map_only` 0.074). Test is clearly harder (India has a map that under-reads). The **val-test gap in wrong calls at 16 checks is 0.098 minus 0.021 = about 0.077**. Say that gap out loud: the method degrades on new events, and the paper does not hide it.
+Wrong calls for `ppi_ipw`: **0.074, 0.061, 0.042, 0.021, 0.006, 0.000** for budgets 0 to 64 (`map_only` 0.074). Test is clearly harder (India has a map that under-reads). The **val-test gap in wrong calls at 16 checks is 0.098 minus 0.021 = about 0.077**. The method degrades on new events, and the paper does not hide this.
 
 ### 10.5 Route stress test (test region)
 
@@ -594,7 +587,7 @@ Note (b): 0.806 is only just above the 0.80 floor. Do not present coverage as "c
 **Why `unit_calls.csv` includes the raw map columns:** with zero checks the training correction did not beat the raw map on either validation region, so we store both and let the tool show the raw map as a fallback. (This is the 'budget 0' column of the tables.)
 
 #%% md
-## 13. The numbers to remember (mug this table)
+## 13. Key numbers
 
 | Thing | Value |
 |---|---|
@@ -664,7 +657,7 @@ Note (b): 0.806 is only just above the 0.80 floor. Do not present coverage as "c
 * **Weight (1/pi)**: how many plots a checked plot stands for.
 
 #%% md
-## 15. Questions an examiner may ask, and the one-line answers
+## 15. Review questions and short answers
 
 1. **What does Layer 3 do?** Turns the calibrated map plus a few field checks into a flooded share theta_u, a standard error, an always-answered call and P_u for every unit.
 2. **Why not just use the map?** It can be biased, especially on a new flood event. On our test events map-only gets 14.7 percent of calls wrong.

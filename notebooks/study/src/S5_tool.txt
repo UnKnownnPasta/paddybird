@@ -1,18 +1,11 @@
 #%% md
-# STUDY NOTEBOOK 5: Layer 5, The Tool
-
-**Who this is for:** a team member who needs to know Layer 5: the part officers and field staff actually touch. You must be able to explain it to the guide, answer questions, and read `05_tool.ipynb` and its helper files without fear.
+# Layer 5: The Tool (class notes)
 
 **What you need before you start:** basic Python, and "what is an average" and "what is a probability". Everything else (the normal curve, shrinkage, hashes) is taught here from zero.
 
-**How to study this notebook**
+**How these notes are organised.** Sections follow the real notebook for this layer, in the same order. The code cells are small demos on toy data, so each idea can be run and seen. Every section ends with a **Summary** of the section in a few sentences. At the end there are the key numbers, a glossary and some review questions. Read the real notebook alongside these notes.
 
-1. Read top to bottom once and run every code cell (Shift+Enter). The cells use small toy numbers so you can see each idea.
-2. After each section, cover the page and say the **Say it to the guide** box in your own words.
-3. At the end: the **numbers to remember** table, the **glossary** and the **question list**. Mug those.
-4. Then open the real `05_tool.ipynb` and follow it. Section numbers here match its sections 1 to 10.
-
-> **bold** = a term you must know. `code font` = a name that exists in the real code (files `intake.py`, `card.py`, `views.py` in `notebooks/paddybird/`).
+> **bold** = a key term. `code font` = a name that exists in the real code (files `intake.py`, `card.py`, `views.py` in `notebooks/paddybird/`).
 
 #%% md
 ## 0. Where Layer 5 sits, and what it does NOT do
@@ -34,11 +27,11 @@
 **The loss line** is **tau = 0.25**: 25 percent of a unit's paddy area flooded. (The project's setting, modelled on the localised-loss rule in the crop-insurance scheme PMFBY.)
 
 #%% md
-## 1. The formulas behind the numbers (you MUST understand these, the tool is built on them)
+## 1. The formulas behind the numbers (the tool is built on them)
 
-Layer 5 shows four numbers for each unit. You do not need to derive Layer 3, but you must know what these mean and how they connect. We build them step by step using the simple strata formula, then the clarification box explains how it relates to Layer 3's real estimator.
+Layer 5 shows four numbers for each unit. You do not need to derive Layer 3, but it helps to know what these mean and how they connect. We build them step by step using the simple strata formula, then the clarification box explains how it relates to Layer 3's real estimator.
 
-> **Important clarification (so nobody catches you out).** Layer 3's headline estimator is a more advanced one, called prediction-powered inference, taught in Study notebook 3. The simple formulas in this section, `p_uh = (k + m pi_h) / (n + m)` and the variance below, are the **older partial-report formula**. Layer 3 keeps it as a comparison baseline named `report_formula`. The tool uses it for live updates only when a unit carries the strata columns `W0, W1, k0, n0, k1, n1` (this is how the 12-unit fixture works). For the **34 real units** in our run, the tool reads theta and s **straight from Layer 3's `unit_calls.csv`**, which has no strata columns, so new checks update those units with the **Beta update** (section 7 of this notebook), not with the strata formula. What is common to everything: **call = theta above tau, and P_u = Phi((theta - tau) / s)**. Only how theta and s are produced differs.
+> **Important clarification.** Layer 3's headline estimator is a more advanced one, called prediction-powered inference, covered in the Layer 3 notes. The simple formulas in this section, `p_uh = (k + m pi_h) / (n + m)` and the variance below, are the **older partial-report formula**. Layer 3 keeps it as a comparison baseline named `report_formula`. The tool uses it for live updates only when a unit carries the strata columns `W0, W1, k0, n0, k1, n1` (this is how the 12-unit fixture works). For the **34 real units** in our run, the tool reads theta and s **straight from Layer 3's `unit_calls.csv`**, which has no strata columns, so new checks update those units with the **Beta update** (section 7 of this notebook), not with the strata formula. What is common to everything: **call = theta above tau, and P_u = Phi((theta - tau) / s)**. Only how theta and s are produced differs.
 
 ### 1.1 Strata and the unit's flooded share (theta_u)
 
@@ -153,7 +146,7 @@ ax.fill_between(x, 0, np.exp(-0.5 * ((x - th) / s) ** 2) / (s * np.sqrt(2 * np.p
 ax.legend(fontsize=7); ax.set_xlabel("true flooded share"); ax.set_yticks([]); plt.tight_layout(); plt.show()
 
 #%% md
-**Say it to the guide (section 1):** "For each unit, theta is the area-weighted flooded share over the map strata. Each stratum's rate is shrunk toward a calibrated prior by a pseudo-count m of 10, so a unit with few checks is not fooled. s measures the uncertainty. The call is simply theta above or below 0.25. P_u is the normal-curve probability that the true share is above the line, Phi of theta minus tau over s. It is the probability the call is right when the call is above, and one minus it when the call is below."
+**Summary (section 1):** For each unit, theta is the area-weighted flooded share over the map strata. Each stratum's rate is shrunk toward a calibrated prior by a pseudo-count m of 10, so a unit with few checks is not fooled. s measures the uncertainty. The call is simply theta above or below 0.25. P_u is the normal-curve probability that the true share is above the line, Phi of theta minus tau over s. It is the probability the call is right when the call is above, and one minus it when the call is below.
 
 #%% md
 ## 2. What goes IN to the tool: inputs and provenance (section 1 of the notebook)
@@ -212,7 +205,7 @@ for s in scene_ids:
     print(f"{s:45s}", "-> synthetic stand-in" if s.startswith("SYNTH_") else "-> looks like a real Sentinel product id")
 
 #%% md
-**Say it to the guide (section 2):** "The tool reads only files from the earlier layers. Where a file is missing it uses a documented fixture with SYNTH_ scene ids so nothing synthetic can pass as real. The first output is a provenance table showing, part by part, what is real. In our committed run the 34 unit estimates and the scenes are real, the roads and routes are fixture, and there are no layer 4 field checks."
+**Summary (section 2):** The tool reads only files from the earlier layers. Where a file is missing it uses a documented fixture with SYNTH_ scene ids so nothing synthetic can pass as real. The first output is a provenance table showing, part by part, what is real. In our committed run the 34 unit estimates and the scenes are real, the roads and routes are fixture, and there are no layer 4 field checks.
 
 #%% md
 ## 3. Step 1: the event board (section 2 of the notebook)
@@ -271,7 +264,7 @@ print("Same units with the loss line moved to 0.30:")
 print(t30[["rank", "unit_id", "call", "P_u", "p_wrong"]].round(3).to_string(index=False))
 
 #%% md
-**Say it to the guide (section 4):** "Every unit has a call, and the table is ordered by the chance the call is wrong, so the top rows show where a field check helps most. On the map, colour is the call and shade is the probability it is right. The officer can move the loss line and P_u is recomputed from theta and s with the normal curve. The page also reports the expected number of wrong calls, which is the sum of the per-unit wrong probabilities."
+**Summary (section 4):** Every unit has a call, and the table is ordered by the chance the call is wrong, so the top rows show where a field check helps most. On the map, colour is the call and shade is the probability it is right. The officer can move the loss line and P_u is recomputed from theta and s with the normal curve. The page also reports the expected number of wrong calls, which is the sum of the per-unit wrong probabilities.
 
 #%% md
 ## 5. Step 3: the evidence card and the receipt (section 4)
@@ -345,7 +338,7 @@ print("after editing the call, verifies:", verify_receipt(bad))
 print("one more field check gives a different id:", build_card(u, ["SCENE_1", "SCENE_2"], ["a1b2", "c3d4", "e5f6", "zz99"])["receipt"]["receipt_id"] != card["receipt"]["receipt_id"])
 
 #%% md
-**Say it to the guide (section 5):** "The evidence card gives the call, the flooded share with a 95 percent range of theta plus or minus 1.96 s, P_u, the probability the call is right, the number of checks, the scenes, and a receipt. The receipt is canonical JSON with a SHA-256 hash of the inputs and outputs, including the hashes of the field checks and the scene ids, and a 16-character receipt id. Verification recomputes both hashes, and rebuilding from the same inputs gives the same id."
+**Summary (section 5):** The evidence card gives the call, the flooded share with a 95 percent range of theta plus or minus 1.96 s, P_u, the probability the call is right, the number of checks, the scenes, and a receipt. The receipt is canonical JSON with a SHA-256 hash of the inputs and outputs, including the hashes of the field checks and the scene ids, and a 16-character receipt id. Verification recomputes both hashes, and rebuilding from the same inputs gives the same id.
 
 #%% md
 ## 6. Step 4: the officer day-route view (section 5)
@@ -400,7 +393,7 @@ while left:
 print("not visited (no time or low value):", sorted(left))
 
 #%% md
-**Say it to the guide (section 6):** "The route view draws each officer's day over the road graph with flooded roads in blue and villages shaded by the chance their call is wrong. Layer 4 owns real routing. If its routes do not match the units on screen, the tool uses a cheapest-insertion fallback that adds the village with the largest probability of a wrong call per extra minute, on a graph where flooded roads cost eight times more, for two officers over a 240 minute day with 18 minutes per check."
+**Summary (section 6):** The route view draws each officer's day over the road graph with flooded roads in blue and villages shaded by the chance their call is wrong. Layer 4 owns real routing. If its routes do not match the units on screen, the tool uses a cheapest-insertion fallback that adds the village with the largest probability of a wrong call per extra minute, on a graph where flooded roads cost eight times more, for two officers over a 240 minute day with 18 minutes per check.
 
 #%% md
 ## 7. Step 5: offline field-check entry and live update (section 6)
@@ -487,7 +480,7 @@ print(f"after : theta={th:.3f} s={s:.3f} call={call} P_u={P:.3f}   (belief was w
 print("Notice s drops a lot: new information shrinks uncertainty, and theta moves toward what the checks found.")
 
 #%% md
-**Say it to the guide (section 7):** "Field staff record checks on the phone with no network. Each check goes into an append-only JSONL queue with its inclusion probability and an entry hash. On sync, duplicates are dropped by hash, so a queue sent twice counts once. Each check is weighted by one over its inclusion probability, normalised so pi of 0.5 is weight 1. If the unit has strata we recompute the stratified estimate, otherwise we do a Beta update of theta and s. The call and P_u update immediately, and the demo entries are typed examples, not field data."
+**Summary (section 7):** Field staff record checks on the phone with no network. Each check goes into an append-only JSONL queue with its inclusion probability and an entry hash. On sync, duplicates are dropped by hash, so a queue sent twice counts once. Each check is weighted by one over its inclusion probability, normalised so pi of 0.5 is weight 1. If the unit has strata we recompute the stratified estimate, otherwise we do a Beta update of theta and s. The call and P_u update immediately, and the demo entries are typed examples, not field data.
 
 #%% md
 ## 8. Step 6: farmer reports and the claim cross-check (section 7)
@@ -562,7 +555,7 @@ print("C is tiny and late: low weight (half) but +0.1 for lateness. Nothing here
 print("farmer id is stored hashed:", short_hash({"farmer": "farmer-A"}, 12))
 
 #%% md
-**Say it to the guide (section 8):** "A farmer report is stored with the farmer reference hashed, the plot area, and the hours since the loss, because PMFBY asks for 72 hours. The cross-check estimates the probability the plot is flooded from, in order, the Layer 2 map probability at the plot, the checked rate in its map stratum, the stratum prior, or the unit's theta. It gives every report a lean, consistent or inconsistent with radar, and a priority that falls with how well radar supports the claim, halves for plots under half a hectare and adds 0.1 if late. It orders inspections. It never rejects a claim, and self-selected reports do not enter theta."
+**Summary (section 8):** A farmer report is stored with the farmer reference hashed, the plot area, and the hours since the loss, because PMFBY asks for 72 hours. The cross-check estimates the probability the plot is flooded from, in order, the Layer 2 map probability at the plot, the checked rate in its map stratum, the stratum prior, or the unit's theta. It gives every report a lean, consistent or inconsistent with radar, and a priority that falls with how well radar supports the claim, halves for plots under half a hectare and adds 0.1 if late. It orders inspections. It never rejects a claim, and self-selected reports do not enter theta.
 
 #%% md
 ## 9. Step 7: the wizard, and the artifacts (sections 8 and 9)
@@ -602,10 +595,10 @@ The checks are written **in advance**, then asserted. If any fails the notebook 
 
 Final line printed: how many units, how many without a call (0), how many receipts verified, and **which parts were real**.
 
-**Say it to the guide (sections 9 and 10):** "The tool writes a unit-calls table, evidence cards, the map, the route view, the merged checks, the cross-check list, receipts and a manifest with hashes of the inputs and the code. Because it fits nothing it has no accuracy figure. Its checks are structural: zero units without a call, every P_u in range, every receipt re-derives, same inputs give the same receipt, duplicates are not double counted, every report has a lean, and the manifest exists."
+**Summary (sections 9 and 10):** The tool writes a unit-calls table, evidence cards, the map, the route view, the merged checks, the cross-check list, receipts and a manifest with hashes of the inputs and the code. Because it fits nothing it has no accuracy figure. Its checks are structural: zero units without a call, every P_u in range, every receipt re-derives, same inputs give the same receipt, duplicates are not double counted, every report has a lean, and the manifest exists.
 
 #%% md
-## 11. The numbers to remember (mug this table)
+## 11. Key numbers
 
 | Thing | Value |
 |---|---|
@@ -675,7 +668,7 @@ Final line printed: how many units, how many without a call (0), how many receip
 * **Wizard**: the three-step interface: Event, Unit calls, Evidence card.
 
 #%% md
-## 13. Questions an examiner may ask, and the one-line answers
+## 13. Review questions and short answers
 
 1. **What does Layer 5 do?** It presents Layers 1 to 4 to the officer: unit calls, map, evidence card, route view, offline entry, claim cross-check.
 2. **What is its accuracy?** It has none. It fits nothing. Its checks are structural.
