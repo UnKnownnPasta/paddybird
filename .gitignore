@@ -13,3 +13,4 @@ docs/report/build/report_raw.*
 docs/report/build/report.docx
 docs/report/build/report.pdf
 docs/report/build/tocx/
+*.cp
